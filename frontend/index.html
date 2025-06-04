@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pong Wars</title>
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS -->
+  <link rel="stylesheet" href="/src/styles.css">
+   <link rel="stylesheet" href="/src/space.css">
+</head>
+  <body class="bg-star-wars-dark font-['Press_Start_2P'] bg-cover bg-center" style="background-image: url('/assets/hyperspace.jpg');">
+    <div class="fixed top-0 left-0 w-full text-center p-6 z-20">
+      <!-- <h1 class="text-7xl font-bold text-star-wars-accent" style="font-family: 'Starjhol', sans-serif;">
+        Bienvenue dans l'univers de Pong Wars
+      </h1> -->
+      <h1 class="text-7xl font-bold text-star-wars-accent" style="font-family: 'Starjhol', sans-serif;">
+      <span style="
+        display: inline-block;
+        background: linear-gradient(to bottom,
+          #fff9c4 0%,
+          #fde047 40%,
+          #f59e0b 60%,
+          #f97316 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        color: transparent;
+      ">
+        Bienvenue dans l'univers
+      </span><br>
+      <span style="
+        display: inline-block;
+        background: linear-gradient(to bottom,
+          #fff9c4 0%,
+          #fde047 40%,
+          #f59e0b 60%,
+          #f97316 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        color: transparent;
+      ">
+        de Pong Wars
+      </span>
+    </h1>
+      <button id="loginBtn" 
+        class="absolute top-10 right-8 bg-star-wars-accent text-black px-6 py-2 rounded-full
+          hover:bg-star-wars-red/80 transition-all duration-300 border-2 border-cyan-500 
+          hover:border-cyan-300 shadow-[0_0_8px_2px_rgba(0,255,255,0.6)] md:right-8 sm:top-44 sm:right-4 sm:px-4 sm:text-sm" 
+          style="font-family: 'Starjedi', sans-serif;">
+        Login / Sign up
+      </button>
+      <!-- Menu utilisateur caché par défaut -->
+      <div id="userMenu" class="hidden relative">
+      <button id="userBtn"
+        class="absolute top-10 right-8 bg-star-wars-accent text-black px-6 py-2 rounded-full
+          hover:bg-star-wars-red/80 transition-all duration-300 border-2 border-cyan-500
+          hover:border-cyan-300 shadow-[0_0_8px_2px_rgba(0,255,255,0.6)] md:right-8 sm:top-1 sm:right-4 sm:px-4 sm:text-sm"
+          style="font-family: 'Starjedi', sans-serif;">
+        <span id="username"></span> ▼
+      </button>
+      <div data-page="profil" id="dropdownMenu" class="absolute right-0 top-10 mt-2 w-48 bg-star-wars-accent 
+        text-black rounded shadow-[0_0_8px_2px_rgba(0,255,255,0.6)] border-2 border-cyan-500 hidden"
+        style="font-family: 'Starjedi', sans-serif;">
+        <button id="profilBtn" class="block  px-4 py-2 hover:bg-star-wars-red/80">
+          Profil
+        </button>
+        <button id="logoutBtn" class="block text-center px-4 py-2 hover:bg-star-wars-red/80">
+          Logout
+        </button>
+      </div>
+    </div>
+  </div>
+
+
+  <div class="flex h-screen pt-32">
+     <!-- Sidebar avec boutons ajustés (sans affecter les autres) -->
+    <div class="fixed top-1/4 left-0 p-6 flex flex-col gap-4 z-10">
+       <button data-page="home" class="btn neon-glow">
+        <strong>Home</strong>
+        <div id="container-stars">
+          <div id="stars"></div>
+        </div>
+      </button>
+      
+       <button data-page="game" class="btn neon-glow">
+        <strong>Game</strong>
+        <div id="container-stars">
+          <div id="stars"></div>
+        </div>
+      </button>
+
+      <button data-page="chat" class="btn neon-glow">
+      <strong>Chat</strong>
+      <div id="container-stars">
+        <div id="stars"></div>
+      </div>
+    </button>
+      
+      <button data-page="tournament" class="btn neon-glow">
+      <strong>Tournament</strong>
+      <div id="container-stars">
+        <div id="stars"></div>
+      </div>
+    </button>
+      
+      <button data-page="settings" class="btn neon-glow">
+      <strong>Settings</strong>
+      <div id="container-stars">
+        <div id="stars"></div>
+      </div>
+    </button>
+    <!-- From Uiverse.io by rubyreapergaming --> 
+      <button type="button" class="btn neon-glow">
+        <strong>SPACE</strong>
+        <div id="container-stars">
+          <div id="stars"></div>
+        </div>
+        </button>
+  </div>
+
+
+  <!-- Main Content repositionné à droite -->
+  <div id="main-content" class="ml-48 text-white text-center flex-1 p-8  mt-40">
+    <div class="bg-white/10 p-8 rounded-xl backdrop-blur-md h-[800px] flex flex-col items-center justify-start gap-4
+      border-2 border-cyan-500 hover:border-cyan-300 shadow-[0_0_8px_2px_rgba(0,255,255,0.6)]">
+      <!-- Titre au-dessus de l'image -->
+      <p class="text-2xl" style="font-family: 'Starjedi', sans-serif;">Préparez-vous pour l'aventure intergalactique</p>
+      
+      <!-- Image ajustée à l'encart -->
+      <img src="/assets/pong_wars2.png" alt="Pong Wars" class="w-[600px] h-auto object-contain rounded-lg" />
+
+      <!-- Bouton dans l'encart -->
+      <button data-page="game" class="relative bg-star-wars-accent text-black p-4 mt-4 rounded-full 
+          hover:bg-star-wars-red transition-all duration-300 border-2 border-cyan-500 
+          hover:border-cyan-300 shadow-[0_0_8px_2px_rgba(0,255,255,0.6)]" 
+          style="font-family: 'Starjedi', sans-serif;" 
+          >
+        Commencer l'aventure
+      </button>
+    </div>
+  </div>
+
+  <!-- Chargement du script TS externe -->
+  <script>
+    const content = {
+      home: `
+        <div class="bg-white/10 p-8 rounded-xl backdrop-blur-md h-[800px] flex flex-col items-center justify-start gap-4
+          border-2 border-cyan-500 hover:border-cyan-300 shadow-[0_0_8px_2px_rgba(0,255,255,0.6)]">
+          <p class="text-2xl" style="font-family: 'Starjedi', sans-serif;">Préparez-vous pour l'aventure intergalactique</p>
+          <img src="/assets/pong_wars2.png" alt="Pong Wars" class="w-[600px] h-auto object-contain rounded-lg" />
+          <button data-page="game"
+            class="relative bg-star-wars-accent text-black p-4 mt-4 rounded-full 
+              hover:bg-star-wars-red transition-all duration-300 border-2 border-cyan-500 
+              hover:border-cyan-300 shadow-[0_0_8px_2px_rgba(0,255,255,0.6)]" 
+            style="font-family: 'Starjedi', sans-serif;" 
+            >
+            Commencer l'aventure
+          </button>
+        </div>`,
+      game: `
+        <div class="bg-white/10 p-8 rounded-xl backdrop-blur-md h-[800px] border-2 border-cyan-500 hover:border-cyan-300 shadow-[0_0_8px_2px_rgba(0,255,255,0.6)]" style="font-family: 'Starjedi', sans-serif;">
+          <h2 class="text-3xl mb-4 text-yellow-500">Game</h2>
+          <p class="text-white">Préparez-vous à jouer !</p>
+        </div>`,
+      profil: `
+        <div class="bg-white/10 p-8 rounded-xl backdrop-blur-md h-[500px] border-2 border-cyan-500 hover:border-cyan-300 shadow-[0_0_8px_2px_rgba(0,255,255,0.6)]" style="font-family: 'Starjedi', sans-serif;">
+        <h2 class="text-3xl mb-4 text-yellow-500" id="profileUsername"></h2>
+
+        <div class="mb-6 text-center">
+          <img id="profile-avatar" src="/assets/default-avatar.png" alt="Avatar" class="w-24 h-24 rounded-full mx-auto mb-4 object-cover border-2 border-cyan-500" />
+          <button id="chooseAvatarBtn" data-action="choose-avatar" class="bg-cyan-500 text-black px-4 py-2 rounded mb-2 hover:bg-cyan-400 transition-colors">
+            Choisir un avatar
+          </button>
+
+          <!-- Modal avatar -->
+          <div id="avatarModal" class="hidden fixed inset-0 flex justify-center items-center z-50">
+          <div class="p-6 rounded-lg shadow-lg w-[90%] max-w-md max-h-[80vh] overflow-y-auto relative text-white bg-gradient-to-br from-[#0b0c2a] to-[#1a1c3a]">
+            <h2 class="text-xl mb-4">Choisir un avatar</h2>
+
+            <div id="avatarList" class="grid grid-cols-4 gap-2 mb-4"></div>
+
+            <div class="flex justify-center mb-4">
+              <img id="avatarPreview" src="" alt="Aperçu avatar" class="w-20 h-20 rounded-full border" />
+            </div>
+
+            <div class="flex justify-center mb-4">
+              <button id="saveAvatarBtn" class="bg-cyan-500 hover:bg-cyan-600 text-white px-4 py-2 rounded">Sauvegarder</button>
+            </div>
+
+            <button id="closeAvatarModal" class="absolute top-3 right-4 text-white text-3xl hover:text-cyan-400 transition">&times;</button>
+          </div>
+        </div>
+
+        <!-- Formulaire principal -->
+        <form id="profileForm" class="flex flex-col gap-4 max-w-md mx-auto text-left">
+          <button type="button" id="changePasswordBtn" class="bg-yellow-400 text-black px-4 py-2 rounded hover:bg-yellow-300 transition-colors">
+            Changer le mot de passe
+          </button>
+
+          <div>
+            <p>Score : <span id="userScore">0</span></p>
+            <p>Classement tournoi : <span id="userRank">-</span></p>
+          </div>
+        </form>
+
+        <!-- ✅ Modal mot de passe séparé du formulaire principal -->
+        <div id="passwordModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div class="bg-white rounded-lg p-6 w-full max-w-md">
+            <h2 class="text-xl font-semibold mb-4 text-black">Changer le mot de passe</h2>
+            <form id="passwordChangeForm" class="flex flex-col gap-4">
+              <label class="text-black">
+                Ancien mot de passe :
+                <input type="password" id="oldPassword" required class="w-full p-2 rounded text-black bg-gray-300" />
+              </label>
+              <label class="text-black">
+                Nouveau mot de passe :
+                <input type="password" id="newPassword" required class="w-full p-2 rounded text-black bg-gray-300" />
+              </label>
+              <div class="flex justify-end gap-2">
+                <button type="button" id="cancelPasswordChange" class="px-4 py-2 bg-cyan-500 text-black rounded hover:bg-cyan-400">Annuler</button>
+                <button type="submit" class="px-4 py-2 bg-cyan-500 text-black rounded hover:bg-cyan-400">Confirmer</button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <p id="profileMessage" class="mt-4 text-center text-green-400"></p>
+      </div>`,
+      chat: `
+        <div class="bg-white/10 p-8 rounded-xl backdrop-blur-md h-[800px] border-2 border-cyan-500 hover:border-cyan-300 shadow-[0_0_8px_2px_rgba(0,255,255,0.6)]" style="font-family: 'Starjedi', sans-serif;">
+          <h2 class="text-3xl mb-4 text-yellow-500">Chat</h2>
+          <p class="text-white">Discutez avec d'autres joueurs.</p>
+        </div>`,
+      tournament: `
+        <div class="bg-white/10 p-8 rounded-xl backdrop-blur-md h-[800px] border-2 border-cyan-500 hover:border-cyan-300 shadow-[0_0_8px_2px_rgba(0,255,255,0.6)]" style="font-family: 'Starjedi', sans-serif;">
+          <h2 class="text-3xl mb-4 text-yellow-500">Tournament</h2>
+          <p class="text-white">Découvrez les tournois en cours.</p>
+        </div>`,
+      settings: `
+        <div class="bg-white/10 p-8 rounded-xl backdrop-blur-md h-[800px] border-2 border-cyan-500 hover:border-cyan-300 shadow-[0_0_8px_2px_rgba(0,255,255,0.6)]" style="font-family: 'Starjedi', sans-serif;">
+          <h2 class="text-3xl mb-4 text-yellow-500">Settings</h2>
+          <p class="text-white">Configurez votre expérience de jeu.</p>
+        </div>`,
+      login: `
+        <div class="bg-white/10 p-8 rounded-xl backdrop-blur-md h-[800px] w-[600px] mx-auto mt-20 border-2 border-cyan-500 hover:border-cyan-300 shadow-[0_0_8px_2px_rgba(0,255,255,0.6)]" 
+            style="font-family: 'Starjedi', sans-serif;">
+          <h2 class="text-3xl mb-6 text-yellow-500">Connexion</h2>
+          <input type="text" id="login-username" placeholder="Nom d'utilisateur" 
+            class="w-full p-2 mb-4 rounded text-black" 
+            style="font-family: monospace;" />
+          
+          <input type="password" id="login-password" placeholder="Mot de passe" 
+            class="w-full p-2 mb-4 rounded text-black" 
+            style="font-family: monospace;" />
+          
+          <button 
+            class="relative bg-star-wars-accent text-black p-3 rounded-full 
+                  hover:bg-star-wars-red transition-all duration-300 w-full border-2 border-cyan-500 
+                  hover:border-cyan-300 shadow-[0_0_8px_2px_rgba(0,255,255,0.6)]">
+            Se connecter
+          </button>
+          
+          <p>Pas encore de compte? 
+            <a href="#" id="signuplink" class="text-blue-500">Créez-en un ici</a>
+          </p>
+        </div>`,
+      signup: `
+        <div class="bg-white/10 p-8 rounded-xl backdrop-blur-md h-[800px] w-[600px] mx-auto mt-20 border-2 border-cyan-500 hover:border-cyan-300 shadow-[0_0_8px_2px_rgba(0,255,255,0.6)]" 
+            style="font-family: 'Starjedi', sans-serif;">
+          <h2 class="text-3xl mb-6 text-yellow-500">Créer un compte</h2>
+          <input type="text" id="signup-username" placeholder="Nom d'utilisateur" 
+            class="w-full p-2 mb-4 rounded text-black" 
+            style="font-family: monospace;" />
+          
+          <input type="password" id="signup-password" placeholder="Mot de passe" 
+            class="w-full p-2 mb-4 rounded text-black" 
+            style="font-family: monospace;" />
+          
+          <button onclick="createAccount()" 
+            class="relative bg-star-wars-accent text-black p-3 rounded-full 
+                  hover:bg-star-wars-red transition-all duration-300 w-full border-2 border-cyan-500 
+                  hover:border-cyan-300 shadow-[0_0_8px_2px_rgba(0,255,255,0.6)]">
+            Créer un compte
+          </button>
+        </div>`
+    };
+  </script>
+  </div>
+
+  <!-- <script src="script.js"></script> -->
+  <script type="module" src="/src/script.ts"></script>
+</body>
+</html>
