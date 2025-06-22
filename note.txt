@@ -1,0 +1,4 @@
+websocket a checker
+API REST
+objet json (pas un fichier, a checker)
+asynchrone -> thread en JS
