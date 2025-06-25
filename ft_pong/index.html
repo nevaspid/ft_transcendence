@@ -2,11 +2,20 @@
 <html lang="fr">
   <head>
     <meta charset="UTF-8" />
-    <title>Pong – Étape 1</title>
+    <title>Pong : Prototype</title>
     <link rel="stylesheet" href="/src/style.css" />
   </head>
   <body>
-    <canvas id="game"></canvas>
-    <script type="module" src="/src/main.ts"></script>
+    <div id="layout">
+    <header class="hud" id="hud">
+      <div id="score">P1 : 0 | P2 : 0</div>
+    </header>
+
+    <main id="game-area">
+      <div class="game-wrapper"></div>
+    </main>
+  </div>
+
+  <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
