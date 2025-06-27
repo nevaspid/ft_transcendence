@@ -5,6 +5,8 @@ import { Paddle }     from './core/paddle';
 import { Ball }       from './core/ball';
 import { step }       from './core/physics';
 import { drawScene }  from './render/draw2d';
+import '@babylonjs/loaders/glTF';
+import { createBabylonScene, loadAssets, syncMeshes } from './render/render3d';
 
 import {
   WORLD_H,
@@ -21,8 +23,18 @@ const wrapper = document.querySelector<HTMLDivElement>('.game-wrapper')!;
 const hud     = document.getElementById('hud')! as HTMLElement;
 const scoreEl = document.getElementById('score')!;
 
+const webglCanvas = document.createElement('canvas');
+webglCanvas.id = 'scene';
+webglCanvas.style.position = 'absolute';
+webglCanvas.style.top = '0';
+webglCanvas.style.left = '0';
+wrapper.appendChild(webglCanvas);
+
 const canvas = document.createElement('canvas');
-canvas.id = 'game';
+canvas.id = 'hud';
+canvas.style.position = 'absolute';
+canvas.style.top = '0';
+canvas.style.left = '0';
 wrapper.appendChild(canvas);
 const ctx = canvas.getContext('2d')!;
 
@@ -71,8 +83,26 @@ function afterPoint(outSide: 'left' | 'right'): void {
   }
 }
 
+(async function init3D() {
+  const { engine, scene } = createBabylonScene(webglCanvas);
+  const meshes = await loadAssets(scene);
+
+  engine.runRenderLoop(() => {
+    syncMeshes(meshes, ball, left, right);
+    scene.render();
+  });
+
+  window.addEventListener('resize', () => engine.resize());
+})();
+
+window.addEventListener('resize', () => {
+  fitCanvas(wrapper, hud, canvas);
+  webglCanvas.width  = canvas.width;
+  webglCanvas.height = canvas.height;
+});
 fitCanvas(wrapper, hud, canvas);
-window.addEventListener('resize', () => fitCanvas(wrapper, hud, canvas));
+webglCanvas.width  = canvas.width;
+webglCanvas.height = canvas.height;
 
 let last = performance.now();
 function loop(now: number = performance.now()): void {

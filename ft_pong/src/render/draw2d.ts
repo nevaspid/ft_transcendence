@@ -3,9 +3,10 @@ import { Paddle } from '../core/paddle';
 import { Ball } from '../core/ball';
 
 export function drawScene(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasElement, left: Paddle, right: Paddle, ball: Ball): void {
-  ctx.fillStyle = '#000';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  // ctx.fillStyle = '#000';
+  // ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.save();
   ctx.scale(canvas.width / WORLD_W, canvas.height / WORLD_H);
 
@@ -17,9 +18,9 @@ export function drawScene(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasEleme
   ctx.stroke();
   ctx.setLineDash([]);
 
-  left.draw(ctx);
-  right.draw(ctx);
-  ball.draw(ctx);
+  // left.draw(ctx);
+  // right.draw(ctx);
+  //ball.draw(ctx);
 
   ctx.restore();
 }
