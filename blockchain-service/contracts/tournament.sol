@@ -37,7 +37,7 @@ contract Tournament is Ownable {
 		tournaments[_tournamentId] = newTournament;
 	}
 
-	function createMatch(uint _matchId, uint _p1Score, uint _p2Score, uint _p1, uint _p2, uint _winner) public onlyOwner {
+	function createMatch(int isTournament, uint _matchId, uint _p1Score, uint _p2Score, uint _p1, uint _p2, uint _winner) public onlyOwner {
 		MatchData memory newMatch = MatchData({
 			matchId: _matchId,
 			p1Score: _p1Score,
@@ -46,5 +46,53 @@ contract Tournament is Ownable {
 			p2:	_p2,
 			winner:	_winner
 		});
+
+		if(isTournament >= 0) {
+			addMatchInTournament(uint(isTournament));
+		}
+
+		matches[_matchId] = newMatch;
 	}
+
+	function getMatchData(uint _matchId) public view returns (
+    uint matchId,
+    uint p1,
+    uint p1Score,
+    uint p2,
+    uint p2Score,
+    uint winner
+	) {
+		require(matches[_matchId].matchId != 0, "Match does not exist");
+		MatchData memory matchData = matches[_matchId];
+		return (matchData.matchId, matchData.p1, matchData.p1Score, matchData.p2, matchData.p2Score, matchData.winner);
+	}
+
+	function getTournamentData(uint _tournamentId) public view returns (
+	string memory tournamentName,
+	uint tournamentId,
+	uint nbPlayers,
+	uint[] memory matchIds
+	) {
+		require(tournaments[_tournamentId].tournamentId != 0, "Tournament does not exist");
+		TournamentData memory tournamentData = tournaments[_tournamentId];
+		return (tournamentData.tournamentName, tournamentData.tournamentId, tournamentData.nbPlayers, tournamentData.matchIds);
+	}
+
+	function getPlayerMatches(uint _player) public view  returns (uint[] memory) {
+    	uint count = 0;
+    	for (uint i = 1; matches[i].matchId != 0; i++) {
+    	    if (matches[i].p1 == _player || matches[i].p2 == _player) {
+    	        count++;
+    	    }
+    	}
+
+    	uint[] memory playerMatches = new uint[](count);
+    	uint idx = 0;
+    	for (uint i = 1; matches[i].matchId != 0; i++) {
+    	    if (matches[i].p1 == _player || matches[i].p2 == _player) {
+    	        playerMatches[idx++] = matches[i].matchId;
+    	    }
+    	}
+    	return playerMatches;
+	} //! a opti si necessaire mais fonctionnel
 }
