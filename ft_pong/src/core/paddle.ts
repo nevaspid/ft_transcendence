@@ -15,5 +15,3 @@ export class Paddle {
     ctx.fillRect(this.x - this.w / 2, this.y - this.h / 2, this.w, this.h);
   }
 }
-
-//sidepaddle pour eviter le glitch

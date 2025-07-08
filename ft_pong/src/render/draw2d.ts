@@ -20,7 +20,7 @@ export function drawScene(ctx: CanvasRenderingContext2D, canvas: HTMLCanvasEleme
 
   // left.draw(ctx);
   // right.draw(ctx);
-  //ball.draw(ctx);
+  ball.draw(ctx);
 
   ctx.restore();
 }
