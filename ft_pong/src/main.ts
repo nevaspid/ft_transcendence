@@ -5,6 +5,7 @@ import { Ball } from './core/ball';
 import { step } from './core/physics';
 import { drawScene } from './render/draw2d';
 import { drawOverlay } from './render/hud';
+import { checkBallCount, loadBall3D , syncBall3D , /*addBallEffects*/ } from './render/render3dBall';
 
 // === IMPORTS 3D ===
 import * as BABYLON from 'babylonjs';
@@ -58,6 +59,7 @@ const ball = new Ball(0, 0);
 let babylonEngine: BABYLON.Engine | null = null;
 let babylonScene: BABYLON.Scene | null = null;
 let starWarsShips: { leftShip: BABYLON.Mesh; rightShip: BABYLON.Mesh } | null = null;
+let ball3D: BABYLON.Mesh | null = null;
 
 // === ÉTAT DU JEU ===
 let scoreL = 0;
@@ -126,12 +128,18 @@ async function init3D() {
     
     console.log('🚀 Loading Star Wars ships as paddles...');
     starWarsShips = await loadStarWarsShips(scene);
+    ball3D = await loadBall3D(scene);
+    checkBallCount(scene);
+    
     
     // Démarrer le rendu 3D
     engine.runRenderLoop(() => {
       if (starWarsShips) {
         syncStarWarsShips(starWarsShips, left, right);
       }
+      if (ball3D) {
+      syncBall3D(ball3D, ball);
+    }
       scene.render();
     });
     

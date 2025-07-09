@@ -25,7 +25,7 @@ html, body {
   display: flex;
   justify-content: center;
   align-items: center;
-  background: #444;
+  background: #a0a0a0;
 }
 
 .game-wrapper {

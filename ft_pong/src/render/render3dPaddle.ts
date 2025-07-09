@@ -1,10 +1,12 @@
+// MODIFICATION SIMPLE POUR CAMÉRA ISOMÉTRIQUE 30°/45°
+
 import * as BABYLON from 'babylonjs';
 import 'babylonjs-loaders';
 import { WORLD_W, WORLD_H } from '../core/constants';
 import type { Paddle } from '../core/paddle';
 
 /*─────────────────────────────────────────────────────────────────────────────*/
-/*  CRÉATION DE LA SCÈNE BABYLON.JS                                           */
+/*  CAMÉRA ISOMÉTRIQUE SIMPLE (BASÉE SUR VOTRE CONFIGURATION ACTUELLE)        */
 /*─────────────────────────────────────────────────────────────────────────────*/
 export function createBabylonScene(canvas: HTMLCanvasElement) {
   console.log('🚀 Creating Babylon.js scene...');
@@ -18,25 +20,74 @@ export function createBabylonScene(canvas: HTMLCanvasElement) {
   const scene = new BABYLON.Scene(engine);
   scene.clearColor = new BABYLON.Color4(0, 0, 0, 0); // Transparent
   
-  // Caméra orthographique alignée sur le monde 2D
+  // 🎯 CAMÉRA ISOMÉTRIQUE BASÉE SUR VOTRE CONFIG ACTUELLE
   const camera = new BABYLON.FreeCamera('camera', new BABYLON.Vector3(0, 0, -100), scene);
   camera.mode = BABYLON.Camera.ORTHOGRAPHIC_CAMERA;
+  
+  // Gardez vos paramètres orthographiques actuels
   camera.orthoLeft = -WORLD_W / 2;
   camera.orthoRight = WORLD_W / 2;
   camera.orthoTop = WORLD_H / 2;
   camera.orthoBottom = -WORLD_H / 2;
+  
+  // 🔧 MODIFICATION CLÉE : Ajuster la position et rotation pour l'isométrique
+  // Position : reculer et monter la caméra
+  camera.position.set(0, -200, -200); // X=200, Y=300 (hauteur), Z=-400 (recul)
+  
+  // Rotation isométrique : 30° vers le bas, 45° sur Y
+  camera.rotation.x = Math.PI / 6;  // 30° vers le bas
+  camera.rotation.y = Math.PI / 4;  // 45° rotation horizontale
+  camera.rotation.z = 0;            // Pas de rotation sur Z
+  
+  // Toujours pointer vers le centre
   camera.setTarget(BABYLON.Vector3.Zero());
   
-  // Éclairage simple
+  console.log('📷 Isometric camera configured (30°/45°)');
+  
+  // Éclairage (gardez votre configuration actuelle)
   const light = new BABYLON.HemisphericLight('light', new BABYLON.Vector3(0, 1, 0), scene);
   light.intensity = 0.8;
+  scene.shadowsEnabled = true;
   
   console.log('✅ Babylon.js scene created');
   return { engine, scene };
 }
 
+// 🎮 FONCTION POUR AJUSTER L'ANGLE EN TEMPS RÉEL
+export function adjustIsometricAngles(scene: BABYLON.Scene, angleX: number = 30, angleY: number = 45) {
+  const camera = scene.activeCamera as BABYLON.FreeCamera;
+  if (!camera) return;
+  
+  // Convertir degrés en radians
+  camera.rotation.x = angleX * Math.PI / 180;
+  camera.rotation.y = angleY * Math.PI / 180;
+  camera.setTarget(BABYLON.Vector3.Zero());
+  
+  console.log(`📷 Camera angles adjusted: X=${angleX}°, Y=${angleY}°`);
+}
+
+// 🔧 CONTRÔLES POUR TESTER L'ANGLE PARFAIT
+export function setupSimpleIsometricControls(scene: BABYLON.Scene) {
+  // Fonctions globales pour ajuster les angles
+  (window as any).setIsoAngles = (angleX: number, angleY: number) => {
+    adjustIsometricAngles(scene, angleX, angleY);
+  };
+  
+  (window as any).resetCamera = () => {
+    adjustIsometricAngles(scene, 30, 45);
+  };
+  
+  console.log('🎮 CONTRÔLES ISOMÉTRIQUES DISPONIBLES:');
+  console.log('  - setIsoAngles(angleX, angleY) : Ajuster les angles');
+  console.log('  - resetCamera()                : Remettre à 30°/45°');
+  console.log('  💡 Exemples:');
+  console.log('    - setIsoAngles(30, 45)  // Isométrique classique');
+  console.log('    - setIsoAngles(25, 40)  // Plus doux');
+  console.log('    - setIsoAngles(35, 50)  // Plus prononcé');
+}
+
 /*─────────────────────────────────────────────────────────────────────────────*/
-/*  CHARGEMENT DES VAISSEAUX STAR WARS                                        */
+/*  RESTE DU CODE INCHANGÉ (VAISSEAUX ET SYNCHRONISATION)                     */
 /*─────────────────────────────────────────────────────────────────────────────*/
 export async function loadStarWarsShips(scene: BABYLON.Scene) {
   console.log('🚀 Loading Star Wars ships as paddles...');
@@ -96,9 +147,6 @@ export async function loadStarWarsShips(scene: BABYLON.Scene) {
   return { leftShip: leftParent, rightShip: rightParent };
 }
 
-/*─────────────────────────────────────────────────────────────────────────────*/
-/*  SYNCHRONISATION DES VAISSEAUX                                             */
-/*─────────────────────────────────────────────────────────────────────────────*/
 export function syncStarWarsShips(
   ships: { leftShip: BABYLON.Mesh; rightShip: BABYLON.Mesh },
   leftPaddle: Paddle,
