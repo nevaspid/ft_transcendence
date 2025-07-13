@@ -13,8 +13,17 @@ export function drawScene(
   ctx.save();
   ctx.scale(canvas.width / WORLD_W, canvas.height / WORLD_H);
 
+  // Bordures du terrain
+  ctx.strokeStyle = '#8B4513'; // Marron pour les bordures
+  ctx.lineWidth = 3;
+  ctx.setLineDash([]);
+  
+  // Rectangle de bordure
+  ctx.strokeRect(0, 0, WORLD_W, WORLD_H);
+
   // Ligne centrale
   ctx.strokeStyle = '#444';
+  ctx.lineWidth = 2;
   ctx.setLineDash([10, 10]);
   ctx.beginPath();
   ctx.moveTo(WORLD_W / 2, 0);

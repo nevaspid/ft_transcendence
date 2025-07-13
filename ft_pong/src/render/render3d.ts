@@ -10,14 +10,8 @@ export function create3DScene(canvas: HTMLCanvasElement) {
   const engine = new BABYLON.Engine(canvas, true);
   const scene = new BABYLON.Scene(engine);
   
-  // Caméra simple : vue de face orthographique
-  const camera = new BABYLON.FreeCamera('camera', new BABYLON.Vector3(0, 0, -100), scene);
-  camera.mode = BABYLON.Camera.ORTHOGRAPHIC_CAMERA;
-  camera.orthoLeft = -WORLD_W / 2;
-  camera.orthoRight = WORLD_W / 2;
-  camera.orthoTop = WORLD_H / 2;
-  camera.orthoBottom = -WORLD_H / 2;
-  camera.setTarget(BABYLON.Vector3.Zero());
+  // Activer la transparence
+  scene.clearColor = new BABYLON.Color4(0, 0, 0, 0);
   
   // Éclairage simple
   const light = new BABYLON.HemisphericLight('light', new BABYLON.Vector3(0, 1, 0), scene);
@@ -64,8 +58,9 @@ export async function loadShips(scene: BABYLON.Scene) {
     mesh.parent = xwingParent;
     mesh.rotationQuaternion = null;
     mesh.rotation.set(0, 0, Math.PI / 2); // 90° pour orienter vers la droite
-    mesh.scaling.set(90, 90, 90); // Scaling final
+    mesh.scaling.set(90, 90, 90); // Scaling maintenu pour correspondre à la hitbox
     mesh.position.set(0, 0, 0);
+    mesh.renderingGroupId = 1; // Premier plan
   });
   
   // Configuration TIE Fighter
@@ -75,6 +70,7 @@ export async function loadShips(scene: BABYLON.Scene) {
     mesh.rotation.set(0, 0, -Math.PI / 2); // -90° pour orienter vers la gauche
     mesh.scaling.set(20, 20, 20); // Scaling final
     mesh.position.set(0, 0, 0);
+    mesh.renderingGroupId = 1; // Premier plan
   });
   
   // 🎮 FONCTIONS DE DEBUG POUR AJUSTER LE SCALING
@@ -93,9 +89,6 @@ export async function loadShips(scene: BABYLON.Scene) {
   console.log('🎮 CONTRÔLES DE SCALING DISPONIBLES:');
   console.log('  - adjustShipScaling(xwingScale, tieScale) : Ajuster le scaling');
   console.log('  - resetShipScaling()                      : Remettre aux valeurs par défaut');
-  console.log('  💡 Exemples:');
-  console.log('    - adjustShipScaling(70, 20)  // X-Wing plus grand, TIE plus grand');
-  console.log('    - adjustShipScaling(50, 10)  // X-Wing plus petit, TIE plus petit');
   
   // 🎮 SETUP DES CONTRÔLES DE POSITION
   setupShipPositionControls();
@@ -108,8 +101,8 @@ export async function loadShips(scene: BABYLON.Scene) {
 
 // 🔧 OFFSETS AJUSTABLES POUR LES POSITIONS DES VAISSEAUX
 const SHIP_OFFSETS = {
-  xwing: { x: 21, y: -2, z: 0 }, // X-Wing offsets (final values)
-  tie: { x: -50, y: 50, z: 0 }    // TIE Fighter offsets (final values)
+  xwing: { x: 21, y: -2, z: 30 }, // X-Wing offsets - Z très en avant pour éviter le clipping
+  tie: { x: -50, y: 50, z: 10 }    // TIE Fighter offsets - position Z normale
 };
 
 export function syncShips(
@@ -155,24 +148,13 @@ export function setupShipPositionControls() {
   
   // Remettre les positions à zéro
   (window as any).resetShipPositions = () => {
-    SHIP_OFFSETS.xwing = { x: 21, y: -2, z: 0 };
-    SHIP_OFFSETS.tie = { x: -50, y: 50, z: 0 };
+    SHIP_OFFSETS.xwing = { x: 21, y: -2, z: 30 };
+    SHIP_OFFSETS.tie = { x: -50, y: 50, z: 10 };
     console.log('🔧 Ship positions reset to default');
-  };
-  
-  // Voir les offsets actuels
-  (window as any).showShipOffsets = () => {
-    console.log('📊 Current ship offsets:');
-    console.log(`  X-Wing: x=${SHIP_OFFSETS.xwing.x}, y=${SHIP_OFFSETS.xwing.y}, z=${SHIP_OFFSETS.xwing.z}`);
-    console.log(`  TIE: x=${SHIP_OFFSETS.tie.x}, y=${SHIP_OFFSETS.tie.y}, z=${SHIP_OFFSETS.tie.z}`);
   };
   
   console.log('🎮 CONTRÔLES DE POSITION DISPONIBLES:');
   console.log('  - adjustXwingPosition(x, y, z?) : Ajuster la position du X-Wing');
   console.log('  - adjustTiePosition(x, y, z?)   : Ajuster la position du TIE');
   console.log('  - resetShipPositions()          : Remettre à zéro');
-  console.log('  - showShipOffsets()             : Voir les offsets actuels');
-  console.log('  💡 Exemples:');
-  console.log('    - adjustXwingPosition(10, -2)  // Avancer de 10px, descendre de 2px');
-  console.log('    - adjustTiePosition(15, 10)    // Avancer de 15px, monter de 10px');
 } 

@@ -6,6 +6,9 @@ import { step } from './core/physics';
 import { drawScene } from './render/draw2d';
 import { drawOverlay } from './render/hud';
 import { create3DScene, loadShips, syncShips } from './render/render3d';
+import { loadBall3D, syncBall3D, setupBallControls } from './render/render3dBall';
+import { createGameField } from './render/render3dField';
+import { createCamera, setupCameraControls } from './render/cam3d';
 
 import {
   WORLD_H,
@@ -48,7 +51,10 @@ const ball = new Ball(0, 0);
 // === VARIABLES 3D ===
 let engine3D: any = null;
 let scene3D: any = null;
+let camera3D: any = null;
 let ships3D: { xwing: any; tie: any } | null = null;
+let ball3D: any = null;
+let field3D: any = null;
 
 // === ÉTAT DU JEU ===
 let scoreL = 0;
@@ -116,13 +122,27 @@ async function init3D() {
     engine3D = engine;
     scene3D = scene;
     
+    // Créer la caméra
+    camera3D = createCamera(scene);
+    setupCameraControls(camera3D);
+    
+    // Créer le plateau de jeu
+    field3D = createGameField(scene);
+    
     // Charger les vaisseaux
     ships3D = await loadShips(scene);
+    
+    // Charger la balle 3D
+    ball3D = await loadBall3D(scene);
+    setupBallControls();
     
     // Démarrer le rendu 3D
     engine.runRenderLoop(() => {
       if (ships3D) {
         syncShips(ships3D, left, right);
+      }
+      if (ball3D) {
+        syncBall3D(ball3D, ball);
       }
       scene.render();
     });
