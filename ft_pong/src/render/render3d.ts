@@ -13,9 +13,17 @@ export function create3DScene(canvas: HTMLCanvasElement) {
   // Activer la transparence
   scene.clearColor = new BABYLON.Color4(0, 0, 0, 0);
   
-  // Éclairage simple
-  const light = new BABYLON.HemisphericLight('light', new BABYLON.Vector3(0, 1, 0), scene);
-  light.intensity = 0.8;
+  // Éclairage amélioré
+  const hemiLight = new BABYLON.HemisphericLight('hemiLight', new BABYLON.Vector3(0, 1, 0), scene);
+  hemiLight.intensity = 0.7;
+  hemiLight.diffuse = new BABYLON.Color3(1, 1, 1);
+  hemiLight.specular = new BABYLON.Color3(0.8, 0.8, 0.8);
+  hemiLight.groundColor = new BABYLON.Color3(0.2, 0.2, 0.2);
+  
+  // Lumière directionnelle pour des ombres et reflets
+  const dirLight = new BABYLON.DirectionalLight('dirLight', new BABYLON.Vector3(-1, -2, -1), scene);
+  dirLight.intensity = 0.5;
+  dirLight.diffuse = new BABYLON.Color3(1, 0.95, 0.8); // Lumière légèrement chaude
   
   console.log('✅ 3D scene created');
   return { engine, scene };
@@ -60,7 +68,7 @@ export async function loadShips(scene: BABYLON.Scene) {
     mesh.rotation.set(0, 0, Math.PI / 2); // 90° pour orienter vers la droite
     mesh.scaling.set(90, 90, 90); // Scaling maintenu pour correspondre à la hitbox
     mesh.position.set(0, 0, 0);
-    mesh.renderingGroupId = 1; // Premier plan
+    mesh.renderingGroupId = 2; // Rendu après le terrain (1) mais avant la balle (3)
   });
   
   // Configuration TIE Fighter
@@ -70,9 +78,13 @@ export async function loadShips(scene: BABYLON.Scene) {
     mesh.rotation.set(0, 0, -Math.PI / 2); // -90° pour orienter vers la gauche
     mesh.scaling.set(20, 20, 20); // Scaling final
     mesh.position.set(0, 0, 0);
-    mesh.renderingGroupId = 1; // Premier plan
+    mesh.renderingGroupId = 2; // Rendu après le terrain (1) mais avant la balle (3)
   });
   
+  // Définir aussi le renderingGroupId des parents
+  xwingParent.renderingGroupId = 2;
+  tieParent.renderingGroupId = 2;
+
   // 🎮 FONCTIONS DE DEBUG POUR AJUSTER LE SCALING
   (window as any).adjustShipScaling = (xwingScale: number, tieScale: number) => {
     xwingMeshes.forEach(mesh => mesh.scaling.setAll(xwingScale));
@@ -101,8 +113,8 @@ export async function loadShips(scene: BABYLON.Scene) {
 
 // 🔧 OFFSETS AJUSTABLES POUR LES POSITIONS DES VAISSEAUX
 const SHIP_OFFSETS = {
-  xwing: { x: 21, y: -2, z: 30 }, // X-Wing offsets - Z très en avant pour éviter le clipping
-  tie: { x: -50, y: 50, z: 10 }    // TIE Fighter offsets - position Z normale
+  xwing: { x: 25, y: 0, z: 0 }, // X-Wing à x=25, y=0
+  tie: { x: -50, y: 50, z: 5 }   // TIE à x=-50, y=50
 };
 
 export function syncShips(
@@ -148,8 +160,8 @@ export function setupShipPositionControls() {
   
   // Remettre les positions à zéro
   (window as any).resetShipPositions = () => {
-    SHIP_OFFSETS.xwing = { x: 21, y: -2, z: 30 };
-    SHIP_OFFSETS.tie = { x: -50, y: 50, z: 10 };
+    SHIP_OFFSETS.xwing = { x: 25, y: 0, z: 0 };
+    SHIP_OFFSETS.tie = { x: -50, y: 50, z: 5 };
     console.log('🔧 Ship positions reset to default');
   };
   
@@ -157,4 +169,24 @@ export function setupShipPositionControls() {
   console.log('  - adjustXwingPosition(x, y, z?) : Ajuster la position du X-Wing');
   console.log('  - adjustTiePosition(x, y, z?)   : Ajuster la position du TIE');
   console.log('  - resetShipPositions()          : Remettre à zéro');
+  
+  // Fonction pour afficher toutes les positions actuelles
+  (window as any).showAllPositions = () => {
+    console.log('📍 === POSITIONS ACTUELLES DES ÉLÉMENTS 3D ===');
+    console.log('🏞️ Terrain : Z=20 (renderingGroup=0)');
+    console.log('🔲 Bordures : Z=10 (renderingGroup=1)');
+    console.log('🚀 Vaisseaux : Z=0 (renderingGroup=2)');
+    console.log('⚽ Balle : Z=-5 (renderingGroup=3)');
+    console.log('📷 Caméra : Position (0, 0, -200)');
+    console.log('');
+    console.log('📏 Offsets actuels:');
+    console.log(`  X-Wing: x=${SHIP_OFFSETS.xwing.x}, y=${SHIP_OFFSETS.xwing.y}, z=${SHIP_OFFSETS.xwing.z}`);
+    console.log(`  TIE Fighter: x=${SHIP_OFFSETS.tie.x}, y=${SHIP_OFFSETS.tie.y}, z=${SHIP_OFFSETS.tie.z}`);
+    console.log('');
+    console.log('🎨 Ordre de rendu (renderingGroupId):');
+    console.log('  0 = Terrain et ligne médiane (arrière-plan)');
+    console.log('  1 = Bordures');
+    console.log('  2 = Vaisseaux');
+    console.log('  3 = Balle (premier plan)');
+  };
 } 

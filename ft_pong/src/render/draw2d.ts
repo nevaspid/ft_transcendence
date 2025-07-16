@@ -21,20 +21,10 @@ export function drawScene(
   // Rectangle de bordure
   ctx.strokeRect(0, 0, WORLD_W, WORLD_H);
 
-  // Ligne centrale
-  ctx.strokeStyle = '#444';
-  ctx.lineWidth = 2;
-  ctx.setLineDash([10, 10]);
-  ctx.beginPath();
-  ctx.moveTo(WORLD_W / 2, 0);
-  ctx.lineTo(WORLD_W / 2, WORLD_H);
-  ctx.stroke();
-  ctx.setLineDash([]);
-
   // Dessiner les paddles et la balle
-  left.draw(ctx);
-  right.draw(ctx);
-  ball.draw(ctx);
+  // left.draw(ctx);
+  // right.draw(ctx);
+  // ball.draw(ctx);
 
   ctx.restore();
 }

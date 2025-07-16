@@ -7,10 +7,11 @@ import { drawScene } from './render/draw2d';
 import { drawOverlay } from './render/hud';
 import { create3DScene, loadShips, syncShips } from './render/render3d';
 import { loadBall3D, syncBall3D, setupBallControls } from './render/render3dBall';
-import { createGameField } from './render/render3dField';
+import { createGameField, loadStarDestroyerBackground, addBackgroundImage } from './render/render3dField';
 import { createCamera, setupCameraControls } from './render/cam3d';
 
 import {
+  WORLD_W,
   WORLD_H,
   PADDLE_SPEED,
   WIN_SCORE,
@@ -44,8 +45,9 @@ wrapper.appendChild(canvas);
 const ctx = canvas.getContext('2d')!;
 
 // === ENTITÉS DU JEU ===
-const left = new Paddle(30, WORLD_H / 2);
-const right = new Paddle(770, WORLD_H / 2);
+const PADDLE_W = 15; // même valeur que Paddle.w
+const left = new Paddle(PADDLE_W / 2, WORLD_H / 2);
+const right = new Paddle(WORLD_W - PADDLE_W / 2, WORLD_H / 2);
 const ball = new Ball(0, 0);
 
 // === VARIABLES 3D ===
@@ -88,6 +90,8 @@ function runGameplay(dt: number): void {
   // Mouvement des paddles
   if (pressed('z')) left.move(-PADDLE_SPEED * dt);
   if (pressed('s')) left.move(PADDLE_SPEED * dt);
+  if (pressed('Z')) left.move(-PADDLE_SPEED * dt);
+  if (pressed('S')) left.move(PADDLE_SPEED * dt);
   if (pressed('ArrowUp')) right.move(-PADDLE_SPEED * dt);
   if (pressed('ArrowDown')) right.move(PADDLE_SPEED * dt);
 
@@ -121,7 +125,7 @@ async function init3D() {
     const { engine, scene } = create3DScene(webglCanvas);
     engine3D = engine;
     scene3D = scene;
-    
+
     // Créer la caméra
     camera3D = createCamera(scene);
     setupCameraControls(camera3D);
@@ -135,6 +139,12 @@ async function init3D() {
     // Charger la balle 3D
     ball3D = await loadBall3D(scene);
     setupBallControls();
+    
+    // Charger le décor Star Destroyer en fond
+    await loadStarDestroyerBackground(scene);
+    
+    // Ajouter l'image de fond (space.jpg)
+    addBackgroundImage(scene, 'space.jpg');
     
     // Démarrer le rendu 3D
     engine.runRenderLoop(() => {

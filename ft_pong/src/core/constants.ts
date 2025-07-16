@@ -12,3 +12,5 @@ export const MAX_RAD = 60 * Math.PI / 180;
 export const WIN_SCORE = 5;
 export const START_DELAY_SEC = 5;
 export const ROUND_DELAY_SEC = 3;
+
+//20 degres camera X

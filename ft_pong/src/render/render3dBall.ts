@@ -21,62 +21,31 @@ export async function loadBall3D(scene: BABYLON.Scene) {
     };
     
     await assetsManager.loadAsync();
-    
-    // Filtrer les meshes valides
-    const ballMeshes = ballTask.loadedMeshes.filter(m => 
-      m instanceof BABYLON.Mesh && m.getTotalVertices() > 0
-    ) as BABYLON.Mesh[];
-    
-    console.log(`Ball model: ${ballMeshes.length} meshes found`);
-    
-    // 🔧 SOLUTION: Ne garder que le PREMIER mesh (éliminer les doublons)
-    if (ballMeshes.length > 1) {
-      console.log('⚠️ Multiple meshes detected - keeping only the first one');
-      
-      // Supprimer tous les meshes sauf le premier
-      for (let i = 1; i < ballMeshes.length; i++) {
-        console.log(`🗑️ Removing mesh: ${ballMeshes[i].name}`);
-        ballMeshes[i].dispose();
-      }
-    }
-    
-    // Ne garder que le premier mesh
-    const mainMesh = ballMeshes[0];
-    if (!mainMesh) {
+
+    // Regrouper tous les meshes (hors __root__) dans un parent
+    const ballMeshes = ballTask.loadedMeshes.filter(m => m instanceof BABYLON.Mesh && m.name !== '__root__') as BABYLON.Mesh[];
+    if (ballMeshes.length === 0) {
       throw new Error('No valid mesh found');
     }
-    
-    // Créer un parent
-    const ballParent = new BABYLON.Mesh('ballParent', scene);
-    
-    // Configuration du mesh unique
-    mainMesh.rotationQuaternion = null;
-    mainMesh.parent = ballParent;
-    mainMesh.rotation.set(-Math.PI / 2, 0, 0);
-    
-    // Scaling pour correspondre à la hitbox 16x16
+    const ballParent = new BABYLON.TransformNode('ballParent', scene);
+    // Grouper les bounding box pour le scaling
+    let min = ballMeshes[0].getBoundingInfo().boundingBox.minimumWorld.clone();
+    let max = ballMeshes[0].getBoundingInfo().boundingBox.maximumWorld.clone();
+    ballMeshes.forEach(m => {
+      m.parent = ballParent;
+      m.rotationQuaternion = null;
+      m.position = m.position.clone(); // préserve la position relative
+      const box = m.getBoundingInfo().boundingBox;
+      min = BABYLON.Vector3.Minimize(min, box.minimumWorld);
+      max = BABYLON.Vector3.Maximize(max, box.maximumWorld);
+    });
+    const size = Math.max(max.x - min.x, max.y - min.y, max.z - min.z);
     const targetSize = 16;
-    mainMesh.scaling.setAll(calculateBallScale(mainMesh, targetSize));
-    mainMesh.position.set(0, 0, 0);
-    
-    // 🎮 FONCTIONS DE DEBUG POUR AJUSTER LE SCALING DE LA BALLE
-    (window as any).adjustBallScaling = (scale: number) => {
-      mainMesh.scaling.setAll(scale);
-      console.log(`🔧 Ball scaling: ${scale}`);
-    };
-    
-    (window as any).resetBallScaling = () => {
-      const targetSize = 16;
-      const scale = calculateBallScale(mainMesh, targetSize);
-      mainMesh.scaling.setAll(scale);
-      console.log('🔧 Ball scaling reset to calculated size');
-    };
-    
-    console.log('🎮 CONTRÔLES DE SCALING DE LA BALLE DISPONIBLES:');
-    console.log('  - adjustBallScaling(scale) : Ajuster le scaling');
-    console.log('  - resetBallScaling()        : Remettre au calcul automatique');
-    
-    console.log('⚽ Ball 3D model configured');
+    const scale = targetSize / size;
+    ballParent.scaling.set(scale, scale, scale);
+    ballParent.position.set(0, 0, 0);
+    ballParent.renderingGroupId = 3;
+    console.log('⚽ Ball 3D model (multi-mesh) configured');
     return ballParent;
     
   } catch (error) {
@@ -101,6 +70,9 @@ function createFallbackSphere(scene: BABYLON.Scene): BABYLON.Mesh {
   ballMaterial.specularColor = new BABYLON.Color3(0.8, 0.8, 0.8);
   ballMaterial.emissiveColor = new BABYLON.Color3(0.1, 0.1, 0.1);
   sphere.material = ballMaterial;
+  
+  // Assurer que la sphère de fallback est aussi au premier plan
+  sphere.renderingGroupId = 3;
   
   console.log('✅ Fallback sphere created');
   return sphere;
@@ -138,12 +110,13 @@ function calculateBallScale(mesh: BABYLON.Mesh, targetSize: number): number {
 
 // 🔧 OFFSETS AJUSTABLES POUR LA POSITION DE LA BALLE
 const BALL_OFFSET = {
-  x: 4,     // Décalage horizontal (+ = droite, - = gauche)
-  y: -8,    // Décalage vertical (+ = haut, - = bas) - ajusté pour aligner avec les bordures
-  z: 5      // Hauteur au-dessus du plan (+ = plus haut) - position Z simplifiée
+  x: 0,     // Décalage horizontal (+ = droite, - = gauche)
+  y: 0,     // Décalage vertical (+ = haut, - = bas)
+  z: -5     // Position Z très en avant (négatif = plus proche de la caméra)
 };
 
 export function syncBall3D(ball3D: BABYLON.Mesh, ball2D: Ball) {
+  // Conversion directe des coordonnées 2D vers 3D avec offsets
   const ball3DPos = {
     x: ball2D.x - WORLD_W / 2 + BALL_OFFSET.x,
     y: -(ball2D.y - WORLD_H / 2) + BALL_OFFSET.y,
@@ -167,9 +140,9 @@ export function setupBallControls() {
   
   // Remettre à zéro
   (window as any).resetBallOffset = () => {
-    BALL_OFFSET.x = 4;
-    BALL_OFFSET.y = -8;
-    BALL_OFFSET.z = 5;
+    BALL_OFFSET.x = 0;
+    BALL_OFFSET.y = 0;
+    BALL_OFFSET.z = -5;
     console.log('🔧 Ball offset reset to default');
   };
   
