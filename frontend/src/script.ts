@@ -1,178 +1,97 @@
 const apiUrl: string = "http://localhost:3000";
 const apiUrlAvatar: string = "http://localhost:3001";
+const twofaApiUrl : string = "http://localhost:4001";
+const googleApiUrl : string = "http://localhost:4003";
 
-let currentUser: string | null = null;
+import { initProfilPage } from './profilPage';
+import { t, Language } from './i18n/i18n';
+import fr from './i18n/fr.json'; 
+import en from './i18n/en.json'; 
+import es from './i18n/es.json'; 
+import { toCanvas } from 'qrcode';
 
-declare const content: { [key: string]: string };
+// -----------------------------
+// 🧠 Variables utilisateur
+// -----------------------------
+export let pseudoUser: string | null = localStorage.getItem("pseudoUser");
+export let currentUser: string | null = localStorage.getItem("username");
 
-const avatarModal = document.getElementById('avatarModal') as HTMLDivElement | null;
+let is2FANeeded = false;
+let is2FASetup = false;
+let user2FASecret: string | null = null;
 
-let selectedAvatarTemp: string | null = null;
+declare const content: { [key: string]: string }; // Contenu HTML dynamique (pages)
 
-// Chargement du profil utilisateur
-async function loadUserProfile() {
-  const token = localStorage.getItem('token');
-  if (!token) return;
+// Pour Google Sign-In
+declare global { interface Window { google: any; } }
 
-  try {
-    const res = await fetch(`${apiUrl}/profile`, {
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
-    if (!res.ok) throw new Error('Erreur lors du chargement du profil');
-    const user = await res.json();
 
-    updateProfileUI(user);
-  } catch (err) {
-    console.error(err);
-  }
-}
+// 📌 État utilisateur global (reactif)
+export const userState = {
+  pseudoUser: "",
+  currentUser: ""
+};
 
-// Mise à jour affichage profil utilisateur (nom + avatar)
-function updateProfileUI(user: { username: string; avatarUrl?: string }) {
-  const usernameElem = document.getElementById('profileUsername');
-  const avatarElem = document.getElementById('profile-avatar') as HTMLImageElement;
 
-  console.log("user =", user); // Log complet de l'utilisateur
-  console.log("usernameElem =", usernameElem);
-  console.log("avatarElem =", avatarElem);
+// -----------------------------
+// 🌍 Gestion multilingue
+// -----------------------------
 
-  if (usernameElem) {
-    usernameElem.textContent = user.username || 'Utilisateur';
-  } else {
-    console.warn("⚠️ Élément 'profileUsername' non trouvé !");
-  }
-
-  if (avatarElem) {
-    if (user.avatarUrl && user.avatarUrl.trim() !== '') {
-      avatarElem.src = apiUrlAvatar + user.avatarUrl;
-      console.log("✅ Avatar personnalisé chargé :", avatarElem.src);
-    } else {
-      avatarElem.src = '/assets/default-avatar.png';
-      console.log("ℹ️ Avatar par défaut utilisé :", avatarElem.src);
+function applyTranslations(lang: Language): void {
+  const elements = document.querySelectorAll('[data-i18n]');
+  elements.forEach(el => {
+    const key = el.getAttribute('data-i18n') as keyof typeof fr;
+    if (key) {
+      el.innerHTML = t(lang, key);
     }
-  } else {
-    console.warn("⚠️ Élément 'profile-avatar' non trouvé !");
-  }
+  });
 }
 
-// Fonction pour ouvrir la pop-up et charger les avatars
-async function openAvatarLibrary() {
-console.log('openAvatarLibrary appelée');
-  const avatarModal = document.getElementById('avatarModal') as HTMLDivElement | null;
-  const avatarList = document.getElementById('avatarList') as HTMLDivElement | null;
-  if (!avatarModal || !avatarList) return;
+// ➕ Appliquer la langue sauvegardée
+const savedLang = localStorage.getItem('lang') as Language || 'fr';
+applyTranslations(savedLang);
 
-  avatarModal.classList.remove('hidden');
-  avatarList.innerHTML = '';
-
-  try {
-    console.log("Chargement avatars depuis", apiUrlAvatar + '/api/avatars');
-    const res = await fetch(`${apiUrlAvatar}/api/avatars`);
-    if (!res.ok) throw new Error('Erreur lors du chargement des avatars');
-
-    const data = await res.json() as { avatars: string[] };
-
-    data.avatars.forEach(avatarUrl => {
-    const img = document.createElement('img');
-    img.src = apiUrlAvatar + avatarUrl; // <-- ici, concatène la base URL complète
-    img.alt = 'Avatar';
-    img.className = 'cursor-pointer rounded border-2 border-transparent hover:border-cyan-500';
-    img.style.width = '64px';
-    img.style.height = '64px';
-    img.style.objectFit = 'cover';
-
-    img.addEventListener('click', () => {
-    
-    selectAvatar(avatarUrl);
-    });
-
-    avatarList.appendChild(img);
-    });
-  } catch (error) {
-    if (avatarList) avatarList.innerHTML = '<p class="text-red-500">Impossible de charger les avatars.</p>';
-    console.error(error);
-  }
+// 🧩 Sélecteur de langue
+const selector = document.getElementById('languageSelector') as HTMLSelectElement;
+if (selector) {
+  selector.value = savedLang;
+  selector.addEventListener('change', () => {
+    const newLang = selector.value as Language;
+    localStorage.setItem('lang', newLang);
+    applyTranslations(newLang);
+  });
 }
 
-function selectAvatar(avatarUrl: string) {
-  selectedAvatarTemp = avatarUrl;
-  // Met à jour l'affichage local dans la pop-up (facultatif)
-  const preview = document.getElementById('avatarPreview') as HTMLImageElement | null;
-  if (preview) {
-    preview.src = apiUrlAvatar + avatarUrl;
-  }
-}
+// -----------------------------
+// 🔁 Mise à jour menu utilisateur
+// -----------------------------
 
-async function saveSelectedAvatar() {
-  if (!selectedAvatarTemp) return;
-
-  try {
-    const token = localStorage.getItem('token'); 
-    if (!token) {
-      console.error('Token manquant, utilisateur non authentifié');
-      return;
-    }
-
-    const res = await fetch(`${apiUrl}/api/profile/avatar`, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + token,
-      },
-      body: JSON.stringify({ avatar_url: selectedAvatarTemp }),
-    });
-
-    if (!res.ok) throw new Error('Erreur lors de la sauvegarde de l\'avatar');
-
-    const data = await res.json();
-    console.log('Avatar sauvegardé avec succès:', data);
-
-    // Met à jour l'avatar dans le profil
-    const profileAvatarImg = document.getElementById('profile-avatar') as HTMLImageElement | null;
-    if (profileAvatarImg && data.avatarUrl) {
-      profileAvatarImg.src = apiUrlAvatar + (data.avatarUrl.startsWith('/') ? data.avatarUrl : '/' + data.avatarUrl) + '?t=' + Date.now();
-    }
-
-    // Ferme la pop-up
-    closeModal();
-    selectedAvatarTemp = null;
-
-  } catch (err) {
-    console.error(err);
-  }
-}
-
-// Fermer la pop-up avatar
-function closeModal() {
-  const avatarModal = document.getElementById('avatarModal');
-  if (!avatarModal) return;
-  avatarModal.classList.add('hidden');
-}
-
-// Mise à jour affichage menu utilisateur
-function updateUserMenu(): void {
+export function updateUserMenu(): void {
   const loginBtn = document.getElementById("loginBtn") as HTMLElement | null;
   const userMenu = document.getElementById("userMenu") as HTMLElement | null;
   const usernameSpan = document.getElementById("username") as HTMLElement | null;
 
   if (!loginBtn || !userMenu || !usernameSpan) return;
-
-  if (currentUser) {
+ 
+  if (userState.pseudoUser) {
     loginBtn.style.display = "none";
     userMenu.classList.remove("hidden");
-    usernameSpan.textContent = currentUser;
+    usernameSpan.textContent = userState.pseudoUser;
   } else {
     loginBtn.style.display = "inline-block";
     userMenu.classList.add("hidden");
   }
 }
 
-// Vérification session serveur au chargement
+// -----------------------------
+// ✅ Vérification session au chargement
+// -----------------------------
+
 async function checkSession(): Promise<void> {
   const token = localStorage.getItem("token");
-
   if (!token) {
     currentUser = null;
+    userState.pseudoUser = null;
     updateUserMenu();
     return;
   }
@@ -184,39 +103,63 @@ async function checkSession(): Promise<void> {
         'Authorization': `Bearer ${token}`
       }
     });
-
+    
     if (response.ok) {
-      const data: { isLoggedIn: boolean; username?: string } = await response.json();
+      const data: { isLoggedIn: boolean; username?: string; pseudo?: string } = await response.json();
+
       if (data.isLoggedIn && data.username) {
-        currentUser = data.username;
+        if (data.pseudo) {
+          userState.pseudoUser = data.pseudo;
+          currentUser = data.username;
+        } else if (data.username) {
+          userState.pseudoUser = data.username;
+          currentUser = data.username;
+        } else {
+          userState.pseudoUser = null;
+          currentUser = null;
+          localStorage.removeItem("token");
+        }
       } else {
+        userState.pseudoUser = null;
         currentUser = null;
         localStorage.removeItem("token");
       }
     } else {
+      userState.pseudoUser = null;
       currentUser = null;
       localStorage.removeItem("token");
     }
   } catch (error) {
     console.error("Erreur lors de la vérification de la session :", error);
+    userState.pseudoUser = null;
     currentUser = null;
   }
 
   updateUserMenu();
 }
 
-// Création de compte
+
+// -----------------------------
+// 👤 Création de compte
+// -----------------------------
+
 async function createAccount(): Promise<void> {
   const usernameInput = document.getElementById('signup-username') as HTMLInputElement | null;
+  const pseudoInput = document.getElementById('signup-pseudo') as HTMLInputElement | null;
   const passwordInput = document.getElementById('signup-password') as HTMLInputElement | null;
-  if (!usernameInput || !passwordInput) {
-    alert("Formulaire non trouvé");
+  const emailInput = document.getElementById('signup-email') as HTMLInputElement | null;
+  
+  if (!usernameInput || !pseudoInput || !passwordInput || !emailInput) {
+    alert("Formulaire incomplet");
     return;
   }
-  const username = usernameInput.value.trim();
-  const password = passwordInput.value.trim();
 
-  if (!username || !password) {
+  const username = usernameInput.value.trim();
+  const pseudo = pseudoInput.value.trim();
+  const password = passwordInput.value.trim();
+  const email = emailInput.value.trim();
+
+  if (!username || !pseudo || !password || !email) {
     alert("Merci de remplir tous les champs.");
     return;
   }
@@ -225,7 +168,7 @@ async function createAccount(): Promise<void> {
     const res = await fetch(`${apiUrl}/signup`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, password })
+      body: JSON.stringify({ username, pseudo, password, email }) // <-- envoyer pseudo
     });
 
     const data: { success: boolean; message?: string } = await res.json();
@@ -241,13 +184,65 @@ async function createAccount(): Promise<void> {
   }
 }
 
-// Connexion utilisateur
+// -----------------------------
+// 🔐 Connexion google
+// -----------------------------
+
+window.addEventListener("DOMContentLoaded", () => {
+  if (!google || !google.accounts || !google.accounts.id) {
+    console.error("Google Identity Services non chargé");
+    return;
+  }
+
+  google.accounts.id.initialize({
+    client_id: "328156739515-ih1nrcb5b34e34af004ptsdfvktbfg1u.apps.googleusercontent.com",
+    callback: handleGoogleSignIn,
+  });
+  // Charger user depuis localStorage
+  currentUser = localStorage.getItem("username");
+  userState.pseudoUser = localStorage.getItem("pseudo") || null; 
+});
+
+function handleGoogleSignIn(response?: google.accounts.id.CredentialResponse): void {
+  if (!response?.credential) {
+    console.error("Aucun token reçu de Google");
+    return;
+  }
+  fetch(`${googleApiUrl}/auth/google`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ token: response.credential }),
+  })
+  .then(async (res) => {
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.message || "Erreur d'authentification");
+    currentUser = data.user.username;
+    userState.pseudoUser = data.user.pseudo;
+    localStorage.setItem("token", data.token);
+    localStorage.setItem("username", data.username);
+    localStorage.setItem("pseudo", data.username);
+    updateUserMenu();
+    navigate("home");
+  })
+  .catch((err) => {
+    console.error("Erreur Google Sign-In :", err);
+    alert("Erreur lors de la connexion Google");
+  });
+}
+
+// -----------------------------
+// 🔐 Connexion classique
+// -----------------------------
+
+// -----------------------------
+// 🔐 Vérification manuelle 2FA (étape 1)
 async function loginUser() {
   const usernameInput = document.getElementById("login-username") as HTMLInputElement | null;
   const passwordInput = document.getElementById("login-password") as HTMLInputElement | null;
+  const twoFaDiv = document.getElementById("2fa-management");
 
-  if (!usernameInput || !passwordInput) {
-    alert("Le formulaire de connexion n'est pas chargé.");
+  if (!usernameInput || !passwordInput || !twoFaDiv) {
+    alert("Formulaire incomplet.");
     return;
   }
 
@@ -266,37 +261,138 @@ async function loginUser() {
       body: JSON.stringify({ username, password })
     });
 
-    if (response.ok) {
-      const data: { success: boolean; token?: string } = await response.json();
-      if (data.success && data.token) {
-        localStorage.setItem("token", data.token);
-        currentUser = username;
-        updateUserMenu();
-        navigate('home');
-      } else {
-        alert("Identifiants incorrects.");
-      }
-    } else {
-      alert("Erreur lors de la connexion.");
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+      alert(data.message || "Erreur lors de la connexion.");
+      return;
     }
+
+    // Stockage du pseudo + état global
+    pseudoUser = data.pseudo || null;
+    userState.pseudoUser = pseudoUser;
+    localStorage.setItem("pseudoUser", userState.pseudoUser || "");
+
+     // ➕ Si 2FA est requis
+    if (data.twofaRequired) {
+      twoFaDiv.classList.remove("hidden");
+      const verifyButton = document.getElementById("verify-2fa-button") as HTMLButtonElement;
+
+      verifyButton.onclick = async () => {
+        const codeInput = document.getElementById("2fa-code") as HTMLInputElement;
+        const code = codeInput?.value.trim();
+
+        if (!code) {
+          alert("Merci d’entrer le code 2FA.");
+          return;
+        }
+
+        try {
+          const res = await fetch(`${apiUrl}/auth/verify-2fa`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, twoFactorToken: code }),
+          });
+
+          const resData = await res.json();
+
+          if (!res.ok || !resData.success) {
+            alert(resData.message || "Code 2FA invalide.");
+            return;
+          }
+
+          if (resData.token) {
+            localStorage.setItem("token", resData.token);
+            await checkSession();
+            navigate('home');
+          }
+        } catch (error) {
+          alert("Erreur réseau lors de la vérification 2FA.");
+          console.error(error);
+        }
+      };
+
+    } else if (data.token) {
+      localStorage.setItem("token", data.token);
+      await checkSession();
+      navigate('home');
+    }
+
   } catch (error) {
     console.error("Erreur lors de la connexion :", error);
-    alert("Erreur réseau lors de la connexion.");
+    alert("Erreur réseau.");
   }
 }
 
-// Déconnexion
+// -----------------------------
+// 🔐 Vérification manuelle 2FA (étape 2)
+async function verify2FA() {
+  const codeInput = document.getElementById("2fa-code") as HTMLInputElement | null;
+
+  if (!codeInput) {
+    alert("Champ 2FA manquant.");
+    return;
+  }
+
+  const code = codeInput.value.trim();
+
+  if (!code) {
+    alert("Merci d’entrer le code 2FA.");
+    return;
+  }
+
+  if (!currentUser) {
+    alert("Utilisateur non défini. Merci de recommencer la connexion.");
+    return;
+  }
+
+  try {
+    const response = await fetch("/auth/verify-2fa", {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username: currentUser, code })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+      alert(data.message || "Code 2FA invalide.");
+      return;
+    }
+
+    if (data.token) {
+      localStorage.setItem("token", data.token);
+      updateUserMenu();
+      navigate("home");
+    }
+
+  } catch (error) {
+    console.error("Erreur lors de la vérification 2FA :", error);
+    alert("Erreur réseau.");
+  }
+}
+
+// -----------------------------
+// 🔓 Déconnexion
 async function logoutUser(): Promise<void> {
   localStorage.removeItem("token");
+  localStorage.removeItem("username");
+  localStorage.removeItem("pseudo");
   currentUser = null;
+  pseudoUser = null;
+  userState.pseudoUser = null;
+  userState.currentUser = null;
   updateUserMenu();
   navigate('home');
 }
 
-// Fonction de navigation et gestion du contenu dynamique
+// -----------------------------
+// 📦 Navigation dynamique entre les pages
+// -----------------------------
+
 function navigate(page: string) {
   const publicPages = ['login', 'signup', 'home'];
-
+  
   if (!currentUser && !publicPages.includes(page)) {
     page = 'login';
   }
@@ -306,86 +402,42 @@ function navigate(page: string) {
 
   main.innerHTML = content[page] ?? '<p>Page introuvable</p>';
 
-  // Gestion des événements dans le contenu chargé dynamiquement
+   // Gestion des événements dynamiques en fonction de la page
   if (page === 'login') {
-    const loginBtn = main.querySelector('button');
-    if (loginBtn) loginBtn.addEventListener('click', loginUser);
+    // Bouton login classique
+    const loginBtn = main.querySelector('#loginBtn');
+    if (loginBtn) loginBtn.addEventListener('click', (e) => {
+      e.preventDefault(); // pour éviter le rechargement de page si bouton dans un form
+      loginUser();
+    });
 
+    // Lien vers signup
     const signupLink = main.querySelector("#signuplink");
     if (signupLink) {
       signupLink.addEventListener("click", (e) => {
         e.preventDefault();
         navigate("signup");
       });
+    } 
+    // ======== Gestion du bouton Google Sign-In ========
+    const googleSignInBtn = main.querySelector('#custom-google-btn');
+    if (googleSignInBtn) {
+      googleSignInBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        google.accounts.id.prompt();
+      });
+      
     }
-  } else if (page === 'signup') {
+
+  }
+  // 📝 Page signup
+  else if (page === 'signup') {
     const createAccountBtn = main.querySelector('button');
     if (createAccountBtn) createAccountBtn.addEventListener('click', createAccount);
   }
-
-  if (page === 'profil') {
-    const chooseAvatarBtn = main.querySelector('#chooseAvatarBtn') as HTMLButtonElement | null;
-    const avatarModal = main.querySelector('#avatarModal') as HTMLDivElement | null;
-    const closeAvatarModal = main.querySelector('#closeAvatarModal') as HTMLButtonElement | null;
-    const saveAvatarBtn = main.querySelector('#saveAvatarBtn') as HTMLButtonElement | null;
-    const changePasswordBtn = main.querySelector('#changePasswordBtn') as HTMLButtonElement | null;
-    const passwordModal = main.querySelector('#passwordModal') as HTMLDivElement | null;
-    const cancelPasswordChange = main.querySelector('#cancelPasswordChange') as HTMLButtonElement | null;
-    const passwordForm = main.querySelector('#passwordChangeForm') as HTMLFormElement | null;
-    loadUserProfile();
-
-    saveAvatarBtn?.addEventListener('click', saveSelectedAvatar);
-
-    chooseAvatarBtn?.addEventListener('click', () => {
-      console.log('Bouton cliqué !');
-      openAvatarLibrary();
-    });
-    closeAvatarModal?.addEventListener('click', () => {
-      if (avatarModal) avatarModal.classList.add('hidden');
-    });
-
-    avatarModal?.addEventListener('click', (e) => {
-      if (e.target === avatarModal) avatarModal.classList.add('hidden');
-    });
-
-    // Bouton "Changer le mot de passe"
-    changePasswordBtn?.addEventListener('click', () => {
-      passwordModal?.classList.remove('hidden');
-    });
-
-    // Bouton "Annuler" dans la modal
-    cancelPasswordChange?.addEventListener('click', () => {
-      passwordModal?.classList.add('hidden');
-    });
-
-    // Soumission du formulaire de changement de mot de passe
-    passwordForm?.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const oldPassword = (main.querySelector('#oldPassword') as HTMLInputElement).value;
-      const newPassword = (main.querySelector('#newPassword') as HTMLInputElement).value;
-
-      try {
-        const res = await fetch(`${apiUrl}/change-password`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-          },
-          body: JSON.stringify({ oldPassword, newPassword }),
-        });
-
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.message || 'Erreur lors du changement de mot de passe');
-
-        alert('✅ Mot de passe changé avec succès !');
-        passwordModal?.classList.add('hidden');
-      } catch (err: any) {
-        alert('❌ ' + err.message);
-      }
-    });
-    
+  if(page === 'profil'){
+    initProfilPage();
   }
-  
 
   // Ajout gestion boutons avec data-page dans contenu dynamique
   const buttons = main.querySelectorAll<HTMLButtonElement>('[data-page]');
@@ -395,12 +447,14 @@ function navigate(page: string) {
       if (targetPage) navigate(targetPage);
     });
   });
-
   // Met à jour l’état du menu utilisateur après chaque navigation
   updateUserMenu();
 }
 
-// Gestion du menu utilisateur (dropdown)
+// -----------------------------
+// 📅 Événements DOM initiaux
+// ----------------------------- 
+
 document.getElementById("userBtn")?.addEventListener("click", (event: MouseEvent) => {
   event.stopPropagation();
   const dropdown = document.getElementById("dropdownMenu");
@@ -442,11 +496,9 @@ document.addEventListener('DOMContentLoaded', () => {
       const page = btn.dataset.page;
       if (page) navigate(page);
     });
-  });
+});
 
-  // Initialisation de l’état utilisateur
-  checkSession();
+  checkSession();  // Vérifie si utilisateur est connecté
 
-  // Chargement de la page d'accueil par défaut
-  navigate('home');
+  navigate('home'); // Affiche la page d'accueil au démarrage
 });

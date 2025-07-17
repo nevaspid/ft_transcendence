@@ -16,10 +16,12 @@ export default async function profileRoutes(fastify) {
     handler: async (request, reply) => {
       const userId = request.user.id;
       const { avatar_url } = request.body;
-        console.log('Avatar reçu:', avatar_url);
-      if (!(avatar_url.startsWith('/avatars/') || avatar_url.startsWith('/uploads/choices/'))) {
+
+      console.log('userId:', userId);
+      console.log('avatar_url:', avatar_url);
+      if (!(avatar_url.startsWith('/avatars/') || avatar_url.startsWith('/uploads/choices/') || avatar_url.startsWith('/uploads/client/'))) {
         return reply.status(400).send({ error: 'Avatar invalide' });
-        }
+      }
 
       try {
         await updateUserAvatar(userId, avatar_url);

@@ -13,6 +13,8 @@ services:
     depends_on:
       - user_service
       - avatar_service
+    networks:
+      - default
 
   user_service:
     container_name: user_service
@@ -22,19 +24,82 @@ services:
     environment:
       - JWT_SECRET=${JWT_SECRET}
       - DB_PATH=${DB_PATH}
+      - TWOFA_SERVICE_URL=http://twofa_service:4001
     volumes:
       - ./user_service:/app
       - /app/node_modules
     command: npm start
     depends_on:
       - avatar_service
+    networks:
+      - default 
 
   avatar_service:
     container_name: avatar_service
     build: ./avatar_service
     ports:
       - "3001:3001"
+    environment:
+      - JWT_SECRET=${JWT_SECRET}
     volumes:
       - ./avatar_service:/app
       - /app/node_modules
     command: npm start
+    networks:
+      - default
+
+  twofa_service:
+    container_name: twofa_service
+    build: ./twofa_service
+    ports:
+      - "4001:4001"
+    volumes:
+      - ./twofa_service:/app
+      - /app/node_modules
+    command: npm start
+    networks:
+      - default
+
+  game_service:
+    container_name: game_service
+    build: ./game_service
+    ports:
+      - "4002:4002"
+    volumes:
+      - ./game_service:/app
+    command: sh -c "npm install && npm run build && npm run preview -- --host"
+    networks:
+      - default
+  
+  google_auth_service:
+    container_name: google_auth_service
+    build: ./google_auth_service
+    ports:
+      - "4003:4003"
+    environment:
+      - GOOGLE_AUTH_CLIENT_ID=${GOOGLE_AUTH_CLIENT_ID}
+      - JWT_SECRET=${JWT_SECRET}
+    volumes:
+      - ./google_auth_service:/app
+      - /app/node_modules
+    command: npm start
+    depends_on:
+      - user_service
+    networks:
+      - default
+
+  nginx:
+    container_name: nginx
+    build: ./nginx
+    ports:
+      - "8443:443"
+    depends_on:
+      - frontend
+      - google_auth_service
+      - avatar_service
+    networks:
+      - default
+
+networks:
+  default:
+    driver: bridge
