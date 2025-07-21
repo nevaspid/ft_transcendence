@@ -5,6 +5,8 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract Tournament is Ownable {
 
+    constructor() Ownable() {}
+
 	struct MatchData {
 		uint 	matchId;
 		uint 	p1;
@@ -26,18 +28,23 @@ contract Tournament is Ownable {
 	mapping(uint => TournamentData) tournaments;
 	mapping(uint => MatchData) matches;
 
-	function createTournament(string _tournamentName, uint _tournamentId, uint _nbPlayers) public onlyOwner {
-    	TournamentData memory newTournament = TournamentData({
-    	    tournamentName: _tournamentName,
-    	    tournamentId: _tournamentId,
-    	    nbPlayers: _nbPlayers,
-    	    matchIds: new uint[](0)
-    	});
+	function createTournament(string calldata _tournamentName, uint _tournamentId, uint _nbPlayers) external onlyOwner {
+		TournamentData memory newTournament = TournamentData({
+			tournamentName: _tournamentName,
+			tournamentId: _tournamentId,
+			nbPlayers: _nbPlayers,
+			matchIds: new uint[](0)
+		});
 
 		tournaments[_tournamentId] = newTournament;
 	}
 
-	function createMatch(int isTournament, uint _matchId, uint _p1Score, uint _p2Score, uint _p1, uint _p2, uint _winner) public onlyOwner {
+	function addMatchInTournament(uint _matchId, uint _tournamentId) internal {
+		require(tournaments[_tournamentId].tournamentId != 0, "Tournament does not exist");
+    	tournaments[_tournamentId].matchIds.push(_matchId);
+	}
+
+	function createMatch(uint _isTournament, uint _matchId, uint _p1Score, uint _p2Score, uint _p1, uint _p2, uint _winner) external onlyOwner {
 		MatchData memory newMatch = MatchData({
 			matchId: _matchId,
 			p1Score: _p1Score,
@@ -47,14 +54,14 @@ contract Tournament is Ownable {
 			winner:	_winner
 		});
 
-		if(isTournament >= 0) {
-			addMatchInTournament(uint(isTournament));
+		if(_isTournament > 0) {
+			addMatchInTournament(_matchId, _isTournament);
 		}
 
 		matches[_matchId] = newMatch;
 	}
 
-	function getMatchData(uint _matchId) public view returns (
+	function getMatchData(uint _matchId) external view returns (
     uint matchId,
     uint p1,
     uint p1Score,
@@ -67,7 +74,7 @@ contract Tournament is Ownable {
 		return (matchData.matchId, matchData.p1, matchData.p1Score, matchData.p2, matchData.p2Score, matchData.winner);
 	}
 
-	function getTournamentData(uint _tournamentId) public view returns (
+	function getTournamentData(uint _tournamentId) external view returns (
 	string memory tournamentName,
 	uint tournamentId,
 	uint nbPlayers,
@@ -78,7 +85,7 @@ contract Tournament is Ownable {
 		return (tournamentData.tournamentName, tournamentData.tournamentId, tournamentData.nbPlayers, tournamentData.matchIds);
 	}
 
-	function getPlayerMatches(uint _player) public view  returns (uint[] memory) {
+	function getPlayerMatches(uint _player) external view  returns (uint[] memory) {
     	uint count = 0;
     	for (uint i = 1; matches[i].matchId != 0; i++) {
     	    if (matches[i].p1 == _player || matches[i].p2 == _player) {
@@ -94,5 +101,5 @@ contract Tournament is Ownable {
     	    }
     	}
     	return playerMatches;
-	} //! a opti si necessaire mais fonctionnel
+	} //! optimisable
 }
