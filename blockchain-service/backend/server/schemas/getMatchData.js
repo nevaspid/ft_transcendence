@@ -5,7 +5,7 @@ export const getMatchData = {
 		properties: {
 			id: {
 				type: 'integer',
-				minimum: 0
+				minimum: 1
 			}
 		}
 	},
@@ -15,11 +15,11 @@ export const getMatchData = {
 	  required: ['matchId', 'p1', 'p1Score', 'p2', 'p2Score', 'winner'],
       properties: {
         matchId: { type: 'integer' },
-        p1: { type: 'string' },
+        p1: { type: 'integer' },
         p1Score: { type: 'integer' },
-        p2: { type: 'string' },
+        p2: { type: 'integer' },
         p2Score: { type: 'integer' },
-        winner: { type: 'string' }
+        winner: { type: 'integer' }
       }
     }
   }

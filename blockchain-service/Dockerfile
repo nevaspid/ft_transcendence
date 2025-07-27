@@ -1,14 +1,19 @@
-FROM alpine:3.21
+FROM node:20
 
-RUN apk update && apk add --no-cache nodejs npm
-
+# Crée le répertoire de travail
 WORKDIR /app
 
-COPY package.json ./
+# Copie package.json d'abord pour cache deps
+COPY package*.json ./
 
+# Installe deps
 RUN npm install
 
+# Copie tout le projet
 COPY . .
 
+# Expose le port utilisé dans server.js
+EXPOSE 3000
 
-CMD [ "npm", "start" ]
+# Commande de lancement
+CMD ["node", "--env-file=backend/server/.env", "start.js"]
