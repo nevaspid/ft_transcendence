@@ -1,11 +1,18 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
+contract Tournament {
 
-contract Tournament is Ownable {
+	address private owner;
 
-    constructor() Ownable() {}
+	constructor() {
+		owner = msg.sender;
+	}
+
+	modifier onlyOwner() {
+		require(msg.sender == owner);
+		_;
+	}
 
 	struct MatchData {
 		uint 	matchId;
@@ -28,7 +35,7 @@ contract Tournament is Ownable {
 	mapping(uint => TournamentData) tournaments;
 	mapping(uint => MatchData) matches;
 
-	function createTournament(string calldata _tournamentName, uint _tournamentId, uint _nbPlayers) external onlyOwner {
+	function createTournament(string calldata _tournamentName, uint _tournamentId, uint _nbPlayers) external onlyOwner() {
 		TournamentData memory newTournament = TournamentData({
 			tournamentName: _tournamentName,
 			tournamentId: _tournamentId,
@@ -44,7 +51,7 @@ contract Tournament is Ownable {
     	tournaments[_tournamentId].matchIds.push(_matchId);
 	}
 
-	function createMatch(uint _isTournament, uint _matchId, uint _p1Score, uint _p2Score, uint _p1, uint _p2, uint _winner) external onlyOwner {
+	function createMatch(uint _isTournament, uint _matchId, uint _p1Score, uint _p2Score, uint _p1, uint _p2, uint _winner) external onlyOwner() {
 		MatchData memory newMatch = MatchData({
 			matchId: _matchId,
 			p1Score: _p1Score,
