@@ -1,9 +1,6 @@
 blockchain-service/node_modules
 blockchain-service/package-lock.json
-coverage
-coverage.json
-artifacts
-cache/
+blockchain-service/artifacts
 tree.txt
 
 
