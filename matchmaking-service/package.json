@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "fastify": "^5.4.0",
+    "node": "^20.19.4"
+  }
+}

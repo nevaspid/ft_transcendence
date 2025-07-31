@@ -1,0 +1,14 @@
+joueur clique sur pong sur le site
+
+ma route est trigger elle prend le parametre userId
+
+mon service regarde s'il y a une waiting room a combler, sinon crée une waiting room
+
+renvoie l'id de la waiting room au front qui affiche un message de recherche de joueur
+
+quand un second joueur clique sur pong, ma route est trigger avec le nouveau userId,
+il comble la waiting room et mon service crée une room de jeu il renvoie l'id de la room au front avec les id des deux joueurs
+
+le front ouvre alors un websocket vers game-service et la game se joue
+
+le service matchmaking devra aussi pouvoir faire des rooms de 4 joueurs et organiser un tournoi. Je ne sais pas encore ce que ça implique
