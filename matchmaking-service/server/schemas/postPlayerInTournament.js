@@ -1,4 +1,4 @@
-export const postPlayerInRoom = {
+export const postPlayerInTournament = {
 	body: {
 		type: 'object',
 		properties: {playerId: {type: 'integer', minimum: 0}},
@@ -11,6 +11,8 @@ export const postPlayerInRoom = {
 				status: {type: 'string'},
 				player1Id: {type: 'integer', minimum: 0},
 				player2Id: {type: 'integer', minimum: 0},
+				player3Id: {type: 'integer', minimum: 0},
+				player4Id: {type: 'integer', minimum: 0},
 			},
 			required: ['status']
 		}
