@@ -48,7 +48,7 @@ await app.register(getPlayerMatchesRoute)
 
 // Start the server
 try {
-	const PORT = process.env.PORT || 3000
+	const PORT = process.env.PORT || 3100
 	app.listen({ port: PORT, host: '0.0.0.0' })
 	console.log(`✅ Server running on http://localhost:${PORT}`)
 } catch (err) {
