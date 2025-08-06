@@ -13,7 +13,7 @@ RUN npm install
 COPY . .
 
 # Expose le port utilisé dans server.js
-EXPOSE 3000
+EXPOSE 3100
 
 # Commande de lancement
 CMD ["node", "--env-file=backend/server/.env", "start.js"]
