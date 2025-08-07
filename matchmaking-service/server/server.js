@@ -10,7 +10,7 @@ const fastify = Fastify({
 await app.register(postPlayerInRoomRoute)
 await app.register(postPlayerInTournamentRoute)
 
-fastify.listen({ port: 3001 }, function (err, address) {
+fastify.listen({ port: 3101 }, function (err, address) {
   if (err) {
     fastify.log.error(err)
     process.exit(1)
