@@ -2,6 +2,7 @@ import * as BABYLON from 'babylonjs';
 import 'babylonjs-loaders';
 import { WORLD_W, WORLD_H } from '../core/constants';
 import type { Paddle } from '../core/paddle';
+import { PaddleAnimation } from './paddleAnimation';
 
 // === SCÈNE 3D SIMPLE ===
 export function create3DScene(canvas: HTMLCanvasElement) {
@@ -105,8 +106,15 @@ export async function loadShips(scene: BABYLON.Scene) {
   // 🎮 SETUP DES CONTRÔLES DE POSITION
   setupShipPositionControls();
   
+  // 🎮 SETUP DES CONTRÔLES D'ANIMATION
+  PaddleAnimation.setupDebugControls();
+  
   console.log('✅ Ships configured');
-  return { xwing: xwingParent, tie: tieParent };
+  
+  // Créer le système d'animation des paddles
+  const paddleAnimation = new PaddleAnimation(xwingParent, tieParent);
+  
+  return { xwing: xwingParent, tie: tieParent, paddleAnimation };
 }
 
 // === SYNCHRONISATION AVEC LES PADDLES 2D ===
@@ -114,13 +122,17 @@ export async function loadShips(scene: BABYLON.Scene) {
 // 🔧 OFFSETS AJUSTABLES POUR LES POSITIONS DES VAISSEAUX
 const SHIP_OFFSETS = {
   xwing: { x: 25, y: 0, z: 0 }, // X-Wing à x=25, y=0
-  tie: { x: -50, y: 50, z: 5 }   // TIE à x=-50, y=50
+  tie: { x: -50, y: 100, z: 5 }   // TIE à x=-50, y=100
 };
 
 export function syncShips(
-  ships: { xwing: BABYLON.Mesh; tie: BABYLON.Mesh },
+  ships: { xwing: BABYLON.Mesh; tie: BABYLON.Mesh; paddleAnimation: PaddleAnimation },
   leftPaddle: Paddle,
-  rightPaddle: Paddle
+  rightPaddle: Paddle,
+  leftUpPressed: boolean,
+  leftDownPressed: boolean,
+  rightUpPressed: boolean,
+  rightDownPressed: boolean
 ) {
   // Convertir les coordonnées 2D en 3D avec offsets
   const left3D = {
@@ -138,6 +150,13 @@ export function syncShips(
   // Appliquer les positions
   ships.xwing.position.set(left3D.x, left3D.y, left3D.z);
   ships.tie.position.set(right3D.x, right3D.y, right3D.z);
+  
+  // Animer les paddles selon les touches pressées
+  const leftDirection = PaddleAnimation.getPaddleDirection(leftUpPressed, leftDownPressed);
+  const rightDirection = PaddleAnimation.getPaddleDirection(rightUpPressed, rightDownPressed);
+  
+  ships.paddleAnimation.animateLeftPaddle(leftDirection);
+  ships.paddleAnimation.animateRightPaddle(rightDirection);
 }
 
 // 🎮 FONCTIONS DE DEBUG POUR AJUSTER LES POSITIONS
@@ -161,7 +180,7 @@ export function setupShipPositionControls() {
   // Remettre les positions à zéro
   (window as any).resetShipPositions = () => {
     SHIP_OFFSETS.xwing = { x: 25, y: 0, z: 0 };
-    SHIP_OFFSETS.tie = { x: -50, y: 50, z: 5 };
+    SHIP_OFFSETS.tie = { x: -50, y: 100, z: 5 };
     console.log('🔧 Ship positions reset to default');
   };
   

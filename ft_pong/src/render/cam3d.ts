@@ -16,8 +16,18 @@ export function createCamera(scene: BABYLON.Scene): BABYLON.FreeCamera {
   camera.orthoBottom = -WORLD_H / 2 * orthoScale;
   
   // Position et orientation optimisées (caméra d'origine)
-  camera.position.set(0, 0, -200);
-  camera.setTarget(new BABYLON.Vector3(0, 0, 20)); // Regarder le terrain à Z=20
+  // camera.position.set(0, 0, -200);
+  // camera.setTarget(new BABYLON.Vector3(0, 0, 20)); // Regarder le terrain à Z=20
+
+  // Appliquer une rotation de -25° sur l'axe X (autre sens)
+  const angleX = -25 * Math.PI / 180;
+  const radius = 200;
+  camera.position.set(
+    0,
+    Math.sin(angleX) * radius,
+    -Math.cos(angleX) * radius
+  );
+  camera.setTarget(new BABYLON.Vector3(0, 0, 20));
 
   // Fonction globale pour tourner la caméra autour de l'axe Y depuis la console
   (window as any).setCameraYRotation = (degrees: number) => {

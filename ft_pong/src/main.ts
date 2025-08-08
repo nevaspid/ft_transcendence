@@ -9,6 +9,7 @@ import { create3DScene, loadShips, syncShips } from './render/render3d';
 import { loadBall3D, syncBall3D, setupBallControls } from './render/render3dBall';
 import { createGameField, loadStarDestroyerBackground, addBackgroundImage } from './render/render3dField';
 import { createCamera, setupCameraControls } from './render/cam3d';
+import { debugAll } from './render/debug3d';
 
 import {
   WORLD_W,
@@ -54,7 +55,7 @@ const ball = new Ball(0, 0);
 let engine3D: any = null;
 let scene3D: any = null;
 let camera3D: any = null;
-let ships3D: { xwing: any; tie: any } | null = null;
+let ships3D: { xwing: any; tie: any; paddleAnimation: any } | null = null;
 let ball3D: any = null;
 let field3D: any = null;
 
@@ -146,10 +147,19 @@ async function init3D() {
     // Ajouter l'image de fond (space.jpg)
     addBackgroundImage(scene, 'space.jpg');
     
+    // Activer le système de debug 3D
+    debugAll();
+    
     // Démarrer le rendu 3D
     engine.runRenderLoop(() => {
       if (ships3D) {
-        syncShips(ships3D, left, right);
+        // Récupérer l'état des touches pour les animations
+        const leftUpPressed = pressed('z') || pressed('Z');
+        const leftDownPressed = pressed('s') || pressed('S');
+        const rightUpPressed = pressed('ArrowUp');
+        const rightDownPressed = pressed('ArrowDown');
+        
+        syncShips(ships3D, left, right, leftUpPressed, leftDownPressed, rightUpPressed, rightDownPressed);
       }
       if (ball3D) {
         syncBall3D(ball3D, ball);

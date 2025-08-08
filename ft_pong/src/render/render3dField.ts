@@ -1,6 +1,7 @@
 import * as BABYLON from 'babylonjs';
 import { WORLD_W, WORLD_H } from '../core/constants';
 import 'babylonjs-loaders';
+import { setStarDestroyerReferences, setBackgroundReferences, debugAll } from './debug3d';
 
 // === CRÉATION DU PLATEAU DE JEU 3D ===
 export function createGameField(scene: BABYLON.Scene): BABYLON.Mesh {
@@ -31,7 +32,7 @@ export function createGameField(scene: BABYLON.Scene): BABYLON.Mesh {
   borderMaterialViolet.diffuseColor = new BABYLON.Color3(0.9, 0.9, 0.9); // Gris clair
   borderMaterialViolet.specularColor = new BABYLON.Color3(0.8, 0.8, 0.8);
   borderMaterialViolet.emissiveColor = new BABYLON.Color3(0.3, 0.3, 0.3);
-  borderMaterialViolet.alpha = 0.1; // Très transparent
+  borderMaterialViolet.alpha = 0.2; // Opacité 0.2 pour les bordures haut/bas
   borderMaterialViolet.wireframe = false;
 
   // Bordure supérieure - muret 3D
@@ -185,8 +186,11 @@ export function addBackgroundImage(scene: BABYLON.Scene, imageName: string) {
     width: 2000, // Très large pour couvrir tout le champ
     height: 1200,
   }, scene);
-  plane.position.set(0, 0, 1000); // Encore plus loin derrière tout
+  plane.position.set(0, 200, 1000); // Appliquer votre position Y de 200
   plane.renderingGroupId = 0;
+  // Appliquer votre rotation optimale
+  const rotX = -20 * Math.PI / 180;
+  plane.rotation = new BABYLON.Vector3(rotX, 0, 0);
   const mat = new BABYLON.StandardMaterial('backgroundImageMat', scene);
   const tex = new BABYLON.Texture(`/models/${imageName}`, scene, false, false, BABYLON.Texture.TRILINEAR_SAMPLINGMODE, 
     undefined, 
@@ -210,11 +214,16 @@ export function addBackgroundImage(scene: BABYLON.Scene, imageName: string) {
   }, scene);
   overlay.position = plane.position.clone();
   overlay.position.z = plane.position.z - 1; // juste devant l'image
+  overlay.rotation = plane.rotation.clone();
   const overlayMat = new BABYLON.StandardMaterial('overlayMat', scene);
   overlayMat.diffuseColor = new BABYLON.Color3(0, 0, 0);
   overlayMat.alpha = 0.6; // ajuste pour plus ou moins de noir
   overlay.material = overlayMat;
   overlay.isPickable = false;
+  
+  // Configurer les références pour le debug
+  setBackgroundReferences(plane, overlay);
+  
   console.log('🖼️ Image de fond chargée:', imageName);
 }
 
@@ -241,11 +250,20 @@ export async function loadStarDestroyerBackground(scene: BABYLON.Scene) {
     const size = Math.max(max.x - min.x, max.y - min.y, max.z - min.z);
     const targetSize = 600;
     const scale = targetSize / size;
-    starParent.scaling.set(scale, scale, scale);
+    starParent.scaling.set(scale * 0.8, scale * 0.8, scale * 0.8); // Augmenter le scale à 0.8
     starParent.position.set(0, 0, 250);
-    starParent.rotation = new BABYLON.Vector3(Math.PI / 8, 3 * Math.PI / 4, 0);
+    // Appliquer vos valeurs de rotation optimales
+    const rotX = 150 * Math.PI / 180;
+    const rotY = -40 * Math.PI / 180;
+    const rotZ = -200 * Math.PI / 180;
+    starParent.rotation = new BABYLON.Vector3(rotX, rotY, rotZ);
+    
+    // Configurer les références pour le debug
+    setStarDestroyerReferences(starParent);
+    
     console.log('🛸 Star Destroyer chargé en fond');
-    // Helper debug
+    
+    // Helper debug pour les matériaux
     (window as any).debugStarDestroyerMaterial = () => {
       starMeshes.forEach(m => {
         const mat = new BABYLON.StandardMaterial('debugMat', scene);
