@@ -70,6 +70,25 @@ function updateScore(): void {
   scoreEl.textContent = `P1 : ${scoreL} | P2 : ${scoreR}`;
 }
 
+// === FONCTION DEBUG ===
+function debugPlayerLose(): void {
+  if (pressed('l') || pressed('L')) {
+    // Faire gagner instantanément le joueur 1 (Player 1)
+    scoreL = WIN_SCORE;
+    updateScore();
+    setPhase('gameover');
+    console.log('🐛 DEBUG: Player 2 a perdu instantanément !');
+  }
+  
+  if (pressed('k') || pressed('K')) {
+    // Faire gagner instantanément le joueur 2 (Player 2)
+    scoreR = WIN_SCORE;
+    updateScore();
+    setPhase('gameover');
+    console.log('🐛 DEBUG: Player 1 a perdu instantanément !');
+  }
+}
+
 function setPhase(newPhase: GamePhase): void {
   phase = newPhase;
   switch (phase) {
@@ -213,6 +232,9 @@ function loop(now: number = performance.now()): void {
     case 'gameover':
       break;
   }
+
+  // Debug: Faire perdre instantanément un joueur avec "L" ou "K"
+  debugPlayerLose();
 
   // Rendu 2D
   drawScene(ctx, canvas, left, right, ball);
