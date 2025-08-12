@@ -3,4 +3,4 @@ export interface Vector {
   y: number;
 }
 
-export type GamePhase = 'starting' | 'playing' | 'between' | 'gameover';
+export type GamePhase = 'naming' | 'starting' | 'playing' | 'between' | 'gameover';
