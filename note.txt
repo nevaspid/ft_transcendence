@@ -1,5 +1,6 @@
 To do list :
-- écran pour entrer pseudo 2e joueur (début de partie)
+- une fonction de debug qui fait perdre le match a un des deux joueurs -- (ok - L = Win P1 // K = Win P2)
+- écran pour entrer pseudo 2e joueur (début de partie) -- ok
 - mode tournois (uniquement 4 personnes)
 - push résultat blockchain (avec gloms)
 - Générer un ID de match pour chaque partie, (1, 2, 3...) + ID de tournois (1, 2, 3...) ! NE PAS COMMENCER A 0 !
