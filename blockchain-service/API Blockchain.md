@@ -23,7 +23,7 @@ Appelle `createMatch(...)` sur le contrat.
 
 #### 📦 Exemple `fetch()` :
 ```js
-await fetch('http://localhost:3000/matches', {
+await fetch('http://localhost:3100/matches', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({
@@ -46,7 +46,7 @@ Appelle `getMatchData(uint)`.
 
 #### 📦 Exemple `fetch()` :
 ```js
-const res = await fetch('http://localhost:3000/matches/1001')
+const res = await fetch('http://localhost:3100/matches/1001')
 const match = await res.json()
 ```
 
@@ -67,7 +67,7 @@ Appelle `createTournament(...)`.
 
 #### 📦 Exemple `fetch()` :
 ```js
-await fetch('http://localhost:3000/createTournament', {
+await fetch('http://localhost:3100/createTournament', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({
@@ -86,7 +86,7 @@ Appelle `getTournamentData(uint)`.
 
 #### 📦 Exemple `fetch()` :
 ```js
-const res = await fetch('http://localhost:3000/tournament/42')
+const res = await fetch('http://localhost:3100/tournament/42')
 const tournament = await res.json()
 ```
 
@@ -98,7 +98,7 @@ Appelle `getPlayerMatches(uint)`.
 
 #### 📦 Exemple `fetch()` :
 ```js
-const res = await fetch('http://localhost:3000/playerMatches/1')
+const res = await fetch('http://localhost:3100/playerMatches/1')
 const matchIds = await res.json()
 ```
 
@@ -109,5 +109,5 @@ const matchIds = await res.json()
 L’API est dispo en local après lancement du conteneur Docker :
 
 ```bash
-http://localhost:3000
+http://localhost:3100
 ```
