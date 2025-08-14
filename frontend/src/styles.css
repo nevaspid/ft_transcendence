@@ -1,0 +1,195 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Ajoute tes styles personnalisés */
+body {
+    font-family: 'Press Start 2P', cursive;
+}
+
+@keyframes starfield {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(100%); }
+}
+
+.starfield {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('/assets/starfield.png') repeat;
+    animation: starfield 100s linear infinite;
+}
+
+@font-face {
+    font-family: 'Starjout';
+    src: url('/assets/fonts/Starjout.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+  
+@font-face {
+    font-family: 'Starjedi';
+    src: url('/assets/fonts/Starjedi.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+  
+@font-face {
+    font-family: 'Starjhol';
+    src: url('/assets/fonts/Starjhol.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'anakinmono';
+    src: url('/assets/fonts/anakinmono.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+.gradient-text {
+  display: inline-block;
+  background: linear-gradient(to bottom,
+    #fff9c4 0%,
+    #fde047 40%,
+    #f59e0b 60%,
+    #f97316 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+}
+
+.gradient-bg {
+  background: linear-gradient(to bottom,
+    #fde047 0%,
+    #FB6835 60%,
+    #FB5255 100%);
+    /* #fff9c4 0%,
+    #fde047 20%,
+    #f59e0b 50%,
+    #f97316 100%); */
+  color: #BAE5E5;
+  text-shadow:
+    -1px -1px 0 #FB5255,
+     1px -1px 0 #FB5255,
+    -1px  1px 0 #FB5255,
+     1px  1px 0 #FB6835;
+  border: none; /* si tu veux enlever la bordure */
+}
+
+.gradient-bg:hover {
+  /* background: linear-gradient(to bottom,
+    #FB5255 0%,
+    #FB6835 40%,
+    #fde047 100%);
+  color: #BAE5E5; */
+  transform: scale(1.05);
+}
+
+.profile-btn {
+  width: 18rem; /* ou 224px */
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  color: black;
+  transition: background-color 0.3s ease;
+  font-family: 'Starjedi', sans-serif; /* si tu veux harmoniser aussi la police */
+}
+
+.star-wars-intro {
+  perspective: 400px;
+  /* height: 100vh; */
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+}
+
+.crawl {
+  font-family: 'Starjedi', sans-serif;
+  transform-origin: 50% 100%;
+  animation: crawl 90s linear forwards;
+  transform: rotateX(40deg) translateZ(100%);
+  max-width: 600px;
+  margin: 0 auto;
+  text-align: justify;
+}
+
+@keyframes crawl {
+  0% {
+    transform: rotateX(40deg) translateY(80%);
+    opacity: 1;
+  }
+  10% {
+    opacity: 1;
+  }
+  100% {
+    transform: rotateX(20deg) translateY(-300%);
+    opacity: 0;
+  }
+}
+
+#languageSelector {
+  width: auto;
+  min-width: 0;
+}
+
+/* ----------- Responsive ---------- */
+
+/* Petit écran : réduire taille titre, boutons, etc. */
+@media (max-width: 640px) {
+  h1 {
+    font-size: 2rem; /* ≈ text-4xl */
+    line-height: 1.2;
+  }
+
+  .profile-btn {
+    width: auto;
+    font-size: 0.75rem;
+    padding: 0.4rem 0.8rem;
+  }
+
+  #languageSelector {
+    font-size: 0.75rem;
+    padding: 0.3rem 0.6rem;
+  }
+
+  .crawl {
+    max-width: 90%;
+    font-size: 0.75rem;
+  }
+}
+
+/* Très petit écran (< 400px) : encore plus compact */
+@media (max-width: 400px) {
+  h1 {
+    font-size: 1.5rem;
+  }
+  .profile-btn,
+  #languageSelector {
+    font-size: 0.65rem;
+    padding: 0.25rem 0.5rem;
+  }
+}
+
+.status-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 5px;
+  background-color: red;
+}
+
+.status-dot.offline {
+  background-color: gray;
+}
+
+.status-dot.online {
+  background-color: green;
+}

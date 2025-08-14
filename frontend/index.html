@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pong Wars</title>
+
+  <!-- Google Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS -->
+  <link rel="stylesheet" href="/src/styles.css">
+   <link rel="stylesheet" href="/src/space.css">
+</head>
+
+<body class="bg-star-wars-dark font-['Press_Start_2P'] bg-cover bg-center" style="background-image: url('/assets/hyperspace.jpg');">
+  <div class="fixed top-40 right-8 flex items-center gap-4 z-30">
+    <select id="languageSelector" 
+      class="neon-glow text-white px-3 py-2 rounded-full text-sm bg-transparent" 
+      style="font-family: 'Starjedi', sans-serif;">
+      <option value="fr" class="bg-black text-white">🇫🇷 FR</option>
+      <option value="en" class="bg-black text-white">🇬🇧 EN</option>
+      <option value="es" class="bg-black text-white">🇪🇸 ES</option>
+    </select>
+
+    <!-- Bouton login -->
+    <button id="loginBtn" class="btn neon-glow text-white px-6 py-2 rounded-full text-sm md:px-4"
+      style="font-family: 'Starjedi', sans-serif;">
+      <span data-i18n="login_signup"></span>
+      <div id="container-stars">
+        <div id="stars"></div>
+      </div>
+    </button>
+
+    <!-- Menu utilisateur -->
+    <div id="userMenu" class="hidden relative">
+      <button id="userBtn"
+        class="btn neon-glow text-white px-6 py-2 rounded-full md:px-4 sm:text-sm hover:text-white"
+        style="font-family: 'Starjedi', sans-serif;">
+        <span id="username"></span> ▼
+        <div id="container-stars">
+          <div id="stars"></div>
+        </div>
+      </button>
+      
+      <div data-page="profil" id="dropdownMenu" class="absolute right-0 top-10 mt-4 w-48 rounded-xl neon-glow border-2 border-cyan-500 shadow-[0_0_8px_2px_rgba(0,255,255,0.6)] hidden overflow-hidden"
+        style="font-family: 'Starjedi', sans-serif;">
+        <div id="container-stars">
+          <div id="stars"></div>
+        </div>
+        <button id="profilBtn" class="block w-full px-4 py-2 text-white hover:bg-star-wars-red/80 hover:text-white z-10 relative" data-i18n="profil"></button>
+        <button id="logoutBtn" class="block w-full px-4 py-2 text-white hover:bg-star-wars-red/80 hover:text-white z-10 relative" data-i18n="logout"></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Titre -->
+  <div class="fixed top-0 left-0 w-full text-center p-2 sm:p-4 z-20">
+    <h1 class="font-bold text-star-wars-accent leading-tight"
+        style="font-family: 'Starjhol', sans-serif;">
+      <span class="gradient-text whitespace-nowrap
+                  text-2xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl"
+            data-i18n="welcome1"></span><br>
+      <span class="gradient-text whitespace-nowrap
+                  text-2xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl"
+            data-i18n="welcome2"></span>
+    </h1>
+  </div>
+
+  <div class="flex h-screen pt-32">
+     <!-- Sidebar avec boutons ajustés (sans affecter les autres) -->
+    <div class="fixed top-1/4 left-0 p-6 flex flex-col gap-4 z-10">
+      <button data-page="home" class="btn neon-glow text-white" style="font-family: 'Starjedi', sans-serif;">
+        <span data-i18n="home"></span>
+        <div id="container-stars">
+          <div id="stars"></div>
+        </div>
+      </button>
+      
+      <button data-page="game" class="btn neon-glow text-white" style="font-family: 'Starjedi', sans-serif;">
+        <span data-i18n="pong"></span>
+        <div id="container-stars">
+          <div id="stars"></div>
+        </div>
+      </button>
+    
+    <button data-page="tournament" class="btn neon-glow text-white" style="font-family: 'Starjedi', sans-serif;">
+      <span data-i18n="tournament"></span>
+      <div id="container-stars">
+        <div id="stars"></div>
+      </div>
+    </button>
+      
+    <button data-page="settings" class="btn neon-glow text-white" style="font-family: 'Starjedi', sans-serif;">
+      <span data-i18n="settings"></span>
+      <div id="container-stars">
+        <div id="stars"></div>
+      </div>
+    </button>
+    <button data-page="space" class="btn neon-glow text-white" style="font-family: 'Starjedi', sans-serif;">
+      <span data-i18n="space"></span>
+      <div id="container-stars">
+        <div id="stars"></div>
+      </div>
+    </button>
+  </div>
+
+  <!-- Main Content repositionné à droite -->
+  <div id="main-content" class="ml-48 text-white text-center flex-1 p-4 sm:p-8 mt-20 sm:mt-32 md:mt-40">
+    <div class="bg-white/10 p-4 sm:p-8 rounded-xl backdrop-blur-md 
+                min-h-[400px] md:min-h-[600px] lg:min-h-[800px] 
+                max-h-screen flex flex-col items-center justify-start gap-4
+                border-2 border-cyan-500 hover:border-cyan-300 
+                shadow-[0_0_8px_2px_rgba(0,255,255,0.6)]">
+      
+      <p data-i18n="intergalactic_adventure" 
+        class="text-lg sm:text-xl md:text-2xl" 
+        style="font-family: 'Starjedi', sans-serif;"></p>
+      
+      <img src="/assets/pong_wars2.png" alt="Pong Wars" 
+          class="w-full max-w-[600px] h-auto object-contain rounded-lg" />
+      
+      <button data-page="game" 
+              class="relative bg-star-wars-accent text-black p-3 sm:p-4 mt-4 rounded-full 
+                    hover:bg-star-wars-red transition-all duration-300 
+                    border-2 border-cyan-500 hover:border-cyan-300 
+                    shadow-[0_0_8px_2px_rgba(0,255,255,0.6)]" 
+              style="font-family: 'Starjedi', sans-serif;" 
+              data-i18n="start">
+      </button>
+    </div>
+  </div>
+
+  <!-- Chargement du script TS externe -->
+  <script>
+    const content = {
+      home: `
+        <div class="bg-white/10 p-8 rounded-xl backdrop-blur-md h-[800px] flex flex-col items-center justify-start gap-4
+          border-2 border-cyan-500 hover:border-cyan-300 shadow-[0_0_8px_2px_rgba(0,255,255,0.6)]">
+          <p data-i18n="intergalactic_adventure" class="text-2xl" style="font-family: 'Starjedi', sans-serif;"></p>
+          <img src="/assets/pong_wars2.png" alt="Pong Wars" class="w-[600px] h-auto object-contain rounded-lg" />
+          <button data-page="game"
+            class="relative gradient-bg p-4 px-9 mt-4 rounded-full 
+              hover:bg-star-wars-red transition-all duration-300 border-4 border-cyan-500 
+              hover:border-cyan-300 shadow-[0_0_10px_3px_rgba(0,255,255,0.8)]" 
+            style="font-family: 'Starjedi', sans-serif;" data-i18n="start">
+          </button>
+        </div>`,
+      game: `
+        <div class="bg-white/10 p-8 rounded-xl backdrop-blur-md h-[800px] border-2 border-cyan-500 hover:border-cyan-300 shadow-[0_0_8px_2px_rgba(0,255,255,0.6)]" style="font-family: 'Starjedi', sans-serif;">
+          <h2 data-i18n="game" class="text-3xl mb-4 text-yellow-500"></h2>
+          <p data-i18n="play" class="text-white"></p>
+          <iframe 
+            src="/game/"
+            style="width: 100%; height: 700px; border: none; border-radius: 8px;"
+            title="Jeu"
+          ></iframe>
+        </div>`,
+      profil: `
+      <div class="bg-white/10 p-8 rounded-xl backdrop-blur-md h-[700px] border-2 border-cyan-500 hover:border-cyan-300 shadow-[0_0_8px_2px_rgba(0,255,255,0.6)]"
+          style="font-family: 'Starjedi', sans-serif;">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-8 h-full">
+            <!-- Colonne de gauche -->
+            <div class="flex flex-col items-center border-r border-cyan-500 pr-6">
+              <h2 class="text-3xl mb-6 text-yellow-500 text-center" id="profileUsername">
+            </h2>
+
+              <p class="status-dot">
+                <span id="status-dot" class="statut-dot"></span>
+              </p>
+
+              <img
+                id="profile-avatar"
+                src="/src/empty.png"
+                alt="Avatar"
+                class="w-24 h-24 rounded-full mb-4 object-cover border-2 border-cyan-500"
+              />
+              <p class="text-sm text-cyan-300 mb-6">
+                id : <span id="profile-id">#2</span>
+              </p>
+
+              
+
+
+              <div class="flex flex-col gap-4 w-full">
+                <button
+                  id="modifyProfileBtn"
+                  data-i18n="modify_profil"
+                  class="px-4 py-2 text-black rounded transition bg-[#fff9c4] hover:bg-[#fef08a]"
+                ></button>
+                <button
+                  id="generate-2fa-btn"
+                  data-i18n="activate_2FA"
+                  class="px-4 py-2 text-black rounded transition bg-[#fde047] hover:bg-[#facc15]"
+                ></button>
+                <button
+                  id="chooseAvatarBtn"
+                  type="button"
+                  data-i18n="choose_avatar"
+                  class="px-4 py-2 text-black rounded transition bg-[#f59e0b] hover:bg-[#ea580c]"
+                ></button>
+                <button
+                  id="addFriendBtn"
+                  type="button"
+                  data-i18n="addFriendBtn"
+                  class="px-4 py-2 text-black rounded transition bg-[#fb7c1f] hover:bg-[#f97316]"
+                ></button>
+                <button
+                  id="seeFriendRequestsBtn"
+                  type="button"
+                  data-i18n="seeFriendRequestsBtn"
+                  class="px-4 py-2 text-black rounded transition bg-[#f97316] hover:bg-[#ea580c]"
+                ></button>
+
+              </div>
+            </div>
+
+            <!-- Colonne de droite : 2 colonnes -->
+            <div class="md:col-span-2 flex flex-col gap-6 overflow-auto">
+              <div class="bg-white/10 p-4 rounded-xl border border-cyan-500 text-cyan-300 flex flex-col"
+                style="font-family: 'Starjedi', sans-serif;">
+                <h3 data-i18n="game_history" class="text-yellow-500 text-xl mb-2">Historique des matchs</h3>
+                <!-- Exemple contenu -->
+                <div id="match-<MATCH_ID>" class="flex flex-wrap items-center justify-center gap-2">
+                  <span id="player-<MATCH_ID>" class="font-semibold text-green-400">Player 1</span>
+                  <span id="score-<MATCH_ID>" class="mx-2">3 - 1</span>
+                  <span id="player-<MATCH_ID>" class="font-semibold text-red-400">Player 2</span>
+                </div>
+                <div id="match-<MATCH_ID>" class="flex flex-wrap items-center justify-center gap-2">
+                  <span id="player-<MATCH_ID>" class="font-semibold text-red-400">Player 1</span>
+                  <span id="score-<MATCH_ID>" class="mx-2">2 - 3</span>
+                  <span id="player-<MATCH_ID>" class="font-semibold text-green-400">Player 2</span>
+                </div>
+                <div id="match-<MATCH_ID>" class="flex flex-wrap items-center justify-center gap-2">
+                  <span id="player-<MATCH_ID>" class="font-semibold text-green-400">Player 1</span>
+                  <span id="score-<MATCH_ID>" class="mx-2">3 - 0</span>
+                  <span id="player-<MATCH_ID>" class="font-semibold text-red-400">Player 2</span>
+                </div>
+              </div>
+
+              <div class="bg-white/10 p-4 rounded-xl border border-cyan-500 text-cyan-300 flex flex-col"
+                style="font-family: 'Starjedi', sans-serif;">
+                <h3 data-i18n="score_rank" class="text-yellow-500 text-xl mb-2">Scores & Classements</h3>
+                <p class="text-white font-bold text-2xl mb-1" id="userScore">2 points</p>
+                <p class="text-white font-bold text-lg" id="userRank">🏆 1</p>
+              </div>
+
+              <div class="bg-white/10 p-4 rounded-xl border border-cyan-500 text-cyan-300 flex flex-col"
+                style="font-family: 'Starjedi', sans-serif;">
+                <h3 data-i18n="friends" class="text-yellow-500 text-xl mb-2">Amis</h3>
+                <div id="friendList" class="flex flex-wrap justify-center gap-4">
+                  <!-- Cartes d'amis ajoutées dynamiquement ici -->
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ✅ Modale pour demande d'amis -->
+        <div id="addFriendModal" class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 hidden">
+          <div class="bg-white/10 p-6 rounded-xl backdrop-blur-md border-2 border-cyan-500 shadow-[0_0_8px_2px_rgba(0,255,255,0.6)] w-[90%] max-w-md text-white relative"
+              style="font-family: 'Starjedi', sans-serif;">
+            
+            <h2 data-i18n="select_user" class="text-xl text-yellow-500 mb-4">Sélectionnez un utilisateur :</h2>
+
+            <div id="userList" class="grid grid-cols-2 gap-2 max-h-64 overflow-y-auto text-black  rounded p-2">
+              <!-- Utilisateurs à ajouter -->
+            </div>
+
+            <div class="text-center mt-4">
+              <button id="closeModalBtn"
+                      data-i18n="close"
+                      class="bg-cyan-500 px-4 py-2 rounded hover:bg-cyan-600 transition">
+                Fermer
+              </button>
+            </div>
+          </div>
+        </div>
+
+
+        <!-- ✅ Modale pour afficher les demandes d'amis reçues -->                                     
+        <div id="friendRequestsModal" class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 hidden">
+          <div class="bg-white/10 p-6 rounded-xl backdrop-blur-md border-2 border-cyan-500 shadow-[0_0_8px_2px_rgba(0,255,255,0.6)] w-[90%] max-w-md text-white relative"
+              style="font-family: 'Starjedi', sans-serif;">
+
+              <h2 data-i18n="seeFriendRequestsBtn" class="text-xl text-yellow-500 mb-4 text-center">Demandes d'amis</h2>
+            
+            <div id="friendRequestsList" class="grid grid-cols-2 gap-2 max-h-64 overflow-y-auto text-black rounded p-2">
+              <!-- Utilisateurs à ajouter -->
+            </div>
+
+            <div class="text-center mt-4">
+              <button id="closeFriendRequestsBtn" data-i18n="close" class="bg-cyan-500 px-4 py-2 rounded hover:bg-cyan-600 transition">
+                Fermer
+              </button>
+            </div>
+          </div>
+        </div>
+
+
+        <!-- Modal avatar -->
+        <div id="avatarModal" class="hidden fixed inset-0 flex justify-center items-start z-50 pt-80">
+            <div class="p-6 rounded-xl bg-white/10 backdrop-blur-md border-2 border-cyan-500 shadow-[0_0_8px_2px_rgba(0,255,255,0.6)] w-[90%] max-w-md max-h-[80vh] overflow-y-auto relative text-white"
+              style="font-family: 'Starjedi', sans-serif;">
+
+              <h2 data-i18n="choose_avatar" class="text-xl mb-4"></h2>
+
+              <div id="avatarList" class="grid grid-cols-4 gap-2 mb-4"></div>
+
+              <div class="flex justify-center mb-4">
+                <img id="avatarPreview" src="/src/empty.png" alt="Aperçu avatar" class="w-20 h-20 rounded-full border" />
+              </div>
+
+              <div id="avatarLibrary" class="grid grid-cols-5 gap-2 mb-4"></div>
+
+              <div class="flex flex-col items-center mb-4 gap-2">
+                <label for="avatarUpload" data-i18n="upload_avatar" class="text-sm text-gray-300"></label>
+                <input 
+                  type="file" 
+                  id="avatarUpload" 
+                  accept="image/*" 
+                  class="text-sm text-white bg-gray-800 border border-cyan-500 rounded px-3 py-1 file:mr-4 file:py-1 file:px-4 file:border-0 file:text-sm file:bg-cyan-600 file:text-white hover:file:bg-cyan-700 cursor-pointer"
+                />
+                <button 
+                  id="uploadAvatarBtn" data-i18n="send"
+                  class="bg-yellow-500 hover:bg-yellow-400 text-black px-4 py-1 rounded border-2 border-cyan-500 shadow hover:shadow-lg transition">
+                </button>
+              </div>
+
+              <div class="flex justify-center mb-4">
+                <button id="saveAvatarBtn" data-i18n="save" class="bg-cyan-500 hover:bg-cyan-600 text-white px-4 py-2 rounded"></button>
+              </div>
+
+              <button id="closeAvatarModal" class="absolute top-3 right-4 text-white text-3xl hover:text-cyan-400 transition">&times;</button>
+            </div>
+          </div>
+
+        <!-- ✅ MODALE 2FA -->
+        <div id="twofaModal" class="hidden fixed inset-0 bg-black/60 flex items-center justify-center z-50">
+          <div class="bg-white/10 p-6 rounded-xl backdrop-blur-md border-2 border-cyan-500 shadow-[0_0_8px_2px_rgba(0,255,255,0.6)] w-[90%] max-w-md text-white relative"
+            style="font-family: 'Starjedi', sans-serif;">
+
+            <h2 data-i18n="2FA" class="text-xl mb-4"></h2>
+            <img id="qrImage" src="" alt="QR Code" class="w-32 h-32 mx-auto border border-cyan-400 p-2 bg-white rounded mb-4" />
+            <input id="2fa-code" type="text" data-i18n="2FA_code" placeholder="Code à 6 chiffres" class="w-full p-2 mb-4 rounded text-black bg-white" />
+            <div class="text-center">
+              <button type="button" id="confirm-2fa-btn" data-i18n="confirm" class="bg-cyan-500 px-4 py-2 rounded hover:bg-cyan-600"></button>
+              <button id="cancel-2fa-btn" data-i18n="cancel" class="ml-2 text-gray-300 hover:text-red-400"></button>
+            </div>
+            <button class="absolute top-3 right-4 text-white text-2xl hover:text-cyan-400" id="close2faModal">&times;</button>
+          </div>
+        </div>
+
+        <!-- ✅ Modal mot de passe séparé du formulaire principal -->
+        <div id="passwordModal" class="hidden fixed inset-0 bg-black/60 flex justify-center items-center z-[60] font-[Starjedi]">
+          <div class="bg-white/10 backdrop-blur-md rounded-xl p-6 w-full max-w-md text-white border-2 border-cyan-500 shadow-[0_0_8px_2px_rgba(0,255,255,0.6)] relative">
+            <h2 data-i18n="change_pw" class="text-xl font-semibold mb-4 text-yellow-400"></h2>
+
+            <form id="passwordChangeForm" class="flex flex-col gap-4">
+              <label class="flex flex-col gap-1 text-cyan-300">
+                <span data-i18n="old_pw"></span>
+                <input
+                  type="password"
+                  id="oldPassword"
+                  required
+                  class="w-full p-2 rounded bg-white/10 border border-cyan-500 text-white placeholder-cyan-300 focus:outline-none focus:ring-2 focus:ring-cyan-400"
+                />
+              </label>
+
+              <label class="flex flex-col gap-1 text-cyan-300">
+                <span data-i18n="new_pw"></span>
+                <input
+                  type="password"
+                  id="newPassword"
+                  required
+                  class="w-full p-2 rounded bg-white/10 border border-cyan-500 text-white placeholder-cyan-300 focus:outline-none focus:ring-2 focus:ring-cyan-400"
+                />
+              </label>
+
+              <div class="flex justify-end gap-2 mt-2">
+                <button
+                  type="button"
+                  id="cancelPasswordChange"
+                  data-i18n="cancel"
+                  class="px-4 py-2 bg-gray-300/20 text-cyan-300 border border-cyan-500 rounded hover:bg-gray-300/30 hover:text-white transition"
+                ></button>
+
+                <button
+                  type="submit"
+                  data-i18n="confirm"
+                  class="px-4 py-2 bg-cyan-500 text-black rounded hover:bg-cyan-400 transition"
+                ></button>
+              </div>
+            </form>
+
+            <button
+              class="absolute top-3 right-4 text-white text-2xl hover:text-cyan-400 transition"
+              id="closePasswordModal"
+            >
+              &times;
+            </button>
+          </div>
+        </div>
+
+
+        <!-- ✅ MODALE MODIFIER PROFIL -->
+        <div id="editProfileModal" class="hidden fixed inset-0 bg-black/60 flex items-start justify-center z-50 pt-80 font-[Starjedi]">
+          <div class="bg-white/10 backdrop-blur-md p-6 rounded-xl w-[90%] max-w-md text-white relative border-2 border-cyan-500 shadow-[0_0_8px_2px_rgba(0,255,255,0.6)] transition">
+
+            <h2 data-i18n="modify_profil" class="text-xl font-bold mb-4 text-yellow-400"></h2>
+            
+            <form id="editProfileForm" class="flex flex-col gap-3">
+              <input type="text" id="edit-username" data-i18n="display_name" placeholder="Pseudo" class="w-full p-2 mb-4 bg-transparent rounded text-white border-2 border-cyan-500" 
+                style="font-family: monospace;" />
+              <input type="email" id="edit-email" placeholder="Email" class="w-full p-2 mb-4 bg-transparent rounded text-white border-2 border-cyan-500" 
+            style="font-family: monospace;" />
+            
+              <div class="flex justify-center gap-2">
+                <button type="button" id="cancelEditProfile" data-i18n="cancel" class="px-4 py-2 bg-gray-300 hover:bg-gray-400 rounded text-black"></button>
+                <button id="submitEditProfileBtn" type="button" data-i18n="save" class="px-4 py-2 bg-cyan-500 hover:bg-cyan-400 rounded text-black"></button>
+              </div>
+              <button type="button" id="changePasswordBtn" data-i18n="change_pw" class="bg-yellow-400 text-black px-4 py-2 rounded hover:bg-yellow-300 transition mt-6">
+              </button>
+            </form>
+
+            <!-- Bloc infos utilisateur actuel -->
+            <div id="currentUserInfo" class="mt-6 p-4 border-t border-cyan-500 text-sm text-cyan-300">
+              <h3 data-i18n="user_info" class="text-lg font-semibold mb-2 text-yellow-400"></h3>
+              <p><strong data-i18n="display_name2">Pseudo :</strong> <span style="font-family: monospace;" id="currentPseudo"></span></p>
+              <p><strong>Email :</strong> <span style="font-family: monospace;" id="currentEmail"></span></p>
+            </div>
+
+            <button class="absolute top-3 right-4 text-white text-2xl hover:text-cyan-400 transition" id="closeEditProfileModal">&times;</button>
+          </div>
+        </div>
+      </div>`,
+      tournament: `
+        <div class="bg-white/10 p-8 rounded-xl backdrop-blur-md h-[800px] border-2 border-cyan-500 hover:border-cyan-300 shadow-[0_0_8px_2px_rgba(0,255,255,0.6)]" style="font-family: 'Starjedi', sans-serif;">
+          <h2 data-i18n="tournament" class="text-3xl mb-4 text-yellow-500"></h2>
+          <p data-i18n="tournament_title" class="text-white"></p>
+        </div>`,
+      settings: `
+        <div class="bg-white/10 p-8 rounded-xl backdrop-blur-md h-[800px] border-2 border-cyan-500 hover:border-cyan-300 shadow-[0_0_8px_2px_rgba(0,255,255,0.6)]" style="font-family: 'Starjedi', sans-serif;">
+          <h2 data-i18n="settings" class="text-3xl mb-4 text-yellow-500"></h2>
+          <p data-i18n="settings_title" class="text-white"></p>
+        </div>`,
+      space: `
+         <div class="bg-white/10 p-8 rounded-xl backdrop-blur-md h-[800px] border-2 border-cyan-500 hover:border-cyan-300 shadow-[0_0_8px_2px_rgba(0,255,255,0.6)] flex flex-col items-center justify-center gap-4" style="font-family: 'Starjedi', sans-serif;">
+          <div class="star-wars-intro w-full max-w-4xl overflow-hidden">
+            <div class="crawl text-yellow-500 text-center text-2xl leading-relaxed">
+              <!-- FR -->
+              <div class="lang-block fr">
+                <p>il y a bien longtemps, dans une galaxie lointaine, très lointaine...</p>
+                <br />
+                <p class="text-center text-6xl">PoNG WARS</p>
+                <br />
+                <p class="text-center">Épisode i</p>
+                <p class="text-center">LA BATAiLLE DES RAquETTES</p>
+                <br />
+                <p>En ces temps troublés, la paix fragile du système galactique est menacée par de sombres seigneurs du Pong.</p>
+                <p>Armés de réflexes éclairs et de raquettes légendaires, les Maîtres Pongistes s'affrontent dans des arènes oubliées par le temps.</p>
+                <p>Chaque point marqué rapproche le vainqueur de la maîtrise de la Force du Pong... et de la gloire éternelle.</p>
+                <p>vous êtes l’un de ces champions.</p>
+                <p>Mais le chemin vers la victoire sera semé d’embûches.</p>
+                <p>De redoutables adversaires vous attendent, tapis dans l’ombre, prêts à déjouer chacun de vos coups.</p>
+                <p>Le destin de la galaxie repose désormais sur votre habileté.</p>
+                <p>Serez-vous capable de surmonter vos limites et de devenir le Maître Suprême du Pong ?</p>
+                <p>Maniez votre raquette avec sagesse.</p>
+                <p>que la balle soit avec vous... et que le duel commence !</p>
+              </div>
+
+              <!-- EN -->
+              <div class="lang-block en hidden">
+                <p>A long time ago in a galaxy far, far away...</p>
+                <br />
+                <p class="text-center text-6xl">PoNG WARS</p>
+                <br />
+                <p class="text-center">Episode i</p>
+                <p class="text-center">THE BATTLE oF THE PADDLES</p>
+                <br />
+                <p>in these troubled times, the fragile peace of the galactic system is threatened by dark Pong lords.</p>
+                <p>Armed with lightning reflexes and legendary paddles, Pong Masters clash in arenas forgotten by time.</p>
+                <p>Every point brings the victor closer to mastering the Force of Pong... and eternal glory.</p>
+                <p>You are one of these champions.</p>
+                <p>But the road to victory will be full of obstacles.</p>
+                <p>Formidable opponents lie in wait, hidden in the shadows, ready to counter every move.</p>
+                <p>The fate of the galaxy now rests on your skills.</p>
+                <p>Will you overcome your limits and become the Supreme Pong Master?</p>
+                <p>Wield your paddle wisely.</p>
+                <p>May the ball be with you... and let the duel begin!</p>
+              </div>
+
+              <!-- ES -->
+              <div class="lang-block es hidden">
+                <p>Hace mucho tiempo en una galaxia muy, muy lejana...</p>
+                <br />
+                <p class="text-center text-6xl">PoNG WARS</p>
+                <br />
+                <p class="text-center">Episodio i</p>
+                <p class="text-center">LA BATALLA DE LAS PALAS</p>
+                <br />
+                <p>En estos tiempos turbulentos, la frágil paz del sistema galáctico está amenazada por oscuros señores del Pong.</p>
+                <p>Armados con reflejos relámpago y palas legendarias, los Maestros del Pong luchan en arenas olvidadas por el tiempo.</p>
+                <p>Cada punto acerca al vencedor al dominio de la Fuerza del Pong... y a la gloria eterna.</p>
+                <p>Eres uno de estos campeones.</p>
+                <p>Pero el camino hacia la victoria estará lleno de obstáculos.</p>
+                <p>Temibles adversarios te esperan, escondidos en las sombras, listos para contrarrestar cada uno de tus golpes.</p>
+                <p>El destino de la galaxia ahora está en tus manos.</p>
+                <p>¿Podrás superar tus límites y convertirte en el Maestro Supremo del Pong?</p>
+                <p>Maneja tu pala con sabiduría.</p>
+                <p>Que la pelota te acompañe... ¡y que comience el duelo!</p>
+              </div>
+            </div>
+          </div>
+        </div>`,
+      login: `
+        <div class="bg-white/10 p-8 rounded-xl backdrop-blur-md h-[800px] w-[600px] mx-auto mt-20 border-2 border-cyan-500 hover:border-cyan-300 shadow-[0_0_8px_2px_rgba(0,255,255,0.6)]" 
+            style="font-family: 'Starjedi', sans-serif;">
+          <h2 data-i18n="login" class="text-3xl mb-6 text-yellow-500"></h2>
+
+          <input type="text" id="login-username" data-i18n="username" placeholder="Nom d'utilisateur" 
+            class="w-full p-2 mb-4 bg-transparent rounded text-white border-2 border-cyan-500" 
+            style="font-family: monospace;" />
+          
+          <input type="password" id="login-password" data-i18n="password" placeholder="Mot de passe" 
+            class="w-full p-2 mb-4 bg-transparent rounded text-white border-2 border-cyan-500" 
+            style="font-family: monospace;" />
+          
+          <button id="loginBtn" type="button" data-i18n="login"
+            class="relative neon-glow text-white p-3 rounded-full 
+                  hover:bg-yellow-500 transition-all duration-300 w-full border-2 border-cyan-500 
+                  hover:border-yellow-300 shadow-[0_0_8px_2px_rgba(0,255,255,0.6)]">
+          </button>
+
+          <button id="custom-google-btn" type="button" data-i18n="google_login"
+            class="relative neon-glow text-white p-3 rounded-full 
+                  hover:bg-yellow-500 transition-all duration-300 w-full border-2 border-red-500 
+                  hover:border-yellow-300 shadow-[0_0_8px_2px_rgba(255,0,0,0.6)] mt-4">
+          </button>
+
+          <div id="2fa-management" class="hidden mt-4">
+            <p data-i18n="2FA_on" class="mb-2 text-white"></p>
+            <input id="2fa-code" type="text" data-i18n="2FA_placeholder" placeholder="" class="mt-2 p-2 w-full max-w-xs border border-gray-300 rounded text-black bg-white" />
+            <button id="verify-2fa-button" data-i18n="validate_2FA" class="mt-2 p-2 bg-blue-500 text-white rounded"></button>
+          </div>
+
+          <p>
+            <span data-i18n="no_account"></span>
+            <a href="#" id="signuplink" data-i18n="create_account" class="text-yellow-500"></a>
+          </p>
+         
+        </div>`,
+      signup: `
+        <div class="bg-white/10 p-8 rounded-xl backdrop-blur-md h-[800px] w-[600px] mx-auto mt-20 border-2 border-cyan-500 hover:border-cyan-300 shadow-[0_0_8px_2px_rgba(0,255,255,0.6)]" 
+            style="font-family: 'Starjedi', sans-serif;">
+          <h2 data-i18n="create_account" class="text-3xl mb-6 text-yellow-500"></h2>
+
+          <input type="text" id="signup-username" data-i18n="username" placeholder="Nom d'utilisateur" 
+            class="w-full p-2 mb-4 bg-transparent rounded text-white border-2 border-cyan-500" 
+            style="font-family: monospace;" />
+          
+          <input type="text" id="signup-pseudo" data-i18n="display_name" placeholder="Pseudo" 
+            class="w-full p-2 mb-4 bg-transparent rounded text-white border-2 border-cyan-500" 
+            style="font-family: monospace;" />
+
+          <input type="password" id="signup-password" data-i18n="password" placeholder="Mot de passe" 
+            class="w-full p-2 mb-4 bg-transparent rounded text-white border-2 border-cyan-500" 
+            style="font-family: monospace;" />
+
+          <input type="email" id="signup-email" placeholder="Email" 
+            class="w-full p-2 mb-4 bg-transparent rounded text-white border-2 border-cyan-500" 
+            style="font-family: monospace;" />
+          
+          <button onclick="createAccount()" data-i18n="create_account"
+            class="relative neon-glow text-white p-3 rounded-full 
+                  hover:bg-yellow-500 transition-all duration-300 w-full border-2 border-cyan-500 
+                  hover:border-yellow-300 shadow-[0_0_8px_2px_rgba(0,255,255,0.6)]">
+          </button>
+        </div>`
+    };
+  </script>
+  </div> 
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script type="module" src="/src/script.ts"></script>
+</body>
+</html>
