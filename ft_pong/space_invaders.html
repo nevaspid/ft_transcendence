@@ -2,20 +2,24 @@
 <html lang="fr">
   <head>
     <meta charset="UTF-8" />
-    <title>Space Invaders (Bientôt)</title>
+    <title>Space Invaders</title>
     <link rel="stylesheet" href="/src/style.css" />
   </head>
   <body>
-    <main class="menu placeholder">
-      <section class="menu-card">
-        <h1 class="menu-title">Space Invaders (à venir)</h1>
-        <p class="menu-desc">Le jeu sera disponible prochainement.</p>
-        <div class="menu-buttons">
-          <a class="menu-btn" href="/menu.html">Retour</a>
-          <a class="menu-btn primary" href="/index.html">Jouer 1v1 maintenant</a>
+    <div id="layout">
+      <header class="hud" id="si-hud" style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+        <div id="si-lives" class="si-lives"></div>
+        <div style="flex:1;text-align:center">Space Invaders</div>
+        <div id="si-scores" style="display:flex;align-items:center;gap:12px">
+          <span id="si-score-p1">P1 = 0 x1</span>
+          <span id="si-score-p2" style="display:none">P2 = 0 x1</span>
         </div>
-      </section>
-    </main>
+      </header>
+      <main id="game-area">
+        <div class="game-wrapper" id="si-wrapper"></div>
+      </main>
+    </div>
+    <script type="module" src="/space_invaders/main.ts"></script>
   </body>
   </html>
 

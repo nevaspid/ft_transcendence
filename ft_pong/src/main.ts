@@ -79,6 +79,14 @@ let countdown = START_DELAY_SEC;
 let player1Name = (document.getElementById('p1-name')?.textContent || 'Player 1').trim();
 let player2Name = (document.getElementById('p2-name')?.textContent || 'Player 2').trim();
 let isInitialStarting = false;
+const urlParams = new URLSearchParams(window.location.search);
+const isTournamentMode = urlParams.get('tournament') === '1';
+if (isTournamentMode) {
+  const p1 = urlParams.get('p1');
+  const p2 = urlParams.get('p2');
+  if (p1) player1Name = decodeURIComponent(p1);
+  if (p2) player2Name = decodeURIComponent(p2);
+}
 
 // === FONCTIONS DU JEU ===
 function updateScore(): void {
@@ -109,6 +117,13 @@ function setPhase(newPhase: GamePhase): void {
   phase = newPhase;
   switch (phase) {
     case 'naming':
+      // En mode tournoi, on saute la saisie et on démarre directement
+      if (isTournamentMode) {
+        updateScore();
+        isInitialStarting = true;
+        setPhase('starting');
+        break;
+      }
       // Afficher l'overlay de saisie
       if (p2Overlay) {
         p2Overlay.classList.add('visible');
@@ -150,8 +165,17 @@ function setPhase(newPhase: GamePhase): void {
       }
       break;
     case 'gameover':
+      // En tournoi, on renvoie le résultat à la page tournoi et on sort
+      if (isTournamentMode) {
+        const winner = (scoreL > scoreR ? player1Name : player2Name);
+        const res = { winner, score: `${scoreL}-${scoreR}` };
+        try { localStorage.setItem('pong_result', JSON.stringify(res)); } catch {}
+        const back = localStorage.getItem('tournament_return_to') || '/tournament.html';
+        // petite pause pour laisser finir les animations éventuelles
+        setTimeout(() => { window.location.href = back; }, 200);
+        break;
+      }
       if (victoryOverlay) {
-        // Mettre à jour les champs de la carte
         if (victRankNum) victRankNum.textContent = '';
         if (victRankWord) victRankWord.textContent = 'WIN';
         if (victUserName) victUserName.textContent = (scoreL > scoreR ? player1Name : player2Name);
