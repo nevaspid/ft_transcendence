@@ -66,16 +66,10 @@ export const setUserOnline = (userId) => {
 };
 
 export const setUserOffline = (userId) => {
+  console.log("setUserOffline appelé avec :", userId);
   db.prepare("UPDATE users SET is_online = 0 WHERE id = ?")
     .run(userId);
-};
-
-export const isUserOnline = (userId, timeoutSec = 300) => {
-  const user = db.prepare("SELECT is_online, last_active FROM users WHERE id = ?").get(userId);
-  if (!user) return false;
-  const now = Math.floor(Date.now() / 1000);
-  return user.is_online && (now - user.last_active <= timeoutSec);
+    console.log("Nombre de lignes mises à jour :", result.changes);
 };
 
 export default db;
-

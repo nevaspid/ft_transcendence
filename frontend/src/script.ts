@@ -629,11 +629,27 @@ document.addEventListener('DOMContentLoaded', () => {
     navigate("login");
   });
 
-  // Bouton logout dans le menu utilisateur
-  document.getElementById("logoutBtn")?.addEventListener("click", (e) => {
-    e.preventDefault();
-    logoutUser();
-  });
+// Bouton logout dans le menu utilisateur
+document.getElementById("logoutBtn")?.addEventListener("click", async (e) => {
+  e.preventDefault();
+
+  const token = localStorage.getItem("token");
+  if (token) {
+    try {
+      await fetch('/api/auth/logout', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+    } catch (err) {
+      console.error("Erreur lors du logout serveur :", err);
+    }
+  }
+
+  logoutUser();
+});
+
 
   // Bouton profil
   document.getElementById("profilBtn")?.addEventListener("click", (e) => {

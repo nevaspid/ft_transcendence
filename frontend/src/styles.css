@@ -176,20 +176,3 @@ body {
     padding: 0.25rem 0.5rem;
   }
 }
-
-.status-dot {
-  display: inline-block;
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  margin-right: 5px;
-  background-color: red;
-}
-
-.status-dot.offline {
-  background-color: gray;
-}
-
-.status-dot.online {
-  background-color: green;
-}

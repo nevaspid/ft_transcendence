@@ -347,260 +347,278 @@ export function initProfilPage() {
       headers: { 'Authorization': `Bearer ${token}` }
     });
     if (!res.ok) throw new Error(t(currentLang, 'profile_load_error'));
+
     const user = await res.json();
     userState.pseudoUser = user.pseudo;
     userState.avatarBaseUrl = apiUrlAvatar;
+
     updateUserMenu();
     updateProfileUI(user);
     displayUserInfo(user);
-    setInterval(() => updateUserStatus(user.id), 30000); // toutes les 30 secondes
-    // 👇 Charger les amis après chargement du profil
+
     if (user.id) {
       currentUserId = user.id;
+      
+      // 🟢 Mise à jour immédiate du statut
+      updateUserStatus(user.id);
+
+      // ⏳ Mise à jour régulière toutes les 30s
+      setInterval(() => updateUserStatus(user.id), 30000);
+
       await loadAllFriends();
     }
   } catch (err) {
     console.error(err);
   }
-  }
-
-  /**
-   * Status du client
-   */
-
-  async function updateUserStatus(userId: number) {
-  const dot = document.getElementById('status-dot') as HTMLSpanElement | null;
-  const text = document.getElementById('status-text');
- 
-  // Valeur par défaut (avant la réponse)
-  if (dot) dot.style.backgroundColor = 'gray';
-  if (text) text.textContent = 'Hors ligne';
-
-  try {
-    const res = await fetch(`/api/user/${userId}/status`);
-    if (!res.ok) throw new Error(`Impossible de récupérer le statut (HTTP ${res.status})`);
-    
-    const data = await res.json();
-    const isOnline = !!data.is_online; // on s'aligne avec ta réponse API
-
-    if (dot) dot.style.backgroundColor = isOnline ? 'green' : 'gray';
-    if (text) text.textContent = isOnline ? 'En ligne' : 'Hors ligne';
-  } catch (err) {
-    console.error('Erreur de récupération du statut utilisateur :', err);
-  }
 }
 
-  /**
-   * Met à jour l'affichage des données utilisateur sur la page profil
-   */
 
-  function updateProfileUI(user: { id: number; pseudo: string; username: string; avatarUrl?: string }) {
-  const usernameElem = document.getElementById('profileUsername');
-  const avatarElem = document.getElementById('profile-avatar') as HTMLImageElement;
-  const idElem = document.getElementById('profile-id');
-
-  if (usernameElem) {
-    usernameElem.textContent = `${user.pseudo}`;
-  }
-
-  if (avatarElem) {
-    avatarElem.src = user.avatarUrl && user.avatarUrl.trim() !== ''
-      ? apiUrlAvatar + user.avatarUrl
-      : '/src/empty.png';
-  }
-
-  if (idElem) {
-    idElem.textContent = `${user.id}`;
-  }
-  }
-
-  function displayUserInfo(user: { pseudo: string; email: string }) {
-    const pseudoElem = document.getElementById('currentPseudo');
-    const emailElem = document.getElementById('currentEmail');
-    if (pseudoElem) pseudoElem.textContent = `${user.pseudo}`;
-    if(emailElem) emailElem.textContent = `${user.email}`;
-  }
-
-  /**
-   * Ouvre la modale d’avatars et affiche les avatars disponibles
-   */
-
-  async function openAvatarLibrary() {
-      const avatarModal = document.getElementById('avatarModal') as HTMLDivElement | null;
-      const avatarList = document.getElementById('avatarList') as HTMLDivElement | null;
-      if (!avatarModal || !avatarList) return;
-
-      avatarModal.classList.remove('hidden');
-      avatarList.innerHTML = '';
-
+    /**
+     * Status du client
+     */
+    async function updateUserStatus(userId: number) {
       try {
-         
-          const res = await fetch(`/avatar/api/avatars`);
-          if (!res.ok) throw new Error(t(currentLang, 'avatar_load_error'));
+        // Envoie heartbeat
+        await fetch(`/api/user/${userId}/heartbeat`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        });
 
-          const data = await res.json() as { avatars: string[] };
+        // Récupère statut
+        const res = await fetch(`/api/user/${userId}/status`);
+        const data = await res.json();
 
-          data.avatars.forEach(avatarUrl => {
-          const img = document.createElement('img');
-          img.src = apiUrlAvatar + avatarUrl; // <-- ici, concatène la base URL complète
-          img.alt = 'Avatar';
-          img.className = 'cursor-pointer rounded border-2 border-transparent hover:border-cyan-500';
-          img.style.width = '64px';
-          img.style.height = '64px';
-          img.style.objectFit = 'cover';
+        const dot = document.getElementById('status-dot');
+        const isOnline = !!data.is_online;
 
-          img.addEventListener('click', () => {
-          
-          selectAvatar(avatarUrl);
-          });
+        if (dot) {
+      // Supprime anciennes couleurs et effets
+      dot.classList.remove('bg-green-500', 'bg-red-500', 'bg-gray-500');
+      dot.style.boxShadow = '';
 
-          avatarList.appendChild(img);
-          });
-      } catch (error) {
-          if (avatarList) avatarList.innerHTML = '<p class="text-red-500">Impossible de charger les avatars.</p>';
-          console.error(error);
+      if (isOnline) {
+        dot.classList.add('bg-green-500');
+        dot.style.boxShadow = '0 0 8px #22c55e, 0 0 12px #22c55e, 0 0 24px #22c55e';
+      } else {
+        dot.classList.add('bg-red-500');
+        dot.style.boxShadow = '0 0 6px #f87171, 0 0 12px #f87171, 0 0 24px #f87171';
       }
-  }
-
-  /**
-   * Sélectionne un avatar temporairement (affichage dans la prévisualisation)
-   */
-
-  function selectAvatar(avatarUrl: string) {
-      selectedAvatarTemp = avatarUrl;
-      // Met à jour l'affichage local dans la pop-up (facultatif)
-      const preview = document.getElementById('avatarPreview') as HTMLImageElement | null;
-      if (preview) {
-          preview.src = apiUrlAvatar + avatarUrl;
+    }
+      } catch (err) {
+        console.error('Erreur statut utilisateur:', err);
       }
-  }
-
-
-   /**
-   * Sauvegarde l’avatar sélectionné en base
-   */
-  async function saveSelectedAvatar() {
-      if (!selectedAvatarTemp) return;
-
-      try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-          console.error('Token manquant, utilisateur non authentifié');
-          return;
-      }
-
-      const res = await fetch(`/api/api/profile/avatar`, {
-          method: 'PATCH',
-          headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + token,
-          },
-          body: JSON.stringify({ avatar_url: selectedAvatarTemp }),
-      });
-
-      if (!res.ok) throw new Error(t(currentLang, 'avatar_save_error'));
-
-
-      const data = await res.json();
-      console.log('Avatar sauvegardé avec succès:', data);
-
-      // Met à jour l'avatar dans le profil (page principale)
-      const profileAvatarImg = document.getElementById('profile-avatar') as HTMLImageElement | null;
-      if (profileAvatarImg && data.avatarUrl) {
-          profileAvatarImg.src = apiUrlAvatar + data.avatarUrl;
-      }
-
-      // Ferme la modale avatar
-      const avatarModal = document.getElementById('avatarModal') as HTMLDivElement | null;
-      if (avatarModal) avatarModal.classList.add('hidden');
-
-      // Reset sélection temporaire
-      selectedAvatarTemp = null;
-
-      } catch (error) {
-      console.error(error);
-      alert(t(currentLang, 'avatar_save_error'));
-      }
-  }
-
-
-  /**
-   * Gère le téléversement personnalisé d’un avatar
-   */
-
-  document.getElementById('uploadAvatarBtn')?.addEventListener('click', async () => {
-  const input = document.getElementById('avatarUpload') as HTMLInputElement;
-  if (!input.files || input.files.length === 0) {
-    alert(t(currentLang, 'choose_image'));
-    return;
-  }
-
-  const file = input.files[0];
-
-  // ✅ Vérification de la taille max : 2 Mo
-  const maxSize = 2 * 1024 * 1024; // 2 MB
-  if (file.size > maxSize) {
-    alert(t(currentLang, 'file_too_large'));
-    return;
-  }
-
-  const formData = new FormData();
-  formData.append('avatar', file);
-
-
-  try {
-    const token = localStorage.getItem('token');
-    if (!token) {
-      alert(t(currentLang, 'must_be_logged_in'));
-      return;
     }
 
-    const response = await fetch(`/avatar/api/profile/avatar/upload`, {
-      method: 'POST',
-      headers: {
-        'Authorization': 'Bearer ' + token,
-      },
-      body: formData,
-    });
 
-     if (!response.ok) throw new Error(t(currentLang, 'upload_failed'));
+    /**
+     * Met à jour l'affichage des données utilisateur sur la page profil
+     */
 
-    const data = await response.json();
+    function updateProfileUI(user: { id: number; pseudo: string; username: string; avatarUrl?: string }) {
+    const usernameElem = document.getElementById('profileUsername');
+    const avatarElem = document.getElementById('profile-avatar') as HTMLImageElement;
+    const idElem = document.getElementById('profile-id');
 
-    // ✅ Met à jour l’aperçu et la sélection active
-    const preview = document.getElementById('avatarPreview') as HTMLImageElement;
-    if (data.avatar_url && preview) {
-        selectedAvatarTemp = data.avatar_url;
-        preview.src = apiUrlAvatar + data.avatar_url;
+    if (usernameElem) {
+      usernameElem.textContent = `${user.pseudo}`;
+    }
+
+    if (avatarElem) {
+      avatarElem.src = user.avatarUrl && user.avatarUrl.trim() !== ''
+        ? apiUrlAvatar + user.avatarUrl
+        : '/src/empty.png';
+    }
+
+    if (idElem) {
+      idElem.textContent = `${user.id}`;
+    }
+    }
+
+    function displayUserInfo(user: { pseudo: string; email: string }) {
+      const pseudoElem = document.getElementById('currentPseudo');
+      const emailElem = document.getElementById('currentEmail');
+      if (pseudoElem) pseudoElem.textContent = `${user.pseudo}`;
+      if(emailElem) emailElem.textContent = `${user.email}`;
+    }
+
+    /**
+     * Ouvre la modale d’avatars et affiche les avatars disponibles
+     */
+
+    async function openAvatarLibrary() {
+        const avatarModal = document.getElementById('avatarModal') as HTMLDivElement | null;
+        const avatarList = document.getElementById('avatarList') as HTMLDivElement | null;
+        if (!avatarModal || !avatarList) return;
+
+        avatarModal.classList.remove('hidden');
+        avatarList.innerHTML = '';
+
+        try {
+            
+            const res = await fetch(`/avatar/api/avatars`);
+            if (!res.ok) throw new Error(t(currentLang, 'avatar_load_error'));
+
+            const data = await res.json() as { avatars: string[] };
+
+            data.avatars.forEach(avatarUrl => {
+            const img = document.createElement('img');
+            img.src = apiUrlAvatar + avatarUrl; // <-- ici, concatène la base URL complète
+            img.alt = 'Avatar';
+            img.className = 'cursor-pointer rounded border-2 border-transparent hover:border-cyan-500';
+            img.style.width = '64px';
+            img.style.height = '64px';
+            img.style.objectFit = 'cover';
+
+            img.addEventListener('click', () => {
+            
+            selectAvatar(avatarUrl);
+            });
+
+            avatarList.appendChild(img);
+            });
+        } catch (error) {
+            if (avatarList) avatarList.innerHTML = '<p class="text-red-500">Impossible de charger les avatars.</p>';
+            console.error(error);
+        }
+    }
+
+    /**
+     * Sélectionne un avatar temporairement (affichage dans la prévisualisation)
+     */
+
+    function selectAvatar(avatarUrl: string) {
+        selectedAvatarTemp = avatarUrl;
+        // Met à jour l'affichage local dans la pop-up (facultatif)
+        const preview = document.getElementById('avatarPreview') as HTMLImageElement | null;
+        if (preview) {
+            preview.src = apiUrlAvatar + avatarUrl;
+        }
+    }
+
+
+      /**
+     * Sauvegarde l’avatar sélectionné en base
+     */
+    async function saveSelectedAvatar() {
+        if (!selectedAvatarTemp) return;
+
+        try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            console.error('Token manquant, utilisateur non authentifié');
+            return;
+        }
+
+        const res = await fetch(`/api/api/profile/avatar`, {
+            method: 'PATCH',
+            headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + token,
+            },
+            body: JSON.stringify({ avatar_url: selectedAvatarTemp }),
+        });
+
+        if (!res.ok) throw new Error(t(currentLang, 'avatar_save_error'));
+
+
+        const data = await res.json();
+        console.log('Avatar sauvegardé avec succès:', data);
+
+        // Met à jour l'avatar dans le profil (page principale)
+        const profileAvatarImg = document.getElementById('profile-avatar') as HTMLImageElement | null;
+        if (profileAvatarImg && data.avatarUrl) {
+            profileAvatarImg.src = apiUrlAvatar + data.avatarUrl;
+        }
+
+        // Ferme la modale avatar
+        const avatarModal = document.getElementById('avatarModal') as HTMLDivElement | null;
+        if (avatarModal) avatarModal.classList.add('hidden');
+
+        // Reset sélection temporaire
+        selectedAvatarTemp = null;
+
+        } catch (error) {
+        console.error(error);
+        alert(t(currentLang, 'avatar_save_error'));
+        }
+    }
+
+
+      /**
+       * Gère le téléversement personnalisé d’un avatar
+       */
+
+      document.getElementById('uploadAvatarBtn')?.addEventListener('click', async () => {
+      const input = document.getElementById('avatarUpload') as HTMLInputElement;
+      if (!input.files || input.files.length === 0) {
+        alert(t(currentLang, 'choose_image'));
+        return;
       }
 
+      const file = input.files[0];
 
-    alert(t(currentLang, 'upload_success'));
+      // ✅ Vérification de la taille max : 2 Mo
+      const maxSize = 2 * 1024 * 1024; // 2 MB
+      if (file.size > maxSize) {
+        alert(t(currentLang, 'file_too_large'));
+        return;
+      }
 
-  } catch (error) {
-    console.error('Erreur lors du téléversement :', error);
-    alert(t(currentLang, 'upload_error'));
-  }
-});
+      const formData = new FormData();
+      formData.append('avatar', file);
 
-  /**
-   * Ferme la modale d’avatars
-   */
 
-  function closeModal() {
-      const avatarModal = document.getElementById('avatarModal');
-      if (!avatarModal) return;
-      avatarModal.classList.add('hidden');
-  }
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) {
+          alert(t(currentLang, 'must_be_logged_in'));
+          return;
+        }
 
-  /**
-   * Friends list
-   */
-  // Ouvrir la modale demandes reçues
-  
+        const response = await fetch(`/avatar/api/profile/avatar/upload`, {
+          method: 'POST',
+          headers: {
+            'Authorization': 'Bearer ' + token,
+          },
+          body: formData,
+        });
+
+        if (!response.ok) throw new Error(t(currentLang, 'upload_failed'));
+
+        const data = await response.json();
+
+        // ✅ Met à jour l’aperçu et la sélection active
+        const preview = document.getElementById('avatarPreview') as HTMLImageElement;
+        if (data.avatar_url && preview) {
+            selectedAvatarTemp = data.avatar_url;
+            preview.src = apiUrlAvatar + data.avatar_url;
+          }
+
+
+        alert(t(currentLang, 'upload_success'));
+
+      } catch (error) {
+        console.error('Erreur lors du téléversement :', error);
+        alert(t(currentLang, 'upload_error'));
+      }
+    });
+
+    /**
+     * Ferme la modale d’avatars
+     */
+
+    function closeModal() {
+        const avatarModal = document.getElementById('avatarModal');
+        if (!avatarModal) return;
+        avatarModal.classList.add('hidden');
+    }
+
+    /**
+     * Friends list
+     */
+
     async function loadAllFriends() {
       try {
-        
         const response = await fetch(`/api/friends/${currentUserId}`);
         if (!response.ok) throw new Error('Erreur API');
         const friends = await response.json();
@@ -609,26 +627,66 @@ export function initProfilPage() {
         friendListDiv.innerHTML = ''; // vide la liste avant
 
         friends.forEach(friend => {
-          // Construire l'URL complète de l'avatar avec userState.avatarBaseUrl
           const avatarSrc = friend.avatar_url && friend.avatar_url.trim() !== ''
             ? userState.avatarBaseUrl + friend.avatar_url
-            : '/src/empty.png'; // image par défaut accessible
+            : '/src/empty.png';
 
           const card = document.createElement('div');
-          card.className = 'friend-card bg-gray-800 p-4 rounded shadow text-white';
+          card.className = 'friend-card bg-gray-800 p-4 rounded shadow text-white flex flex-col items-center w-40';
 
           card.innerHTML = `
-            <img src="${avatarSrc}" alt="${friend.username}" class="w-12 h-12 rounded-full mb-2 mx-auto" />
-            <h4 class="text-center font-semibold">${friend.username}</h4>
+            <!-- Pseudo + point -->
+            <div class="flex items-center mb-2">
+              <h4 class="font-semibold mr-4">${friend.username}</h4>
+              <div id="status-friend-${friend.id}" class="w-10 h-2 rounded-r-full bg-red-500 relative" 
+                  style="box-shadow: 0 0 4px #f87171, 0 0 12px #f87171, 0 0 18px #f87171;">
+                <span class="absolute -left-1 top-1/2 -translate-y-1/2 w-3 h-2 bg-gray-300 "></span>
+              </div>
+            </div>
+            
+
+            <!-- Avatar -->
+            <img src="${avatarSrc}" alt="${friend.username}"
+                class="w-14 h-14 rounded-full object-cover border border-cyan-500" />
           `;
 
           friendListDiv.appendChild(card);
+
+          // ✅ Mise à jour immédiate du statut
+          updateFriendStatus(friend.id);
         });
       } catch (err) {
         console.error('Erreur chargement amis:', err);
       }
     }
 
+    async function updateFriendStatus(friendId) {
+      try {
+        const res = await fetch(`/api/user/${friendId}/status`);
+        if (!res.ok) throw new Error('Erreur statut ami');
+
+        const data = await res.json();
+        const isOnline = !!data.is_online;
+
+        const dot = document.getElementById(`status-friend-${friendId}`);
+        if (dot) {
+          // Retirer les classes bg
+          dot.classList.remove('bg-green-500', 'bg-red-500');
+          
+          // Appliquer la couleur
+          dot.classList.add(isOnline ? 'bg-green-500' : 'bg-red-500');
+
+          // Mettre le neon
+          dot.style.boxShadow = isOnline
+            ? '0 0 6px #4ade80, 0 0 12px #4ade80, 0 0 18px #4ade80' // neon vert
+            : '0 0 6px #f87171, 0 0 12px #f87171, 0 0 18px #f87171'; // neon rouge
+        }
+      } catch (err) {
+        console.error(`Erreur statut ami ${friendId}:`, err);
+      }
+    }
+
+    // Ouvrir la modale demandes reçues
     async function loadAllUsers() {
       if (!userList) return;
 
@@ -694,83 +752,83 @@ export function initProfilPage() {
     }
 
     async function sendFriendRequest(from: number, to: number) {
-      const res = await fetch('/api/friends', {
-        method: 'POST',
+          const res = await fetch('/api/friends', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ from, to }),
+          });
+          if (!res.ok) {
+            console.error('Erreur envoi de la demande');
+          }
+        }
+
+        if (seeFriendRequestsBtn && friendRequestsModal) {
+          seeFriendRequestsBtn.addEventListener('click', async () => {
+            friendRequestsModal.classList.remove('hidden');
+            await loadFriendRequests();
+          });
+        }
+
+        if (closeFriendRequestsBtn && friendRequestsModal) {
+          closeFriendRequestsBtn.addEventListener('click', () => {
+            friendRequestsModal.classList.add('hidden');
+            loadUserProfile();
+          });
+        }
+
+        if (addFriendBtn && addFriendModal) {
+          addFriendBtn.addEventListener('click', () => {
+            addFriendModal.classList.remove('hidden');
+            loadAllUsers();
+          });
+        }
+
+        if (closeModalBtn && addFriendModal) {
+          closeModalBtn.addEventListener('click', () => {
+            addFriendModal.classList.add('hidden');
+            loadUserProfile();
+          });
+        }
+
+        async function loadFriendRequests() {
+          if (!friendRequestsList) return;
+          const res = await fetch(`/api/friends/requests/${currentUserId}`);
+          const requests = await res.json();
+
+          friendRequestsList.innerHTML = '';
+          requests.forEach(request => {
+            const div = document.createElement('div');
+            div.className = 'flex flex-col p-2 text-white rounded mb-2 bg-white/10 border-2 border-cyan-500 shadow-[0_0_8px_3px_rgba(0,255,255,0.6)]';
+            div.innerHTML = `
+              <span>${request.username}</span>
+              <div>
+                <button class="accept-btn bg-cyan-500 text-white px-2 py-1 rounded mr-2">${t(currentLang, 'accept')}</button>
+                <button class="reject-btn bg-red-500 text-white px-2 py-1 rounded">${t(currentLang, 'deny')}</button>
+              </div>
+            `;
+
+            const acceptBtn = div.querySelector('.accept-btn');
+            const rejectBtn = div.querySelector('.reject-btn');
+
+            acceptBtn?.addEventListener('click', async () => {
+              await respondToFriendRequest(request.id, 'accepted');
+              div.remove();
+            });
+            rejectBtn?.addEventListener('click', async () => {
+              await respondToFriendRequest(request.id, 'rejected');
+              div.remove();
+            });
+
+            friendRequestsList.appendChild(div);
+        });
+    }
+
+    async function respondToFriendRequest(requestId: number, status: 'accepted' | 'rejected') {
+      await fetch(`/api/friends/requests/${requestId}`, {
+        method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ from, to }),
-      });
-      if (!res.ok) {
-        console.error('Erreur envoi de la demande');
-      }
-    }
-
-    if (seeFriendRequestsBtn && friendRequestsModal) {
-      seeFriendRequestsBtn.addEventListener('click', async () => {
-        friendRequestsModal.classList.remove('hidden');
-        await loadFriendRequests();
+        body: JSON.stringify({ status }),
       });
     }
-
-    if (closeFriendRequestsBtn && friendRequestsModal) {
-      closeFriendRequestsBtn.addEventListener('click', () => {
-        friendRequestsModal.classList.add('hidden');
-        loadUserProfile();
-      });
-    }
-
-    if (addFriendBtn && addFriendModal) {
-      addFriendBtn.addEventListener('click', () => {
-        addFriendModal.classList.remove('hidden');
-        loadAllUsers();
-      });
-    }
-
-    if (closeModalBtn && addFriendModal) {
-      closeModalBtn.addEventListener('click', () => {
-        addFriendModal.classList.add('hidden');
-        loadUserProfile();
-      });
-    }
-
-    async function loadFriendRequests() {
-      if (!friendRequestsList) return;
-      const res = await fetch(`/api/friends/requests/${currentUserId}`);
-      const requests = await res.json();
-
-      friendRequestsList.innerHTML = '';
-      requests.forEach(request => {
-        const div = document.createElement('div');
-        div.className = 'flex flex-col p-2 text-white rounded mb-2 bg-white/10 border-2 border-cyan-500 shadow-[0_0_8px_3px_rgba(0,255,255,0.6)]';
-        div.innerHTML = `
-          <span>${request.username}</span>
-          <div>
-            <button class="accept-btn bg-cyan-500 text-white px-2 py-1 rounded mr-2">${t(currentLang, 'accept')}</button>
-            <button class="reject-btn bg-red-500 text-white px-2 py-1 rounded">${t(currentLang, 'deny')}</button>
-          </div>
-        `;
-
-        const acceptBtn = div.querySelector('.accept-btn');
-        const rejectBtn = div.querySelector('.reject-btn');
-
-        acceptBtn?.addEventListener('click', async () => {
-          await respondToFriendRequest(request.id, 'accepted');
-          div.remove();
-        });
-        rejectBtn?.addEventListener('click', async () => {
-          await respondToFriendRequest(request.id, 'rejected');
-          div.remove();
-        });
-
-        friendRequestsList.appendChild(div);
-    });
-}
-
-async function respondToFriendRequest(requestId: number, status: 'accepted' | 'rejected') {
-  await fetch(`/api/friends/requests/${requestId}`, {
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ status }),
-  });
-}
 
 }

@@ -7,7 +7,7 @@ import fastifyJwt from '@fastify/jwt';
 import fastifyCookie from '@fastify/cookie';
 import axios from 'axios';
 // import db from './db.js';
-import db, { setUserOnline, setUserOffline, isUserOnline } from './db.js';
+import db, { setUserOnline, setUserOffline } from './db.js';
 import {
   createUser,
   getUserByUsername,
@@ -150,6 +150,9 @@ fastify.get("/users/:username", (request, reply) => {
 // -------------------------------
 const usersOnline = new Map(); // username => { lastActive }
 
+/* -------------------------------
+  ✅ Décorateur online/offline
+--------------------------------- */
 fastify.decorate('markOnline', async (userId) => {
   try {
     await setUserOnline(userId); // ici c'est l'id
@@ -177,17 +180,30 @@ fastify.addHook('preHandler', async (request, reply) => {
     try {
       const token = request.headers.authorization.split(' ')[1];
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      if (usersOnline.has(decoded.username)) {
-        usersOnline.get(decoded.username).lastActive = Date.now();
+      if (usersOnline.has(decoded.id)) {
+        usersOnline.get(decoded.id).lastActive = Date.now();
       }
     } catch (_) {}
   }
 });
 
+
+
+fastify.post('/api/user/:id/heartbeat', async (request, reply) => {
+  const { id } = request.params;
+  try {
+    await fastify.markOnline(id); // met à jour usersOnline et lastActive
+    reply.send({ ok: true });
+  } catch (err) {
+    reply.status(500).send({ error: 'Impossible de mettre à jour le statut' });
+  }
+});
+
+
 // Déconnexion automatique après 5 min d'inactivité
 setInterval(() => {
   const now = Date.now();
-  for (const [username, info] of usersOnline) {
+  for (const [userId, info] of usersOnline) {
     if (now - info.lastActive > 5 * 60 * 1000) { // 5 min
       setUserOffline(username);
       usersOnline.delete(username);
@@ -213,6 +229,27 @@ fastify.get('/user/:id/status', (request, reply) => {
   }
 });
 
+
+/* -------------------------------
+  ✅ Logout
+--------------------------------- */
+
+fastify.post('/auth/logout', async (request, reply) => {
+  try {
+    const authHeader = request.headers.authorization;
+    if (!authHeader) return reply.code(400).send({ message: 'Token manquant' });
+
+    const token = authHeader.split(' ')[1];
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    console.log("Token décodé :", decoded);
+    console.log("ID envoyé à markOffline :", decoded.id);
+
+    await fastify.markOffline(decoded.id);
+    reply.send({ success: true, message: 'Déconnecté' });
+  } catch (err) {
+    reply.code(500).send({ message: 'Erreur lors du logout' });
+  }
+});
 
 /* -------------------------------
   ✅ Décorateur JWT auth
@@ -398,29 +435,7 @@ fastify.post('/users/google-login', async (request, reply) => {
 /* -------------------------------
   ✅ Check session & profil
 --------------------------------- */
-// fastify.get('/check-session', async (request, reply) => {
-//   try {
-//     const authHeader = request.headers.authorization;
-//     if (!authHeader) return reply.send({ isLoggedIn: false });
 
-//     const token = authHeader.split(' ')[1];
-//     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    
-//     reply.send({ 
-//       isLoggedIn: true, 
-//       username: decoded.username,
-//       pseudo: decoded.pseudo
-//     });
-//   } catch (err) {
-//     console.error("Erreur JWT:", err);
-//     reply.send({ isLoggedIn: false });
-//   }
-// });
-
-
-// fastify.get('/me', { preHandler: [fastify.authenticate] }, async (request, reply) => {
-//   reply.send({ user: request.user });
-// });
 fastify.get('/check-session', async (request, reply) => {
   try {
     const authHeader = request.headers.authorization;
@@ -497,27 +512,6 @@ fastify.put('/update-profile', { preHandler: [fastify.authenticate] }, async (re
   return reply.send({ message: 'Profil mis à jour' });
 });
 
-
-/* -------------------------------
-  ✅ Logout (frontend only)
---------------------------------- */
-// fastify.post('/logout', { preHandler: [fastify.authenticate] }, async (_, reply) => {
-//   reply.send({ success: true, message: 'Déconnexion réussie' });
-// });
-fastify.post('/auth/logout', async (request, reply) => {
-  try {
-    const authHeader = request.headers.authorization;
-    if (!authHeader) return reply.code(400).send({ message: 'Token manquant' });
-
-    const token = authHeader.split(' ')[1];
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-    await fastify.markOffline(decoded.userId);
-    reply.send({ success: true, message: 'Déconnecté' });
-  } catch (err) {
-    reply.code(500).send({ message: 'Erreur lors du logout' });
-  }
-});
 
 /* -------------------------------
   ✅ Routes additionnelles

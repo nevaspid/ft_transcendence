@@ -162,12 +162,13 @@
           <div class="grid grid-cols-1 md:grid-cols-3 gap-8 h-full">
             <!-- Colonne de gauche -->
             <div class="flex flex-col items-center border-r border-cyan-500 pr-6">
-              <h2 class="text-3xl mb-6 text-yellow-500 text-center" id="profileUsername">
-            </h2>
-
-              <p class="status-dot">
-                <span id="status-dot" class="statut-dot"></span>
-              </p>
+              <div class="flex items-center justify-center mb-8">
+                <h2 id="profileUsername" class="text-3xl text-yellow-500 mr-8">Pseudo</h2>
+                <div id="status-dot" class="w-14 h-3 rounded-r-full bg-red-500 relative" 
+                  style="box-shadow: 0 0 4px #f87171, 0 0 12px #f87171, 0 0 18px #f87171;">
+                <span class="absolute -left-4 top-1/2 -translate-y-1/2 w-5 h-3 bg-gray-300 "></span>
+              </div>
+              </div>
 
               <img
                 id="profile-avatar"
@@ -178,9 +179,6 @@
               <p class="text-sm text-cyan-300 mb-6">
                 id : <span id="profile-id">#2</span>
               </p>
-
-              
-
 
               <div class="flex flex-col gap-4 w-full">
                 <button
@@ -249,8 +247,7 @@
                 style="font-family: 'Starjedi', sans-serif;">
                 <h3 data-i18n="friends" class="text-yellow-500 text-xl mb-2">Amis</h3>
                 <div id="friendList" class="flex flex-wrap justify-center gap-4">
-                  <!-- Cartes d'amis ajoutées dynamiquement ici -->
-                </div>
+                  
               </div>
             </div>
           </div>
