@@ -1,6 +1,12 @@
 // Constants
-const WORLD_W = 900;
-const WORLD_H = 600;
+const ORIGINAL_WORLD_W = 900;
+const ORIGINAL_WORLD_H = 600;
+let WORLD_W = 900;
+let WORLD_H = 600;
+
+// Scale factor for proportional sizing
+let scaleX = 1;
+let scaleY = 1;
 const MAX_SCORE_TARGET = 5000;
 const UNLOCK_2_SHOTS = Math.floor(MAX_SCORE_TARGET / 3);
 const UNLOCK_3_SHOTS = Math.floor((2 * MAX_SCORE_TARGET) / 3);
@@ -160,15 +166,136 @@ bgImg.onload = () => { bgReady = true; };
 function fit() {
   const freeH = window.innerHeight - hud.getBoundingClientRect().height;
   const freeW = window.innerWidth;
-  const ratio = WORLD_W / WORLD_H;
+  const ratio = ORIGINAL_WORLD_W / ORIGINAL_WORLD_H;
   let w = freeW * 0.95;
   let h = w / ratio;
   if (h > freeH * 0.95) { h = freeH * 0.95; w = h * ratio; }
   wrapper.style.width = `${w}px`;
   wrapper.style.height = `${h}px`;
   canvas.width = w; canvas.height = h;
+  
+  // Update world dimensions and scale factors
+  WORLD_W = w;
+  WORLD_H = h;
+  scaleX = WORLD_W / ORIGINAL_WORLD_W;
+  scaleY = WORLD_H / ORIGINAL_WORLD_H;
+  
+  // Reposition and rescale players and other elements if game is running
+  if (mode !== 'none' && p1) {
+    repositionGameElements();
+  }
 }
-fit();
+// Reposition game elements when window is resized
+function repositionGameElements() {
+  const w = WORLD_W;
+  const h = WORLD_H;
+  const bottomOffset = Math.round(40 * scaleY);
+  const sideMargin = Math.round(20 * scaleX);
+  
+  // Resize and reposition players
+  if (p1) {
+    const newPlayerW = Math.round(24 * scaleX);
+    const newPlayerH = Math.round(16 * scaleY);
+    const newSpeed = Math.round(420 * scaleX);
+    
+    // Keep relative position but update size
+    const relativeX = p1.x / (w - p1.w);
+    p1.w = newPlayerW;
+    p1.h = newPlayerH;
+    p1.speed = newSpeed;
+    p1.x = Math.max(0, Math.min(w - p1.w, relativeX * (w - p1.w)));
+    p1.y = h - bottomOffset;
+  }
+  if (p2) {
+    const newPlayerW = Math.round(24 * scaleX);
+    const newPlayerH = Math.round(16 * scaleY);
+    const newSpeed = Math.round(420 * scaleX);
+    
+    const relativeX = p2.x / (w - p2.w);
+    p2.w = newPlayerW;
+    p2.h = newPlayerH;
+    p2.speed = newSpeed;
+    p2.x = Math.max(0, Math.min(w - p2.w, relativeX * (w - p2.w)));
+    p2.y = h - bottomOffset;
+  }
+  
+  // Resize and reposition boss if exists
+  if (boss) {
+    const newBossW = Math.round(200 * scaleX);
+    const newBossH = Math.round(40 * scaleY);
+    const newBossSpeed = Math.round(140 * scaleX);
+    
+    const relativeX = boss.x / (w - boss.w);
+    boss.w = newBossW;
+    boss.h = newBossH;
+    boss.speed = newBossSpeed;
+    boss.x = Math.max(sideMargin, Math.min(w - boss.w - sideMargin, relativeX * (w - boss.w)));
+    boss.y = Math.round(80 * scaleY);
+  }
+  
+  // Update bullet sizes and remove out of bounds bullets
+  bullets.forEach(b => {
+    b.r = Math.round((b.owner === 'p' ? 3 : (b.color === '#a78bfa' ? 4 : 3)) * Math.min(scaleX, scaleY));
+  });
+  bullets = bullets.filter(b => b.x >= 0 && b.x <= w && b.y >= -10 && b.y <= h + 10);
+  
+  // Completely recalculate enemy grid with proper spacing
+  if (enemies.length > 0) {
+    const cols = 10;
+    const gapX = Math.round(16 * scaleX); 
+    const gapY = Math.round(18 * scaleY);
+    const sideMargin = Math.round(40 * scaleX);
+    const topOffset = Math.round(60 * scaleY);
+    
+    const cellW = (w - 2 * sideMargin - (cols - 1) * gapX) / cols;
+    const newEnemyW = Math.max(Math.round(20 * scaleX), Math.min(Math.round(40 * scaleX), Math.floor(cellW * 0.65)));
+    const newEnemyH = Math.round(20 * scaleY);
+    
+    // Reorganize enemies in proper grid formation
+    const aliveEnemiesByRow: { [key: number]: Enemy[] } = {};
+    enemies.forEach(e => {
+      if (e.alive) {
+        if (!aliveEnemiesByRow[e.row]) aliveEnemiesByRow[e.row] = [];
+        aliveEnemiesByRow[e.row].push(e);
+      }
+    });
+    
+    // Reposition each row with correct spacing
+    for (let r = 0; r < currentRows; r++) {
+      if (aliveEnemiesByRow[r]) {
+        const rowEnemies = aliveEnemiesByRow[r].sort((a, b) => a.x - b.x); // Sort by current x position
+        const baseX = rowDirs[r] < 0 ? (w - sideMargin - cols * (newEnemyW + gapX) + gapX) : sideMargin;
+        
+        rowEnemies.forEach((e, colIndex) => {
+          e.w = newEnemyW;
+          e.h = newEnemyH;
+          e.x = baseX + colIndex * (newEnemyW + gapX);
+          e.y = topOffset + r * (newEnemyH + gapY);
+        });
+        
+        // Update row boundaries
+        rowLeftX[r] = baseX;
+        rowRightX[r] = baseX + (rowEnemies.length - 1) * (newEnemyW + gapX) + newEnemyW;
+      }
+    }
+  }
+}
+
+// Initialize canvas size first
+const initialFit = () => {
+  const freeH = window.innerHeight - hud.getBoundingClientRect().height;
+  const freeW = window.innerWidth;
+  const ratio = ORIGINAL_WORLD_W / ORIGINAL_WORLD_H;
+  let w = freeW * 0.95;
+  let h = w / ratio;
+  if (h > freeH * 0.95) { h = freeH * 0.95; w = h * ratio; }
+  wrapper.style.width = `${w}px`;
+  wrapper.style.height = `${h}px`;
+  canvas.width = w; canvas.height = h;
+  // Don't update WORLD_W and WORLD_H yet - wait for game start
+};
+
+initialFit();
 window.addEventListener('resize', fit);
 
 // Input
@@ -265,6 +392,14 @@ function start(m: Mode) {
 }
 
 function resetGame() {
+  // Update world dimensions to match current canvas size
+  WORLD_W = canvas.width;
+  WORLD_H = canvas.height;
+  
+  // Calculate scale factors for proportional sizing
+  scaleX = WORLD_W / ORIGINAL_WORLD_W;
+  scaleY = WORLD_H / ORIGINAL_WORLD_H;
+  
   score = 0;
   scoreP1 = 0;
   scoreP2 = 0;
@@ -286,10 +421,17 @@ function resetGame() {
 }
 
 function createPlayers() {
-  const w = canvas.width, h = canvas.height;
-  p1 = { x: w / 2 - 30, y: h - 40, w: 24, h: 16, speed: 420, cooldown: 0, color: '#60a5fa', lives: PLAYER_INIT_LIVES, invuln: 0 };
+  const w = WORLD_W, h = WORLD_H;
+  // Base sizes scaled proportionally
+  const playerW = Math.round(24 * scaleX);
+  const playerH = Math.round(16 * scaleY);
+  const bottomOffset = Math.round(40 * scaleY);
+  const separationOffset = Math.round(30 * scaleX);
+  const baseSpeed = Math.round(420 * scaleX); // Scale speed proportionally
+  
+  p1 = { x: w / 2 - separationOffset, y: h - bottomOffset, w: playerW, h: playerH, speed: baseSpeed, cooldown: 0, color: '#60a5fa', lives: PLAYER_INIT_LIVES, invuln: 0 };
   if (mode === 'coop') {
-    p2 = { x: w / 2 + 30, y: h - 40, w: 24, h: 16, speed: 420, cooldown: 0, color: '#34d399', lives: PLAYER_INIT_LIVES, invuln: 0 };
+    p2 = { x: w / 2 + separationOffset, y: h - bottomOffset, w: playerW, h: playerH, speed: baseSpeed, cooldown: 0, color: '#34d399', lives: PLAYER_INIT_LIVES, invuln: 0 };
   } else {
     p2 = null;
   }
@@ -305,21 +447,28 @@ function initLevel(rows: number) {
   rowLeftX = [];
   rowRightX = [];
   currentRows = rows;
-  const w = canvas.width;
+  const w = WORLD_W;
   const cols = 10;
-  const gapX = 16; const gapY = 18;
-  const cellW = (w - 2 * 40 - (cols - 1) * gapX) / cols;
-  const eW = Math.max(20, Math.min(40, Math.floor(cellW * 0.65)));
-  const eH = 20;
+  
+  // Scale gaps and sizes proportionally
+  const gapX = Math.round(16 * scaleX); 
+  const gapY = Math.round(18 * scaleY);
+  const sideMargin = Math.round(40 * scaleX);
+  const topOffset = Math.round(60 * scaleY);
+  
+  const cellW = (w - 2 * sideMargin - (cols - 1) * gapX) / cols;
+  const eW = Math.max(Math.round(20 * scaleX), Math.min(Math.round(40 * scaleX), Math.floor(cellW * 0.65)));
+  const eH = Math.round(20 * scaleY);
+  
   for (let r = 0; r < rows; r++) {
     rowDirs[r] = (r % 2 === 0) ? -1 : 1;
     rowDrops[r] = 0;
-    const baseX = rowDirs[r] < 0 ? (w - 40 - cols * (eW + gapX) + gapX) : 40;
+    const baseX = rowDirs[r] < 0 ? (w - sideMargin - cols * (eW + gapX) + gapX) : sideMargin;
     rowLeftX[r] = baseX;
     rowRightX[r] = baseX + (cols - 1) * (eW + gapX) + eW;
     for (let c = 0; c < cols; c++) {
       const x = baseX + c * (eW + gapX);
-      const y = 60 + r * (eH + gapY);
+      const y = topOffset + r * (eH + gapY);
       enemies.push({ x, y, w: eW, h: eH, alive: true, row: r, cd: 1 + Math.random() * 4 });
     }
   }
@@ -339,9 +488,27 @@ function nextWave(increase: boolean): void {
 function spawnBoss(): void {
   enemies = [];
   currentRows = 0;
-  const w = canvas.width;
+  const w = WORLD_W;
   const bossHP = (mode === 'coop') ? 1500 : 750;
-  boss = { x: Math.max(20, w / 2 - 100), y: 80, w: 200, h: 40, hp: bossHP, maxHp: bossHP, dir: 1, speed: 140, cd: 0.5 + Math.random() * 1.0 };
+  
+  // Scale boss proportionally
+  const bossW = Math.round(200 * scaleX);
+  const bossH = Math.round(40 * scaleY);
+  const bossY = Math.round(80 * scaleY);
+  const bossSpeed = Math.round(140 * scaleX);
+  const sideMargin = Math.round(20 * scaleX);
+  
+  boss = { 
+    x: Math.max(sideMargin, w / 2 - bossW / 2), 
+    y: bossY, 
+    w: bossW, 
+    h: bossH, 
+    hp: bossHP, 
+    maxHp: bossHP, 
+    dir: 1, 
+    speed: bossSpeed, 
+    cd: 0.5 + Math.random() * 1.0 
+  };
 }
 
 function shoot(from: Ship): void {
@@ -352,7 +519,21 @@ function shoot(from: Ship): void {
   else if (playerShotCount === 2) positions.push(x0 + from.w * 0.35, x0 + from.w * 0.65);
   else positions.push(x0 + from.w * 0.25, x0 + from.w * 0.5, x0 + from.w * 0.75);
   const shooter: 'p1' | 'p2' = (p2 && from === p2) ? 'p2' : 'p1';
-  positions.forEach(px => bullets.push({ x: Math.max(x0 + 1, Math.min(x1 - 1, px)), y: from.y, vx: 0, vy: -600, r: 3, color: '#fbbf24', owner: 'p', shooter }));
+  
+  // Scale bullet properties proportionally
+  const bulletSpeed = Math.round(-600 * scaleY);
+  const bulletRadius = Math.round(3 * Math.min(scaleX, scaleY));
+  
+  positions.forEach(px => bullets.push({ 
+    x: Math.max(x0 + 1, Math.min(x1 - 1, px)), 
+    y: from.y, 
+    vx: 0, 
+    vy: bulletSpeed, 
+    r: bulletRadius, 
+    color: '#fbbf24', 
+    owner: 'p', 
+    shooter 
+  }));
   from.cooldown = 0.25;
 }
 
@@ -378,8 +559,8 @@ function update(dt: number): void {
     if (pressed('d') || pressed('D')) p2.x += speed * dt;
     if ((pressed('z') || pressed('Z') || pressed('w') || pressed('W')) && p2.lives > 0 && p2.invuln <= 0) shoot(p2);
   }
-  p1.x = Math.max(0, Math.min(canvas.width - p1.w, p1.x));
-  if (p2) p2.x = Math.max(0, Math.min(canvas.width - p2.w, p2.x));
+  p1.x = Math.max(0, Math.min(WORLD_W - p1.w, p1.x));
+  if (p2) p2.x = Math.max(0, Math.min(WORLD_W - p2.w, p2.x));
   if (p1.cooldown > 0) p1.cooldown -= dt; if (p2 && p2.cooldown > 0) p2.cooldown -= dt;
   if (p1.invuln > 0) p1.invuln -= dt; if (p2 && p2.invuln > 0) p2.invuln -= dt;
 
@@ -390,25 +571,29 @@ function update(dt: number): void {
   const aliveYs: number[] = [];
   if (p1 && p1.lives > 0) aliveYs.push(p1.y);
   if (p2 && p2.lives > 0) aliveYs.push(p2.y);
-  const guardY = (aliveYs.length ? Math.min(...aliveYs) : canvas.height) - 12;
+  const guardY = (aliveYs.length ? Math.min(...aliveYs) : WORLD_H) - 12;
 
   for (let r = 0; r < currentRows; r++) {
     let anyAlive = false;
     for (const e of enemies) { if (e.alive && e.row === r) { anyAlive = true; break; } }
     if (!anyAlive) continue;
-    if (rowLeftX[r] < 10 && rowDirs[r] < 0) { rowDirs[r] = 1; rowDrops[r] = 20; }
-    if (rowRightX[r] > canvas.width - 10 && rowDirs[r] > 0) { rowDirs[r] = -1; rowDrops[r] = 20; }
-    const dx = rowDirs[r] * enemySpeed * dt;
+    const edgeMargin = Math.round(10 * scaleX);
+    const dropDistance = Math.round(20 * scaleY);
+    if (rowLeftX[r] < edgeMargin && rowDirs[r] < 0) { rowDirs[r] = 1; rowDrops[r] = dropDistance; }
+    if (rowRightX[r] > WORLD_W - edgeMargin && rowDirs[r] > 0) { rowDirs[r] = -1; rowDrops[r] = dropDistance; }
+    const dx = rowDirs[r] * enemySpeed * scaleX * dt;
     for (const e of enemies) {
       if (!e.alive || e.row !== r) continue;
       e.x += dx;
-      if (rowDrops[r] > 0) e.y += 40 * dt;
+      if (rowDrops[r] > 0) e.y += 40 * scaleY * dt;
       if (e.y + e.h >= guardY) { triggerGameOver(); return; }
       e.cd -= dt;
       if (e.cd <= 0) {
         const activeEnemyBullets = bullets.reduce((n, b) => n + (b.owner === 'e' ? 1 : 0), 0);
         if (activeEnemyBullets < 10) {
-          bullets.push({ x: e.x + e.w / 2, y: e.y + e.h, vx: 0, vy: 240, r: 3, color: '#38bdf8', owner: 'e' });
+          const enemyBulletSpeed = Math.round(240 * scaleY);
+          const enemyBulletRadius = Math.round(3 * Math.min(scaleX, scaleY));
+          bullets.push({ x: e.x + e.w / 2, y: e.y + e.h, vx: 0, vy: enemyBulletSpeed, r: enemyBulletRadius, color: '#38bdf8', owner: 'e' });
           e.cd = 1 + Math.random() * 4;
         } else {
           e.cd = 0.25 + Math.random() * 0.5;
@@ -417,26 +602,29 @@ function update(dt: number): void {
     }
     rowLeftX[r] += dx;
     rowRightX[r] += dx;
-    rowDrops[r] = Math.max(0, rowDrops[r] - 40 * dt);
+    rowDrops[r] = Math.max(0, rowDrops[r] - 40 * scaleY * dt);
   }
 
   if (boss) {
     boss.x += boss.dir * boss.speed * dt;
-    if (boss.x < 10) { boss.x = 10; boss.dir = 1; }
-    if (boss.x + boss.w > canvas.width - 10) { boss.x = canvas.width - 10 - boss.w; boss.dir = -1; }
+    const bossMargin = Math.round(10 * scaleX);
+    if (boss.x < bossMargin) { boss.x = bossMargin; boss.dir = 1; }
+    if (boss.x + boss.w > WORLD_W - bossMargin) { boss.x = WORLD_W - bossMargin - boss.w; boss.dir = -1; }
     boss.cd -= dt;
     if (boss.cd <= 0) {
       const burst = Math.floor(Math.random() * 8) + 3;
+      const bossBulletSpeed = Math.round(320 * scaleY);
+      const bossBulletRadius = Math.round(4 * Math.min(scaleX, scaleY));
       for (let i = 0; i < burst; i++) {
         const px = boss.x + boss.w * ((i + 1) / (burst + 1));
-        bullets.push({ x: px, y: boss.y + boss.h, vx: 0, vy: 320, r: 4, color: '#a78bfa', owner: 'e' });
+        bullets.push({ x: px, y: boss.y + boss.h, vx: 0, vy: bossBulletSpeed, r: bossBulletRadius, color: '#a78bfa', owner: 'e' });
       }
       boss.cd = 0.5 + Math.random() * 1.0;
     }
   }
 
   bullets.forEach(b => { b.x += b.vx * dt; b.y += b.vy * dt; });
-  bullets = bullets.filter(b => b.y > -10 && b.y < canvas.height + 10);
+  bullets = bullets.filter(b => b.y > -10 && b.y < WORLD_H + 10);
 
   for (const b of bullets) {
     if (b.owner !== 'p') continue;
@@ -491,12 +679,12 @@ function update(dt: number): void {
   for (const b of bullets) {
     if (b.owner !== 'e') continue;
     if (p1 && p1.lives > 0 && p1.invuln <= 0 && b.x >= p1.x && b.x <= p1.x + p1.w && b.y >= p1.y && b.y <= p1.y + p1.h) {
-      b.y = canvas.height + 100;
+      b.y = WORLD_H + 100;
       handlePlayerHit(p1);
       continue;
     }
     if (p2 && p2.lives > 0 && p2.invuln <= 0 && b.x >= p2.x && b.x <= p2.x + p2.w && b.y >= p2.y && b.y <= p2.y + p2.h) {
-      b.y = canvas.height + 100;
+      b.y = WORLD_H + 100;
       handlePlayerHit(p2);
       continue;
     }
@@ -506,7 +694,7 @@ function update(dt: number): void {
 function draw(): void {
   if (bgReady) ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height); else ctx.clearRect(0, 0, canvas.width, canvas.height);
   if (mode !== 'none' && (p1 || p2)) {
-    const guardY = Math.min(p1?.y ?? canvas.height, p2?.y ?? canvas.height) - 12;
+    const guardY = Math.min(p1?.y ?? WORLD_H, p2?.y ?? WORLD_H) - 12;
     ctx.save(); ctx.setLineDash([8, 8]); ctx.strokeStyle = '#f87171'; ctx.lineWidth = 2;
     ctx.beginPath(); ctx.moveTo(0, guardY); ctx.lineTo(canvas.width, guardY); ctx.stroke(); ctx.restore();
   }
@@ -514,10 +702,12 @@ function draw(): void {
   if (p2) { if (p2.invuln <= 0 || Math.floor(performance.now() / 120) % 2 !== 0) drawPlayerShip(ctx, p2); }
   enemies.forEach(e => { if (!e.alive) return; drawEnemyShip(ctx, e); });
   if (boss) {
-    drawBoss(ctx, boss, canvas.width);
-    boss.x += boss.dir * boss.speed * (1 / 60);
-    if (boss.x < 10) { boss.x = 10; boss.dir = 1; }
-    if (boss.x + boss.w > canvas.width - 10) { boss.x = canvas.width - 10 - boss.w; boss.dir = -1; }
+    drawBoss(ctx, boss, WORLD_W);
+    const moveSpeed = boss.speed * (1 / 60);
+    boss.x += boss.dir * moveSpeed;
+    const bossMargin = Math.round(10 * scaleX);
+    if (boss.x < bossMargin) { boss.x = bossMargin; boss.dir = 1; }
+    if (boss.x + boss.w > WORLD_W - bossMargin) { boss.x = WORLD_W - bossMargin - boss.w; boss.dir = -1; }
   }
   bullets.forEach(b => { ctx.fillStyle = b.color; ctx.beginPath(); ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2); ctx.fill(); });
   renderLives(livesEl, p1, p2);
