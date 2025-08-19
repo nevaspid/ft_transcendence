@@ -2,21 +2,21 @@
 <html lang="fr">
   <head>
     <meta charset="UTF-8" />
-    <title>Pong : Prototype</title>
+    <title>Arcade - Sélection du mode</title>
     <link rel="stylesheet" href="/src/style.css" />
   </head>
   <body>
-    <div id="layout">
-    <header id="hud">
-      <div id="message" class="game-message">Cliquez pour commencer</div>
-      <div id="score" class="game-score">P1 : 0 | P2 : 0</div>
-    </header>
-
-    <main id="game-area">
-      <div class="game-wrapper"></div>
+    <main class="menu">
+      <section class="menu-card">
+        <h1 class="menu-title">Choisir un mode</h1>
+        <div class="menu-buttons">
+          <a class="menu-btn primary" href="/game/index1.html">Pong 1v1 (Local)</a>
+          <a class="menu-btn" href="/tournament.html">Tournoi (Local)</a>
+          <a class="menu-btn" href="/space_invaders.html">Space Invaders</a>
+        </div>
+      </section>
     </main>
-  </div>
-
-  <script type="module" src="/src/main.ts"></script>
   </body>
-</html>
+  </html>
+
+

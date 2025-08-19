@@ -632,7 +632,7 @@ export function initProfilPage() {
             : '/src/empty.png';
 
           const card = document.createElement('div');
-          card.className = 'friend-card bg-gray-800 p-4 rounded shadow text-white flex flex-col items-center w-40';
+          card.className = 'friend-card bg-gray-800 p-4 rounded shadow text-white flex flex-col items-center w-40 border border-cyan-500 hover:border-cyan-300';
 
           card.innerHTML = `
             <!-- Pseudo + point -->

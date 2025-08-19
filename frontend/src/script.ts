@@ -514,10 +514,11 @@ async function logoutUser(): Promise<void> {
 // 📦 Navigation dynamique entre les pages
 // -----------------------------
 
-async function navigate(page: string) {
+
+async function navigate(page: string, addToHistory = true) {
   const publicPages = ['login', 'signup', 'home'];
   currentPage = page;
-  
+
   if (!currentUser && !publicPages.includes(page)) {
     page = 'login';
   }
@@ -529,69 +530,55 @@ async function navigate(page: string) {
 
   currentLang = await loadUserLanguage();
   applyTranslations(currentLang);
-  
+
   if (selector) selector.value = currentLang;
 
+  // Exemple pour page space
   if (page === 'space') {
-    // Afficher le bloc langue correct et cacher les autres
     const langBlocks = main.querySelectorAll<HTMLElement>('.lang-block');
     langBlocks.forEach(block => {
-      if (block.classList.contains(currentLang)) {
-        block.classList.remove('hidden');
-      } else {
-        block.classList.add('hidden');
-      }
+      block.classList.toggle('hidden', !block.classList.contains(currentLang));
     });
 
-    // Reset animation CSS sur .crawl pour relancer le scroll
     const crawl = main.querySelector<HTMLElement>('.crawl');
     if (crawl) {
       crawl.style.animation = 'none';
-      // trigger reflow
-      void crawl.offsetHeight;
-      // relancer l'animation crawl (la même que dans CSS)
+      void crawl.offsetHeight; // trigger reflow
       crawl.style.animation = 'crawl 90s linear forwards';
     }
   }
 
-   // Gestion des événements dynamiques en fonction de la page
+  // Gestion des événements dynamiques par page
   if (page === 'login') {
-    // Bouton login classique
     const loginBtn = main.querySelector('#loginBtn');
     if (loginBtn) loginBtn.addEventListener('click', (e) => {
-      e.preventDefault(); // pour éviter le rechargement de page si bouton dans un form
+      e.preventDefault();
       loginUser();
     });
 
-    // Lien vers signup
     const signupLink = main.querySelector("#signuplink");
     if (signupLink) {
       signupLink.addEventListener("click", (e) => {
         e.preventDefault();
         navigate("signup");
       });
-    } 
-    // ======== Gestion du bouton Google Sign-In ========
+    }
+
     const googleSignInBtn = main.querySelector('#custom-google-btn');
     if (googleSignInBtn) {
       googleSignInBtn.addEventListener('click', (e) => {
         e.preventDefault();
         google.accounts.id.prompt();
       });
-      
     }
-
-  }
-  // 📝 Page signup
-  else if (page === 'signup') {
+  } else if (page === 'signup') {
     const createAccountBtn = main.querySelector('button');
     if (createAccountBtn) createAccountBtn.addEventListener('click', createAccount);
-  }
-  if(page === 'profil'){
+  } else if (page === 'profil') {
     initProfilPage();
   }
 
-  // Ajout gestion boutons avec data-page dans contenu dynamique
+  // Boutons internes data-page
   const buttons = main.querySelectorAll<HTMLButtonElement>('[data-page]');
   buttons.forEach((button) => {
     button.addEventListener('click', () => {
@@ -599,9 +586,109 @@ async function navigate(page: string) {
       if (targetPage) navigate(targetPage);
     });
   });
-  // Met à jour l’état du menu utilisateur après chaque navigation
+
   updateUserMenu();
+
+  // ---- Gestion de l'historique pour le Back/Forward ----
+  if (addToHistory) {
+    history.pushState({ page }, '', page);
+  }
 }
+
+// ---- Écoute du popstate pour le Back/Forward ----
+window.addEventListener('popstate', (event) => {
+  const page = event.state?.page ?? 'home';
+  navigate(page, false); // false pour ne pas empiler à nouveau l'historique
+});
+
+// async function navigate(page: string) {
+//   const publicPages = ['login', 'signup', 'home'];
+//   currentPage = page;
+  
+//   if (!currentUser && !publicPages.includes(page)) {
+//     page = 'login';
+//   }
+
+//   const main = document.getElementById('main-content');
+//   if (!main) return;
+
+//   main.innerHTML = content[page] ?? '<p>Page introuvable</p>';
+
+//   currentLang = await loadUserLanguage();
+//   applyTranslations(currentLang);
+  
+//   if (selector) selector.value = currentLang;
+
+//   if (page === 'space') {
+//     // Afficher le bloc langue correct et cacher les autres
+//     const langBlocks = main.querySelectorAll<HTMLElement>('.lang-block');
+//     langBlocks.forEach(block => {
+//       if (block.classList.contains(currentLang)) {
+//         block.classList.remove('hidden');
+//       } else {
+//         block.classList.add('hidden');
+//       }
+//     });
+
+//     // Reset animation CSS sur .crawl pour relancer le scroll
+//     const crawl = main.querySelector<HTMLElement>('.crawl');
+//     if (crawl) {
+//       crawl.style.animation = 'none';
+//       // trigger reflow
+//       void crawl.offsetHeight;
+//       // relancer l'animation crawl (la même que dans CSS)
+//       crawl.style.animation = 'crawl 90s linear forwards';
+//     }
+//   }
+
+//    // Gestion des événements dynamiques en fonction de la page
+//   if (page === 'login') {
+//     // Bouton login classique
+//     const loginBtn = main.querySelector('#loginBtn');
+//     if (loginBtn) loginBtn.addEventListener('click', (e) => {
+//       e.preventDefault(); // pour éviter le rechargement de page si bouton dans un form
+//       loginUser();
+//     });
+
+//     // Lien vers signup
+//     const signupLink = main.querySelector("#signuplink");
+//     if (signupLink) {
+//       signupLink.addEventListener("click", (e) => {
+//         e.preventDefault();
+//         navigate("signup");
+//       });
+//     } 
+//     // ======== Gestion du bouton Google Sign-In ========
+//     const googleSignInBtn = main.querySelector('#custom-google-btn');
+//     if (googleSignInBtn) {
+//       googleSignInBtn.addEventListener('click', (e) => {
+//         e.preventDefault();
+//         google.accounts.id.prompt();
+//       });
+      
+//     }
+
+//   }
+//   // 📝 Page signup
+//   else if (page === 'signup') {
+//     const createAccountBtn = main.querySelector('button');
+//     if (createAccountBtn) createAccountBtn.addEventListener('click', createAccount);
+//   }
+//   if(page === 'profil'){
+//     initProfilPage();
+//   }
+
+//   // Ajout gestion boutons avec data-page dans contenu dynamique
+//   const buttons = main.querySelectorAll<HTMLButtonElement>('[data-page]');
+//   buttons.forEach((button) => {
+//     button.addEventListener('click', () => {
+//       const targetPage = button.dataset.page;
+//       if (targetPage) navigate(targetPage);
+//     });
+//   });
+//   // Met à jour l’état du menu utilisateur après chaque navigation
+//   updateUserMenu();
+// }
 
 // -----------------------------
 // 📅 Événements DOM initiaux

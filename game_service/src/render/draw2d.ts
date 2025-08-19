@@ -3,29 +3,28 @@ import { Paddle } from '../core/paddle';
 import { Ball } from '../core/ball';
 
 export function drawScene(
-  ctx: CanvasRenderingContext2D,
-  canvas: HTMLCanvasElement,
-  left: Paddle,
-  right: Paddle,
+  ctx: CanvasRenderingContext2D, 
+  canvas: HTMLCanvasElement, 
+  left: Paddle, 
+  right: Paddle, 
   ball: Ball
 ): void {
-  ctx.fillStyle = '#000';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.save();
   ctx.scale(canvas.width / WORLD_W, canvas.height / WORLD_H);
 
-  ctx.strokeStyle = '#444';
-  ctx.setLineDash([10, 10]);
-  ctx.beginPath();
-  ctx.moveTo(WORLD_W / 2, 0);
-  ctx.lineTo(WORLD_W / 2, WORLD_H);
-  ctx.stroke();
+  // Bordures du terrain
+  ctx.strokeStyle = '#8B4513'; // Marron pour les bordures
+  ctx.lineWidth = 3;
   ctx.setLineDash([]);
+  
+  // Rectangle de bordure
+  ctx.strokeRect(0, 0, WORLD_W, WORLD_H);
 
-  left.draw(ctx);
-  right.draw(ctx);
-  ball.draw(ctx);
+  // Dessiner les paddles et la balle
+  // left.draw(ctx);
+  // right.draw(ctx);
+  // ball.draw(ctx);
 
   ctx.restore();
 }
