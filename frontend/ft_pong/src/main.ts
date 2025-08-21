@@ -143,7 +143,7 @@ function debugPlayerLose(): void {
     setPhase('gameover');
     console.log('🐛 DEBUG: Player 2 a perdu instantanément !');
   }
-  
+
   if (pressed('k') || pressed('K')) {
     // Faire gagner instantanément le joueur 2 (Player 2)
     scoreR = WIN_SCORE;
@@ -163,6 +163,7 @@ function setPhase(newPhase: GamePhase): void {
         isInitialStarting = true;
         setPhase('starting');
         break;
+		//! fetch les datas de tournoi ici ?
       }
       // Afficher l'overlay de saisie
       if (p2Overlay) {
@@ -214,6 +215,7 @@ function setPhase(newPhase: GamePhase): void {
         // petite pause pour laisser finir les animations éventuelles
         setTimeout(() => { window.location.href = back; }, 200);
         break;
+		//! fetch les resultats de match ici ?
       }
       if (victoryOverlay) {
           const winnerName = scoreL > scoreR ? player1Name : player2Name;
@@ -280,7 +282,7 @@ async function init3D() {
     let scene3D: any = null;
     let field3D: any = null;
     console.log('🎯 Initializing 3D...');
-    
+
     // Créer la scène 3D
     const { engine, scene } = create3DScene(webglCanvas);
     engine3D = engine;
@@ -289,26 +291,26 @@ async function init3D() {
     // Créer la caméra
     camera3D = createCamera(scene);
     setupCameraControls(camera3D);
-    
+
     // Créer le plateau de jeu
     field3D = createGameField(scene);
-    
+
     // Charger les vaisseaux
     ships3D = await loadShips(scene);
-    
+
     // Charger la balle 3D
     ball3D = await loadBall3D(scene);
     setupBallControls();
-    
+
     // Charger le décor Star Destroyer en fond
     await loadStarDestroyerBackground(scene);
-    
+
     // Ajouter l'image de fond (space.jpg)
     addBackgroundImage(scene, 'space.jpg');
-    
+
     // Activer le système de debug 3D
     debugAll();
-    
+
     // Démarrer le rendu 3D
     engine.runRenderLoop(() => {
       if (ships3D) {
@@ -317,7 +319,7 @@ async function init3D() {
         const leftDownPressed = pressed('s') || pressed('S');
         const rightUpPressed = pressed('ArrowUp');
         const rightDownPressed = pressed('ArrowDown');
-        
+
         syncShips(ships3D, left, right, leftUpPressed, leftDownPressed, rightUpPressed, rightDownPressed);
       }
       if (ball3D) {
@@ -325,7 +327,7 @@ async function init3D() {
       }
       scene.render();
     });
-    
+
     console.log('✅ 3D initialized');
   } catch (error) {
     console.error('❌ 3D initialization failed:', error);
