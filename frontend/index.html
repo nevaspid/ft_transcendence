@@ -10,7 +10,7 @@
   
   <!-- Tailwind CSS -->
   <link rel="stylesheet" href="/src/styles.css">
-   <link rel="stylesheet" href="/src/space.css">
+  <link rel="stylesheet" href="/src/space.css">
 </head>
 
 <body class="bg-star-wars-dark font-['Press_Start_2P'] bg-cover bg-center" style="background-image: url('/assets/hyperspace.jpg');">
@@ -78,24 +78,12 @@
       </button>
       
       <button data-page="game" class="btn neon-glow text-white" style="font-family: 'Starjedi', sans-serif;">
-        <span data-i18n="pong"></span>
+        <span data-i18n="game"></span>
         <div id="container-stars">
           <div id="stars"></div>
         </div>
       </button>
     
-    <button data-page="tournament" class="btn neon-glow text-white" style="font-family: 'Starjedi', sans-serif;">
-      <span data-i18n="tournament"></span>
-      <div id="container-stars">
-        <div id="stars"></div>
-      </div>
-    </button>
-      
-    <button data-page="settings" class="btn neon-glow text-white" style="font-family: 'Starjedi', sans-serif;">
-      <span data-i18n="settings"></span>
-      <div id="container-stars">
-        <div id="stars"></div>
-      </div>
     </button>
     <button data-page="space" class="btn neon-glow text-white" style="font-family: 'Starjedi', sans-serif;">
       <span data-i18n="space"></span>
@@ -149,10 +137,9 @@
       game: `
         <div class="bg-white/10 p-8 rounded-xl backdrop-blur-md h-[800px] border-2 border-cyan-500 hover:border-cyan-300 shadow-[0_0_8px_2px_rgba(0,255,255,0.6)]" style="font-family: 'Starjedi', sans-serif;">
           <h2 data-i18n="game" class="text-3xl mb-4 text-yellow-500"></h2>
-          <p data-i18n="play" class="text-white"></p>
-          <iframe 
-            src="/game/"
-            style="width: 100%; height: 700px; border: none; border-radius: 8px;"
+          <iframe
+            src="/ft_pong/menu.html"
+            class="w-full h-[700px] rounded-xl border-none"
             title="Jeu"
           ></iframe>
         </div>`,
@@ -218,7 +205,7 @@
               <div class="bg-white/10 p-4 rounded-xl border border-cyan-500 text-cyan-300 flex flex-col"
                 style="font-family: 'Starjedi', sans-serif;">
                 <h3 data-i18n="game_history" class="text-yellow-500 text-xl mb-2">Historique des matchs</h3>
-                <!-- Exemple contenu -->
+                <!-- Exemple Score: 0 x1contenu -->
                 <div id="match-<MATCH_ID>" class="flex flex-wrap items-center justify-center gap-2">
                   <span id="player-<MATCH_ID>" class="font-semibold text-green-400">Player 1</span>
                   <span id="score-<MATCH_ID>" class="mx-2">3 - 1</span>
@@ -296,7 +283,7 @@
 
 
         <!-- Modal avatar -->
-        <div id="avatarModal" class="hidden fixed inset-0 flex justify-center items-start z-50 pt-80">
+        <div id="avatarModal" class="hidden fixed inset-0 bg-black/60 flex justify-center items-start z-50">
             <div class="p-6 rounded-xl bg-white/10 backdrop-blur-md border-2 border-cyan-500 shadow-[0_0_8px_2px_rgba(0,255,255,0.6)] w-[90%] max-w-md max-h-[80vh] overflow-y-auto relative text-white"
               style="font-family: 'Starjedi', sans-serif;">
 

@@ -13,6 +13,8 @@
     "vite": "^4.0.0"
   },
   "dependencies": {
+    "babylonjs": "^8.15.1",
+    "babylonjs-loaders": "^8.15.1",
     "dotenv": "^17.2.1",
     "qrcode": "^1.5.4"
   }

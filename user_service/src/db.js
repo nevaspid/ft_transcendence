@@ -67,9 +67,10 @@ export const setUserOnline = (userId) => {
 
 export const setUserOffline = (userId) => {
   console.log("setUserOffline appelé avec :", userId);
-  db.prepare("UPDATE users SET is_online = 0 WHERE id = ?")
+  const result = db.prepare("UPDATE users SET is_online = 0 WHERE id = ?")
     .run(userId);
-    console.log("Nombre de lignes mises à jour :", result.changes);
+  console.log("Nombre de lignes mises à jour :", result.changes);
 };
+
 
 export default db;

@@ -1,4 +1,5 @@
 const apiUrlAvatar = import.meta.env.VITE_API_URL_AVATAR || '/avatar';
+const AVATAR_BASE_URL = "http://pongwars.com:3001";
 
 
 import { currentUser, userState, updateUserMenu } from "./script";
@@ -350,7 +351,9 @@ export function initProfilPage() {
 
     const user = await res.json();
     userState.pseudoUser = user.pseudo;
+    localStorage.setItem("pseudoUser", user.pseudo ?? "");
     userState.avatarBaseUrl = apiUrlAvatar;
+    userState.userId = user.id;
 
     updateUserMenu();
     updateProfileUI(user);
@@ -499,7 +502,7 @@ export function initProfilPage() {
       /**
      * Sauvegarde l’avatar sélectionné en base
      */
-    async function saveSelectedAvatar() {
+     async function saveSelectedAvatar() {
         if (!selectedAvatarTemp) return;
 
         try {
@@ -528,6 +531,8 @@ export function initProfilPage() {
         const profileAvatarImg = document.getElementById('profile-avatar') as HTMLImageElement | null;
         if (profileAvatarImg && data.avatarUrl) {
             profileAvatarImg.src = apiUrlAvatar + data.avatarUrl;
+            localStorage.setItem("avatarplayer", `${data.avatarUrl}`);
+            userState.avatarplayer = `${data.avatarUrl}`;          
         }
 
         // Ferme la modale avatar
@@ -542,8 +547,6 @@ export function initProfilPage() {
         alert(t(currentLang, 'avatar_save_error'));
         }
     }
-
-
       /**
        * Gère le téléversement personnalisé d’un avatar
        */
@@ -632,7 +635,7 @@ export function initProfilPage() {
             : '/src/empty.png';
 
           const card = document.createElement('div');
-          card.className = 'friend-card bg-gray-800 p-4 rounded shadow text-white flex flex-col items-center w-40';
+          card.className = 'friend-card bg-gray-800 p-4 rounded shadow text-white flex flex-col items-center w-40 border border-cyan-500 hover:border-cyan-300';
 
           card.innerHTML = `
             <!-- Pseudo + point -->

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Pong : Prototype</title>
+    <link rel="stylesheet" href="src/style.css" />
+  </head>
+  <body>
+    <div id="layout">
+    <header class="hud" id="hud">
+      <div id="score"><span id="p1-name">P1</span> : 0 | <span id="p2-name">P2</span> : 0</div>
+    </header>
+
+    <main id="game-area">
+      <div class="game-wrapper">
+      <!-- Overlay de saisie du nom du Player 2 -->
+      <div id="p2-name-overlay" class="p2-overlay" aria-hidden="true">
+        <div class="input__container">
+          <span class="input__label" data-i18n="player_name" style="font-family: 'Starjedi', sans-serif;">PLAYER NAME</span>
+          <span class="shadow__input" aria-hidden="true"></span>
+          <input id="p2-input" type="text" class="input__search" data-i18n="player_name" placeholder="Player Name" maxlength="20" />
+          <button id="p2-apply" class="input__button__shadow" type="button">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">
+              <path d="M9 16.2l-3.5-3.5L4 14.2l5 5 12-12-1.5-1.5z"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+      <!-- Overlay de barre de chargement (pré-départ) -->
+      <div id="start-loader" class="loader-overlay" aria-hidden="true">
+        <div class="loader">
+          <div data-i18n="loading" class="loading-text" style="font-family: 'Starjedi', sans-serif;">loading<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span></div>
+          <!-- Lightsaber animation -->
+          <div id="loader">
+            <div class="lightsaber ls-left ls-green"></div>
+            <div class="lightsaber ls-right ls-red"></div>
+            <div class="ls-particles ls-part-1"></div>
+            <div class="ls-particles ls-part-2"></div>
+            <div class="ls-particles ls-part-3"></div>
+            <div class="ls-particles ls-part-4"></div>
+            <div class="ls-particles ls-part-5"></div>
+          </div>
+          <!-- <div class="loading-bar-background">
+            <div class="loading-bar">
+              <div class="white-bars-container">
+                <div class="white-bar"></div>
+                <div class="white-bar"></div>
+                <div class="white-bar"></div>
+              </div> -->
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Overlay transition entre points (astronaut + stars) -->
+      <div id="between-overlay" class="between-overlay" aria-hidden="true">
+        <div class="kickoff-text" style="font-family: 'Starjedi', sans-serif;">Kick off...</div>
+        <div class="box-of-star1">
+          <div class="star star-position1"></div>
+          <div class="star star-position2"></div>
+          <div class="star star-position3"></div>
+          <div class="star star-position4"></div>
+          <div class="star star-position5"></div>
+          <div class="star star-position6"></div>
+          <div class="star star-position7"></div>
+        </div>
+        <div class="box-of-star2">
+          <div class="star star-position1"></div>
+          <div class="star star-position2"></div>
+          <div class="star star-position3"></div>
+          <div class="star star-position4"></div>
+          <div class="star star-position5"></div>
+          <div class="star star-position6"></div>
+          <div class="star star-position7"></div>
+        </div>
+        <div class="box-of-star3">
+          <div class="star star-position1"></div>
+          <div class="star star-position2"></div>
+          <div class="star star-position3"></div>
+          <div class="star star-position4"></div>
+          <div class="star star-position5"></div>
+          <div class="star star-position6"></div>
+          <div class="star star-position7"></div>
+        </div>
+        <div class="box-of-star4">
+          <div class="star star-position1"></div>
+          <div class="star star-position2"></div>
+          <div class="star star-position3"></div>
+          <div class="star star-position4"></div>
+          <div class="star star-position5"></div>
+          <div class="star star-position6"></div>
+          <div class="star star-position7"></div>
+        </div>
+        <div class="astronaut">
+          <div class="schoolbag"></div>
+          <div class="head"></div>
+          <div class="body">
+            <div class="panel"></div>
+          </div>
+          <div class="arm arm-left"></div>
+          <div class="arm arm-right"></div>
+          <div class="leg leg-left"></div>
+          <div class="leg leg-right"></div>
+        </div>
+      </div>
+
+      <!-- Overlay de victoire (cards) -->
+      <div id="victory-overlay" class="victory-overlay" aria-hidden="true">
+        <div class="cards slide-in-top">
+          <div class="outlinePage">
+            <div class="trophy" aria-hidden="true">
+              <svg viewBox="0 0 64 64" width="130" height="130" xmlns="http://www.w3.org/2000/svg">
+                <path fill="#f4a11a" d="M44 8h10a2 2 0 0 1 2 2v4c0 7.732-6.268 14-14 14h-2V8h4z"/>
+                <path fill="#f4a11a" d="M20 8H10a2 2 0 0 0-2 2v4c0 7.732 6.268 14 14 14h2V8h-4z"/>
+                <path fill="#ffc64b" d="M20 8h24v16c0 6.627-5.373 12-12 12s-12-5.373-12-12V8z"/>
+                <rect x="26" y="36" width="12" height="6" rx="2" fill="#8b572a"/>
+                <rect x="22" y="42" width="20" height="6" rx="2" fill="#a66a35"/>
+                <circle cx="32" cy="22" r="6" fill="#ffeb86"/>
+              </svg>
+            </div>
+            <p class="ranking_number" id="vict-rank-num"></p>
+            <p class="ranking_word" id="vict-rank-word">WIN</p>
+            <div class="splitLine" aria-hidden="true"></div>
+            <div class="userAvatar" aria-hidden="true" id="vict-avatar">
+            </div>
+            <p class="userName" data-i18n="winner" id="vict-user-name">Winner</p>
+            <div class="medals" aria-hidden="true">
+              <svg viewBox="0 0 64 64" width="56" height="56" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="32" cy="36" r="14" fill="#ffd54f" stroke="#f0a000" stroke-width="3"/>
+                <path d="M20 8l8 16h8l8-16" fill="#90caf9"/>
+              </svg>
+            </div>
+          </div>
+          <div class="detailPage">
+            <div class="gradesBox">
+              <div class="gradesIcon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" width="40" height="40" xmlns="http://www.w3.org/2000/svg">
+                  <path fill="#ea9518" d="M3 3h4v18H3zM10 9h4v12h-4zM17 5h4v16h-4z"/>
+                </svg>
+              </div>
+              <label class="gradesBoxLabel" data-i18n="score2" data>SCORE</label>
+              <span class="gradesBoxNum" id="vict-score">0-0</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      </div>
+    </main>
+  </div>
+
+  <script type="module" src="src/main.ts"></script>
+  <script type="module" src="../src/script.ts"></script>
+  </body>
+</html>
