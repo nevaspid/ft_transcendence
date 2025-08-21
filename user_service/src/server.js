@@ -189,7 +189,7 @@ fastify.addHook('preHandler', async (request, reply) => {
 
 
 
-fastify.post('/api/user/:id/heartbeat', async (request, reply) => {
+fastify.post('/user/:id/heartbeat', async (request, reply) => {
   const { id } = request.params;
   try {
     await fastify.markOnline(id); // met à jour usersOnline et lastActive
@@ -205,9 +205,9 @@ setInterval(() => {
   const now = Date.now();
   for (const [userId, info] of usersOnline) {
     if (now - info.lastActive > 5 * 60 * 1000) { // 5 min
-      setUserOffline(username);
-      usersOnline.delete(username);
-      fastify.log.info(`User ${username} set offline due to inactivity`);
+      setUserOffline(userId);
+      usersOnline.delete(userId);
+      fastify.log.info(`User ${userId} set offline due to inactivity`);
     }
   }
 }, 60 * 1000);
@@ -362,15 +362,21 @@ fastify.post('/auth/login', async (request, reply) => {
   const valid = await bcrypt.compare(password, user.password);
   if (!valid) return reply.code(401).send({ message: 'Invalid credentials' });
 
+  const avatarUrl = user.avatar_url || ''; // 📌 ici on prend avatar_url
+
   if (user.two_factor_enabled) {
     await fastify.markOnline(user.id);
-    // Étape 2 nécessaire côté client, on renvoie aussi le pseudo
-    return reply.send({ success: true, twofaRequired: true, pseudo: user.pseudo });
+    return reply.send({ success: true, twofaRequired: true, pseudo: user.pseudo, avatarUrl });
   } else {
     await fastify.markOnline(user.id);
-    // JWT direct + on renvoie aussi le pseudo
-    const token = jwt.sign({ id: user.id, username: user.username,  pseudo: user.pseudo }, process.env.JWT_SECRET, { expiresIn: '1h' });
-     return reply.send({ success: true, token, pseudo: user.pseudo, language: user.language || 'fr' });
+    const token = jwt.sign(
+      { id: user.id, username: user.username, pseudo: user.pseudo, avatarUrl },
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' }
+    );
+    return reply.send({ success: true, token, pseudo: user.pseudo, avatarUrl, language: user.language || 'fr',
+      id: user.id
+    });
   }
 });
 

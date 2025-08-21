@@ -11,6 +11,10 @@ import { toCanvas } from 'qrcode';
 // -----------------------------
 export let pseudoUser: string | null = localStorage.getItem("pseudoUser");
 export let currentUser: string | null = localStorage.getItem("username");
+export let userId: string | null = localStorage.getItem("userId");
+export let avatarplayer: string | null = localStorage.getItem("avatarplayer");
+
+console.log('avatar debut script:', avatarplayer);
 
 
 let is2FANeeded = false;
@@ -26,10 +30,12 @@ declare global { interface Window { google: any; } }
 
 // 📌 État utilisateur global (reactif)
 export const userState = {
-  username: "",
-  pseudoUser: "",
-  currentUser: "",
-  avatarBaseUrl: ""
+  username: currentUser ?? "",
+  pseudoUser: pseudoUser ?? "",
+  currentUser: currentUser ?? "",
+  avatarBaseUrl: "",
+  userId: userId ?? "",
+  avatarplayer: ""
 };
 
 // -----------------------------
@@ -216,15 +222,17 @@ async function checkSession(): Promise<void> {
     });
     
     if (response.ok) {
-      const data: { isLoggedIn: boolean; username?: string; pseudo?: string } = await response.json();
+      const data: { isLoggedIn: boolean; username?: string; pseudo?: string; id?: string; } = await response.json();
 
       if (data.isLoggedIn && data.username) {
         if (data.pseudo) {
           userState.pseudoUser = data.pseudo;
           currentUser = data.username;
+          userState.userId = data.id;
         } else if (data.username) {
           userState.pseudoUser = data.username;
           currentUser = data.username;
+          userState.userId = data.id;
         } else {
           userState.pseudoUser = null;
           currentUser = null;
@@ -248,6 +256,7 @@ async function checkSession(): Promise<void> {
 
   updateUserMenu();
 }
+
 
 // -----------------------------
 // 👤 Création de compte
@@ -311,6 +320,7 @@ window.addEventListener("DOMContentLoaded", () => {
   // Charger user depuis localStorage
   currentUser = localStorage.getItem("username");
   userState.pseudoUser = localStorage.getItem("pseudo") || null; 
+  userState.userId = localStorage.getItem("userId")
 });
 
 function handleGoogleSignIn(response?: google.accounts.id.CredentialResponse): void {
@@ -330,9 +340,13 @@ function handleGoogleSignIn(response?: google.accounts.id.CredentialResponse): v
     if (!res.ok) throw new Error(data.message || "Erreur d'authentification");
     currentUser = data.user.username;
     userState.pseudoUser = data.user.pseudo;
+    userState.userId = data.user.id;
     localStorage.setItem("token", data.token);
     localStorage.setItem("username", data.user.username);
     localStorage.setItem("pseudo", data.user.pseudo);
+    if (data.user.id) {
+      localStorage.setItem("userId", data.user.id);
+    }
     updateUserMenu();
     navigate("home");
   })
@@ -382,8 +396,15 @@ async function loginUser() {
 
     // Stockage du pseudo + état global
     pseudoUser = data.pseudo || null;
+    userId = data.id;
     userState.pseudoUser = pseudoUser;
+    userState.userId = userId;
     localStorage.setItem("pseudoUser", userState.pseudoUser || "");
+    localStorage.setItem("userId", userState.userId);
+    localStorage.setItem("avatarplayer", `${data.avatarUrl}`);
+    userState.avatarplayer = `${data.avatarUrl}`;
+    console.log('avatarpalyer dans login:', avatarplayer);
+    console.log('userState.avatarplayer dans login:', userState.avatarplayer);
 
      // ➕ Si 2FA est requis
     if (data.twofaRequired) {
@@ -501,7 +522,8 @@ async function verify2FA() {
 async function logoutUser(): Promise<void> {
   localStorage.removeItem("token");
   localStorage.removeItem("username");
-  localStorage.removeItem("pseudo");
+  localStorage.removeItem("pseudoUser");
+  localStorage.removeItem("avatarplayer");
   currentUser = null;
   pseudoUser = null;
   userState.pseudoUser = null;
@@ -514,11 +536,11 @@ async function logoutUser(): Promise<void> {
 // 📦 Navigation dynamique entre les pages
 // -----------------------------
 
-
-async function navigate(page: string, addToHistory = true) {
+async function navigate(page: string) {
+  
   const publicPages = ['login', 'signup', 'home'];
   currentPage = page;
-
+  
   if (!currentUser && !publicPages.includes(page)) {
     page = 'login';
   }
@@ -530,55 +552,69 @@ async function navigate(page: string, addToHistory = true) {
 
   currentLang = await loadUserLanguage();
   applyTranslations(currentLang);
-
+  
   if (selector) selector.value = currentLang;
 
-  // Exemple pour page space
   if (page === 'space') {
+    // Afficher le bloc langue correct et cacher les autres
     const langBlocks = main.querySelectorAll<HTMLElement>('.lang-block');
     langBlocks.forEach(block => {
-      block.classList.toggle('hidden', !block.classList.contains(currentLang));
+      if (block.classList.contains(currentLang)) {
+        block.classList.remove('hidden');
+      } else {
+        block.classList.add('hidden');
+      }
     });
 
+    // Reset animation CSS sur .crawl pour relancer le scroll
     const crawl = main.querySelector<HTMLElement>('.crawl');
     if (crawl) {
       crawl.style.animation = 'none';
-      void crawl.offsetHeight; // trigger reflow
+      // trigger reflow
+      void crawl.offsetHeight;
+      // relancer l'animation crawl (la même que dans CSS)
       crawl.style.animation = 'crawl 90s linear forwards';
     }
   }
 
-  // Gestion des événements dynamiques par page
+   // Gestion des événements dynamiques en fonction de la page
   if (page === 'login') {
+    // Bouton login classique
     const loginBtn = main.querySelector('#loginBtn');
     if (loginBtn) loginBtn.addEventListener('click', (e) => {
-      e.preventDefault();
+      e.preventDefault(); // pour éviter le rechargement de page si bouton dans un form
       loginUser();
     });
 
+    // Lien vers signup
     const signupLink = main.querySelector("#signuplink");
     if (signupLink) {
       signupLink.addEventListener("click", (e) => {
         e.preventDefault();
         navigate("signup");
       });
-    }
-
+    } 
+    // ======== Gestion du bouton Google Sign-In ========
     const googleSignInBtn = main.querySelector('#custom-google-btn');
     if (googleSignInBtn) {
       googleSignInBtn.addEventListener('click', (e) => {
         e.preventDefault();
         google.accounts.id.prompt();
       });
+      
     }
-  } else if (page === 'signup') {
+
+  }
+  // 📝 Page signup
+  else if (page === 'signup') {
     const createAccountBtn = main.querySelector('button');
     if (createAccountBtn) createAccountBtn.addEventListener('click', createAccount);
-  } else if (page === 'profil') {
+  }
+  if(page === 'profil'){
     initProfilPage();
   }
 
-  // Boutons internes data-page
+  // Ajout gestion boutons avec data-page dans contenu dynamique
   const buttons = main.querySelectorAll<HTMLButtonElement>('[data-page]');
   buttons.forEach((button) => {
     button.addEventListener('click', () => {
@@ -586,109 +622,9 @@ async function navigate(page: string, addToHistory = true) {
       if (targetPage) navigate(targetPage);
     });
   });
-
+  // Met à jour l’état du menu utilisateur après chaque navigation
   updateUserMenu();
-
-  // ---- Gestion de l'historique pour le Back/Forward ----
-  if (addToHistory) {
-    history.pushState({ page }, '', page);
-  }
 }
-
-// ---- Écoute du popstate pour le Back/Forward ----
-window.addEventListener('popstate', (event) => {
-  const page = event.state?.page ?? 'home';
-  navigate(page, false); // false pour ne pas empiler à nouveau l'historique
-});
-
-// async function navigate(page: string) {
-//   const publicPages = ['login', 'signup', 'home'];
-//   currentPage = page;
-  
-//   if (!currentUser && !publicPages.includes(page)) {
-//     page = 'login';
-//   }
-
-//   const main = document.getElementById('main-content');
-//   if (!main) return;
-
-//   main.innerHTML = content[page] ?? '<p>Page introuvable</p>';
-
-//   currentLang = await loadUserLanguage();
-//   applyTranslations(currentLang);
-  
-//   if (selector) selector.value = currentLang;
-
-//   if (page === 'space') {
-//     // Afficher le bloc langue correct et cacher les autres
-//     const langBlocks = main.querySelectorAll<HTMLElement>('.lang-block');
-//     langBlocks.forEach(block => {
-//       if (block.classList.contains(currentLang)) {
-//         block.classList.remove('hidden');
-//       } else {
-//         block.classList.add('hidden');
-//       }
-//     });
-
-//     // Reset animation CSS sur .crawl pour relancer le scroll
-//     const crawl = main.querySelector<HTMLElement>('.crawl');
-//     if (crawl) {
-//       crawl.style.animation = 'none';
-//       // trigger reflow
-//       void crawl.offsetHeight;
-//       // relancer l'animation crawl (la même que dans CSS)
-//       crawl.style.animation = 'crawl 90s linear forwards';
-//     }
-//   }
-
-//    // Gestion des événements dynamiques en fonction de la page
-//   if (page === 'login') {
-//     // Bouton login classique
-//     const loginBtn = main.querySelector('#loginBtn');
-//     if (loginBtn) loginBtn.addEventListener('click', (e) => {
-//       e.preventDefault(); // pour éviter le rechargement de page si bouton dans un form
-//       loginUser();
-//     });
-
-//     // Lien vers signup
-//     const signupLink = main.querySelector("#signuplink");
-//     if (signupLink) {
-//       signupLink.addEventListener("click", (e) => {
-//         e.preventDefault();
-//         navigate("signup");
-//       });
-//     } 
-//     // ======== Gestion du bouton Google Sign-In ========
-//     const googleSignInBtn = main.querySelector('#custom-google-btn');
-//     if (googleSignInBtn) {
-//       googleSignInBtn.addEventListener('click', (e) => {
-//         e.preventDefault();
-//         google.accounts.id.prompt();
-//       });
-      
-//     }
-
-//   }
-//   // 📝 Page signup
-//   else if (page === 'signup') {
-//     const createAccountBtn = main.querySelector('button');
-//     if (createAccountBtn) createAccountBtn.addEventListener('click', createAccount);
-//   }
-//   if(page === 'profil'){
-//     initProfilPage();
-//   }
-
-//   // Ajout gestion boutons avec data-page dans contenu dynamique
-//   const buttons = main.querySelectorAll<HTMLButtonElement>('[data-page]');
-//   buttons.forEach((button) => {
-//     button.addEventListener('click', () => {
-//       const targetPage = button.dataset.page;
-//       if (targetPage) navigate(targetPage);
-//     });
-//   });
-//   // Met à jour l’état du menu utilisateur après chaque navigation
-//   updateUserMenu();
-// }
 
 // -----------------------------
 // 📅 Événements DOM initiaux
@@ -756,4 +692,5 @@ document.getElementById("logoutBtn")?.addEventListener("click", async (e) => {
   checkSession();  // Vérifie si utilisateur est connecté
 
   navigate('home'); // Affiche la page d'accueil au démarrage
+  
 });

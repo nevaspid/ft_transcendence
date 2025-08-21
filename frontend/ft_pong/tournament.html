@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Tournoi Pong</title>
+    <link rel="stylesheet" href="src/style.css" />
+  </head>
+  <body>
+    <div id="layout">
+      <header class="hud" style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+        <a class="menu-btn" href="menu.html" style="text-decoration:none">Retour</a>
+        <div><strong>Tournoi 4 joueurs</strong></div>
+        <div></div>
+      </header>
+      <main id="game-area">
+        <div class="tournament-wrapper">
+          <section class="players-setup">
+            <h2 class="menu-title" style="margin:0 0 8px 0">Joueurs</h2>
+            <div class="players-grid">
+              <div class="player-block">
+                <label class="player-label">P1 (connecté)</label>
+                <input id="p1-name" class="player-input" type="text" value="Player 1" disabled />
+              </div>
+              <div class="player-block">
+                <div class="input__container">
+                  <span class="shadow__input"></span>
+                  <input id="p2-name" type="text" class="input__search" placeholder="Player Name" />
+                  <button class="input__button__shadow" id="p2-save" title="Valider">
+                    <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg>
+                  </button>
+                </div>
+              </div>
+              <div class="player-block">
+                <div class="input__container">
+                  <span class="shadow__input"></span>
+                  <input id="p3-name" type="text" class="input__search" placeholder="Player Name" />
+                  <button class="input__button__shadow" id="p3-save" title="Valider">
+                    <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg>
+                  </button>
+                </div>
+              </div>
+              <div class="player-block">
+                <div class="input__container">
+                  <span class="shadow__input"></span>
+                  <input id="p4-name" type="text" class="input__search" placeholder="Player Name" />
+                  <button class="input__button__shadow" id="p4-save" title="Valider">
+                    <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M9 16.2 4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4z"/></svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section class="bracket">
+            <div class="round">
+              <h3>Demi-finale 1</h3>
+              <div class="match" id="sf1">
+                <div class="slot" id="sf1-p1">P1</div>
+                <div class="slot" id="sf1-p2">P2</div>
+                <button class="play-btn" id="sf1-play">Play</button>
+                <div class="winner" id="sf1-winner"></div>
+              </div>
+            </div>
+            <div class="round">
+              <h3>Demi-finale 2</h3>
+              <div class="match" id="sf2">
+                <div class="slot" id="sf2-p1">P3</div>
+                <div class="slot" id="sf2-p2">P4</div>
+                <button class="play-btn" id="sf2-play">Play</button>
+                <div class="winner" id="sf2-winner"></div>
+              </div>
+            </div>
+            <div class="round final">
+              <h3>Finale</h3>
+              <div class="match" id="final">
+                <div class="slot" id="final-p1">Vainqueur DF1</div>
+                <div class="slot" id="final-p2">Vainqueur DF2</div>
+                <button class="play-btn" id="final-play" disabled>Play</button>
+                <div class="winner" id="final-winner"></div>
+              </div>
+            </div>
+          </section>
+
+          <div class="t-actions">
+            <button id="t-randomize" class="si-btn">Randomize</button>
+            <button id="t-reset" class="si-btn">Réinitialiser</button>
+          </div>
+        </div>
+      </main>
+    </div>
+    <script type="module" src="tournament/main.ts"></script>
+  </body>
+  </html>
+
+
