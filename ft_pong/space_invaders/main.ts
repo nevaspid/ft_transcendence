@@ -54,52 +54,44 @@ function renderLives(livesEl: HTMLElement, p1: Ship | null, p2: Ship | null): vo
   livesEl.innerHTML = `${p1Hearts}${p2 ? '<span style="width:14px;display:inline-block"></span>' : ''}${p2Hearts}`;
 }
 function showVictoryOverlay(
-  wrapper: HTMLElement,
-  score: number,
-  p1: Ship | null,
-  p2: Ship | null,
+  _wrapper: HTMLElement,
+  scoreVal: number,
+  p1Ref: Ship | null,
+  p2Ref: Ship | null,
   onRetry: () => void,
   extra?: { mode: Mode; p1Score: number; p2Score: number; p1Bonus: number; p2Bonus: number; winner: string }
 ): void {
-  const over = document.createElement('div');
-  over.className = 'si-select';
-  over.innerHTML = `
-    <div class="si-card">
-      <h2>Victoire</h2>
-      ${extra && extra.mode === 'coop' ? `
-        <p>Score d'équipe: ${score}</p>
-        <p>${p1Name}: ${extra.p1Score} + ${extra.p1Bonus} bonus vies = <strong>${extra.p1Score + extra.p1Bonus}</strong></p>
-        <p>${p2Name}: ${extra.p2Score} + ${extra.p2Bonus} bonus vies = <strong>${extra.p2Score + extra.p2Bonus}</strong></p>
-        <p><strong>Vainqueur: ${extra.winner}</strong></p>
-      ` : `
-        <p>Score: ${score}</p>
-        <p>Vies P1: ${p1?.lives ?? 0}${p2 ? ` | Vies P2: ${p2.lives}` : ''}</p>
-      `}
-      <div class="si-actions">
-        <button id=\"si-retry\" class=\"si-btn\">Rejouer</button>
-        <a href=\"/menu.html\" class=\"si-btn\" style=\"text-decoration:none;display:inline-block\">Menu</a>
-      </div>
-    </div>
-  `;
-  wrapper.appendChild(over);
-  (document.getElementById('si-retry') as HTMLButtonElement).onclick = () => { over.remove(); onRetry(); };
+  victoryEl.style.display = '';
+  if (extra && extra.mode === 'coop') {
+    victorySoloEl.style.display = 'none';
+    victoryCoopEl.style.display = '';
+    vTeamEl.textContent = `Score d'équipe: ${scoreVal}`;
+    vP1El.innerHTML = `${p1Name}: ${extra.p1Score} + ${extra.p1Bonus} bonus vies = <strong>${extra.p1Score + extra.p1Bonus}</strong>`;
+    vP2El.innerHTML = `${p2Name}: ${extra.p2Score} + ${extra.p2Bonus} bonus vies = <strong>${extra.p2Score + extra.p2Bonus}</strong>`;
+    vWinnerEl.textContent = `Vainqueur: ${extra.winner}`;
+  } else {
+    victoryCoopEl.style.display = 'none';
+    victorySoloEl.style.display = '';
+    vSoloScoreEl.textContent = `Score: ${scoreVal}`;
+    vSoloLivesEl.textContent = `Vies P1: ${p1Ref?.lives ?? 0}${p2Ref ? ` | Vies P2: ${p2Ref.lives}` : ''}`;
+  }
+  const onClick = () => {
+    victoryEl.style.display = 'none';
+    retryVictoryBtn.removeEventListener('click', onClick);
+    onRetry();
+  };
+  retryVictoryBtn.addEventListener('click', onClick);
 }
-function showDefeatOverlay(wrapper: HTMLElement, score: number, p1: Ship | null, p2: Ship | null, onRetry: () => void): void {
-  const over = document.createElement('div');
-  over.className = 'si-select';
-  over.innerHTML = `
-    <div class="si-card">
-      <h2>Défaite</h2>
-      <p>Score: ${score}</p>
-      <p>Vies P1: ${p1?.lives ?? 0}${p2 ? ` | Vies P2: ${p2.lives}` : ''}</p>
-      <div class="si-actions">
-        <button id=\"si-retry\" class=\"si-btn\">Rejouer</button>
-        <a href=\"/menu.html\" class=\"si-btn\" style=\"text-decoration:none;display:inline-block\">Menu</a>
-      </div>
-    </div>
-  `;
-  wrapper.appendChild(over);
-  (document.getElementById('si-retry') as HTMLButtonElement).onclick = () => { over.remove(); onRetry(); };
+function showDefeatOverlay(_wrapper: HTMLElement, scoreVal: number, p1Ref: Ship | null, p2Ref: Ship | null, onRetry: () => void): void {
+  defeatEl.style.display = '';
+  dScoreEl.textContent = `Score: ${scoreVal}`;
+  dLivesEl.textContent = `Vies P1: ${p1Ref?.lives ?? 0}${p2Ref ? ` | Vies P2: ${p2Ref.lives}` : ''}`;
+  const onClick = () => {
+    defeatEl.style.display = 'none';
+    retryDefeatBtn.removeEventListener('click', onClick);
+    onRetry();
+  };
+  retryDefeatBtn.addEventListener('click', onClick);
 }
 
 // Render helpers
@@ -146,6 +138,48 @@ const hud = document.getElementById('si-hud') as HTMLElement;
 const scoreP1El = document.getElementById('si-score-p1') as HTMLElement;
 const scoreP2El = document.getElementById('si-score-p2') as HTMLElement;
 const livesEl = document.getElementById('si-lives') as HTMLElement;
+const menuBtn = document.getElementById('si-menu-btn') as HTMLButtonElement;
+// Ensure wrapper anchors absolutely-positioned children and allows clicks
+wrapper.style.position = 'relative';
+// Static overlays and controls from HTML
+const selectEl = document.getElementById('si-select') as HTMLDivElement;
+const btnSolo = document.getElementById('si-solo') as HTMLButtonElement;
+const btnCoop = document.getElementById('si-coop') as HTMLButtonElement;
+// Ensure overlays paint above the canvas
+if (selectEl) selectEl.style.zIndex = '10';
+if (selectEl) selectEl.style.pointerEvents = 'auto';
+
+const p2OverlayEl = document.getElementById('si-p2-overlay') as HTMLDivElement;
+const p1NameEl = document.getElementById('si-p1name') as HTMLElement;
+const p2NameInput = document.getElementById('si-p2name') as HTMLInputElement;
+const p2OkBtn = document.getElementById('si-p2-ok') as HTMLButtonElement;
+const p2CancelBtn = document.getElementById('si-p2-cancel') as HTMLButtonElement;
+if (p2OverlayEl) p2OverlayEl.style.zIndex = '10';
+if (p2OverlayEl) p2OverlayEl.style.pointerEvents = 'auto';
+
+const loaderEl = document.getElementById('si-loader') as HTMLDivElement;
+if (loaderEl) loaderEl.style.zIndex = '10';
+if (loaderEl) loaderEl.style.pointerEvents = 'auto';
+
+const victoryEl = document.getElementById('si-victory') as HTMLDivElement;
+const victoryCoopEl = document.getElementById('si-victory-coop') as HTMLDivElement;
+const victorySoloEl = document.getElementById('si-victory-solo') as HTMLDivElement;
+const vTeamEl = document.getElementById('si-v-team') as HTMLElement;
+const vP1El = document.getElementById('si-v-p1') as HTMLElement;
+const vP2El = document.getElementById('si-v-p2') as HTMLElement;
+const vWinnerEl = document.getElementById('si-v-winner') as HTMLElement;
+const vSoloScoreEl = document.getElementById('si-v-solo-score') as HTMLElement;
+const vSoloLivesEl = document.getElementById('si-v-solo-lives') as HTMLElement;
+const retryVictoryBtn = document.getElementById('si-retry-victory') as HTMLButtonElement;
+if (victoryEl) victoryEl.style.zIndex = '10';
+if (victoryEl) victoryEl.style.pointerEvents = 'auto';
+
+const defeatEl = document.getElementById('si-defeat') as HTMLDivElement;
+const dScoreEl = document.getElementById('si-d-score') as HTMLElement;
+const dLivesEl = document.getElementById('si-d-lives') as HTMLElement;
+const retryDefeatBtn = document.getElementById('si-retry-defeat') as HTMLButtonElement;
+if (defeatEl) defeatEl.style.zIndex = '10';
+if (defeatEl) defeatEl.style.pointerEvents = 'auto';
 
 // Canvas
 const canvas = document.createElement('canvas');
@@ -153,7 +187,14 @@ canvas.id = 'si-canvas';
 canvas.style.position = 'absolute';
 canvas.style.top = '0';
 canvas.style.left = '0';
-wrapper.appendChild(canvas);
+canvas.style.zIndex = '0';
+canvas.style.pointerEvents = 'none';
+// Place canvas behind overlays to ensure overlays are clickable
+if (wrapper.firstChild) {
+  wrapper.insertBefore(canvas, wrapper.firstChild);
+} else {
+  wrapper.appendChild(canvas);
+}
 const ctx = canvas.getContext('2d')!;
 
 // Background
@@ -325,53 +366,36 @@ let rowRightX: number[] = [];
 let boss: Boss | null = null;
 
 // Flow
-const select = document.createElement('div');
-select.className = 'si-select';
-select.innerHTML = `
-  <div class="si-card">
-    <h2>Mode de jeu</h2>
-    <div class="si-actions">
-      <button id="si-solo" class="si-btn">Solo</button>
-      <button id="si-coop" class="si-btn">Coop</button>
-    </div>
-    <div style="margin-top:10px"><a href="/menu.html" class="si-btn" style="display:inline-block;text-decoration:none">Retour</a></div>
-  </div>
-`;
-wrapper.appendChild(select);
-(document.getElementById('si-solo') as HTMLButtonElement).onclick = () => start('solo');
-(document.getElementById('si-coop') as HTMLButtonElement).onclick = () => start('coop');
+btnSolo.onclick = () => start('solo');
+btnCoop.onclick = () => start('coop');
+menuBtn.onclick = () => returnToMenu();
 
 let p1Name: string = (document.body.getAttribute('data-username') || localStorage.getItem('username') || 'P1');
 let p2Name: string = 'P2';
 
-function promptP2Name(): Promise<void> {
+function promptP2Name(): Promise<boolean> {
   return new Promise((resolve) => {
-    const over = document.createElement('div');
-    over.className = 'si-select';
-    over.innerHTML = `
-      <div class="si-card">
-        <h2>Coop: pseudos</h2>
-        <div style="margin:8px 0">Joueur 1: <strong>${p1Name}</strong></div>
-        <label style="display:block;margin:8px 0">Pseudo Joueur 2:
-          <input id="si-p2name" class="si-input" type="text" placeholder="P2" style="width:100%;padding:8px" />
-        </label>
-        <div class="si-actions">
-          <button id="si-p2-ok" class="si-btn">Valider</button>
-          <button id="si-p2-cancel" class="si-btn">Annuler</button>
-        </div>
-      </div>
-    `;
-    wrapper.appendChild(over);
-    (document.getElementById('si-p2-ok') as HTMLButtonElement).onclick = () => {
-      const val = (document.getElementById('si-p2name') as HTMLInputElement).value.trim();
+    p1NameEl.textContent = p1Name;
+    p2NameInput.value = '';
+    p2OverlayEl.style.display = '';
+    const onOk = () => {
+      const val = p2NameInput.value.trim();
       p2Name = val || 'P2';
-      over.remove();
-      resolve();
+      p2OverlayEl.style.display = 'none';
+      cleanup();
+      resolve(true);
     };
-    (document.getElementById('si-p2-cancel') as HTMLButtonElement).onclick = () => {
-      over.remove();
-      resolve();
+    const onCancel = () => {
+      p2OverlayEl.style.display = 'none';
+      cleanup();
+      resolve(false);
     };
+    function cleanup() {
+      p2OkBtn.removeEventListener('click', onOk);
+      p2CancelBtn.removeEventListener('click', onCancel);
+    }
+    p2OkBtn.addEventListener('click', onOk);
+    p2CancelBtn.addEventListener('click', onCancel);
   });
 }
 
@@ -380,15 +404,38 @@ function start(m: Mode) {
     showHackerLoader(5000).then(() => {
       mode = m;
       resetGame();
-      select.remove();
+      selectEl.style.display = 'none';
     });
   };
   if (m === 'coop') {
     p1Name = (document.body.getAttribute('data-username') || localStorage.getItem('username') || 'P1');
-    promptP2Name().then(proceed);
+    promptP2Name().then((confirmed) => {
+      if (confirmed) {
+        proceed();
+      }
+      // keep selection visible on cancel
+      if (!confirmed) {
+        selectEl.style.display = '';
+      }
+    });
   } else {
     proceed();
   }
+}
+
+function returnToMenu(): void {
+  // Stop game loop state and show selection
+  mode = 'none';
+  isGameOver = false;
+  // Clear entities
+  p1 = null; p2 = null; enemies = []; bullets = []; boss = null;
+  // Reset HUD
+  score = 0; scoreP1 = 0; scoreP2 = 0; multiplierP1 = 1; multiplierP2 = 1; playerShotCount = 1;
+  scoreP2El.style.display = 'none';
+  updateScoreHud();
+  renderLives(livesEl, p1, p2);
+  // Show menu overlay back
+  selectEl.style.display = '';
 }
 
 function resetGame() {
@@ -757,29 +804,9 @@ loop();
 // Simple overlay for the hacker loader
 function showHackerLoader(ms: number): Promise<void> {
   return new Promise((resolve) => {
-    const over = document.createElement('div');
-    over.className = 'si-select';
-    over.innerHTML = `
-      <div class="hacker-loader">
-        <div class="loader-text">
-          <span class="text-glitch" data-text="INITIALIZING...">INITIALIZING...</span>
-        </div>
-        <div class="loader-bar">
-          <div class="bar-fill"></div>
-          <div class="bar-glitch"></div>
-        </div>
-        <div class="particles">
-          <div class="particle"></div>
-          <div class="particle"></div>
-          <div class="particle"></div>
-          <div class="particle"></div>
-          <div class="particle"></div>
-        </div>
-      </div>
-    `;
-    wrapper.appendChild(over);
+    loaderEl.style.display = '';
     const timer = setTimeout(() => {
-      over.remove();
+      loaderEl.style.display = 'none';
       clearTimeout(timer);
       resolve();
     }, ms);

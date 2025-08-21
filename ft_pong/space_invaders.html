@@ -8,7 +8,10 @@
   <body>
     <div id="layout">
       <header class="hud" id="si-hud" style="display:flex;align-items:center;justify-content:space-between;gap:12px">
-        <div id="si-lives" class="si-lives"></div>
+        <div id="si-left" style="display:flex;align-items:center;gap:8px">
+          <button id="si-menu-btn" class="si-btn" style="padding:6px 10px">Menu</button>
+          <div id="si-lives" class="si-lives"></div>
+        </div>
         <div style="flex:1;text-align:center">Space Invaders</div>
         <div id="si-scores" style="display:flex;align-items:center;gap:12px">
           <span id="si-score-p1">P1 = 0 x1</span>
@@ -16,7 +19,88 @@
         </div>
       </header>
       <main id="game-area">
-        <div class="game-wrapper" id="si-wrapper"></div>
+        <div class="game-wrapper" id="si-wrapper">
+          <!-- Mode select overlay -->
+          <div id="si-select" class="si-select">
+            <div class="si-card">
+              <h2>Mode de jeu</h2>
+              <div class="si-actions">
+                <button id="si-solo" class="si-btn">Solo</button>
+                <button id="si-coop" class="si-btn">Coop</button>
+              </div>
+              <div style="margin-top:10px"><a href="/menu.html" class="si-btn" style="display:inline-block;text-decoration:none">Retour</a></div>
+            </div>
+          </div>
+
+          <!-- Coop P2 name overlay -->
+          <div id="si-p2-overlay" class="si-select" style="display:none">
+            <div class="si-card">
+              <h2>Coop: pseudos</h2>
+              <div style="margin:8px 0">Joueur 1: <strong id="si-p1name">P1</strong></div>
+              <label style="display:block;margin:8px 0">Pseudo Joueur 2:
+                <input id="si-p2name" class="si-input" type="text" placeholder="P2" style="width:100%;padding:8px" />
+              </label>
+              <div class="si-actions">
+                <button id="si-p2-ok" class="si-btn">Valider</button>
+                <button id="si-p2-cancel" class="si-btn">Annuler</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Loader overlay -->
+          <div id="si-loader" class="si-select" style="display:none">
+            <div class="hacker-loader">
+              <div class="loader-text">
+                <span class="text-glitch" data-text="INITIALIZING...">INITIALIZING...</span>
+              </div>
+              <div class="loader-bar">
+                <div class="bar-fill"></div>
+                <div class="bar-glitch"></div>
+              </div>
+              <div class="particles">
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+                <div class="particle"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Victory overlay -->
+          <div id="si-victory" class="si-select" style="display:none">
+            <div class="si-card">
+              <h2>Victoire</h2>
+              <div id="si-victory-coop" style="display:none">
+                <p id="si-v-team"></p>
+                <p id="si-v-p1"></p>
+                <p id="si-v-p2"></p>
+                <p><strong id="si-v-winner"></strong></p>
+              </div>
+              <div id="si-victory-solo" style="display:none">
+                <p id="si-v-solo-score"></p>
+                <p id="si-v-solo-lives"></p>
+              </div>
+              <div class="si-actions">
+                <button id="si-retry-victory" class="si-btn">Rejouer</button>
+                <a href="/menu.html" class="si-btn" style="text-decoration:none;display:inline-block">Menu</a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Defeat overlay -->
+          <div id="si-defeat" class="si-select" style="display:none">
+            <div class="si-card">
+              <h2>Défaite</h2>
+              <p id="si-d-score"></p>
+              <p id="si-d-lives"></p>
+              <div class="si-actions">
+                <button id="si-retry-defeat" class="si-btn">Rejouer</button>
+                <a href="/menu.html" class="si-btn" style="text-decoration:none;display:inline-block">Menu</a>
+              </div>
+            </div>
+          </div>
+        </div>
       </main>
     </div>
     <script type="module" src="/space_invaders/main.ts"></script>
