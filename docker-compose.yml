@@ -64,17 +64,6 @@ services:
     networks:
       - default
 
-  game_service:
-    container_name: game_service
-    build: ./game_service
-    ports:
-      - "4002:4002"
-    volumes:
-      - ./game_service:/app
-    command: sh -c "npm install && npm run build && npm run preview -- --host"
-    networks:
-      - default
-  
   google_auth_service:
     container_name: google_auth_service
     build: ./google_auth_service
@@ -114,7 +103,6 @@ services:
       - google_auth_service
       - avatar_service
       - twofa_service
-      - game_service
     networks:
       - default
 networks:

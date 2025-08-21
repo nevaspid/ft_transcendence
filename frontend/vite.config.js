@@ -6,6 +6,11 @@ dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
 export default defineConfig({
   root: './',
+  resolve: {
+    alias: {
+      '@ft_pong': path.resolve(__dirname, '../ft_pong/dist') // <-- ajout de l'alias
+    }
+  },
   server: {
     host: process.env.SERVER_HOST || '0.0.0.0',
     port: 5173,
@@ -35,6 +40,7 @@ export default defineConfig({
       '/uploads': {
         target: `http://avatar_service:3001`,
         changeOrigin: true,
+        secure: false,
         rewrite: (path) => path.replace(/^\/uploads/, ''),
       },
       '/twofa': {
@@ -43,12 +49,7 @@ export default defineConfig({
         secure: false,
         rewrite: (path) => path.replace(/^\/twofa/, ''),
       },
-      '/game': {
-        target: `http://game_service:4002`,
-        changeOrigin: true,
-        secure: false,
-        rewrite: (path) => path.replace(/^\/game/, ''),
-      },
+      
     },
   },
   define: {

@@ -11,6 +11,10 @@ import { toCanvas } from 'qrcode';
 // -----------------------------
 export let pseudoUser: string | null = localStorage.getItem("pseudoUser");
 export let currentUser: string | null = localStorage.getItem("username");
+export let userId: string | null = localStorage.getItem("userId");
+export let avatarplayer: string | null = localStorage.getItem("avatarplayer");
+
+console.log('avatar debut script:', avatarplayer);
 
 
 let is2FANeeded = false;
@@ -26,10 +30,12 @@ declare global { interface Window { google: any; } }
 
 // 📌 État utilisateur global (reactif)
 export const userState = {
-  username: "",
-  pseudoUser: "",
-  currentUser: "",
-  avatarBaseUrl: ""
+  username: currentUser ?? "",
+  pseudoUser: pseudoUser ?? "",
+  currentUser: currentUser ?? "",
+  avatarBaseUrl: "",
+  userId: userId ?? "",
+  avatarplayer: ""
 };
 
 // -----------------------------
@@ -154,6 +160,15 @@ if (selector) {
     applyTranslations(newLang);
     await saveUserLanguage(newLang);
 
+  // Mettre à jour l'iframe si elle existe
+  const iframe = document.querySelector('iframe');
+  if (iframe) {
+    // Ajouter la langue dans l'URL
+    const url = new URL(iframe.src, window.location.origin);
+    url.searchParams.set('lang', newLang);
+    iframe.src = url.toString(); // recharge l'iframe avec la nouvelle langue
+  }
+
   if (currentPage === 'space') {
     // Redémarrage de l'animation
     const crawl = document.querySelector<HTMLElement>('.crawl');
@@ -172,6 +187,13 @@ if (selector) {
   }
   });
 }
+
+  //Gestion langue pour iframe game
+  window.addEventListener('DOMContentLoaded', () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const lang = urlParams.get('lang') as Language || 'fr';
+    applyTranslations(lang);
+  });
 
 // -----------------------------
 // 🔁 Mise à jour menu utilisateur
@@ -198,6 +220,11 @@ export function updateUserMenu(): void {
 // ✅ Vérification session au chargement
 // -----------------------------
 
+// Vérifie toutes les 30 secondes si la session est toujours valide
+setInterval(() => {
+  checkSession();
+}, 10000);
+
 async function checkSession(): Promise<void> {
   const token = localStorage.getItem("token");
   if (!token) {
@@ -216,15 +243,17 @@ async function checkSession(): Promise<void> {
     });
     
     if (response.ok) {
-      const data: { isLoggedIn: boolean; username?: string; pseudo?: string } = await response.json();
+      const data: { isLoggedIn: boolean; username?: string; pseudo?: string; id?: string; } = await response.json();
 
       if (data.isLoggedIn && data.username) {
         if (data.pseudo) {
           userState.pseudoUser = data.pseudo;
           currentUser = data.username;
+          userState.userId = data.id;
         } else if (data.username) {
           userState.pseudoUser = data.username;
           currentUser = data.username;
+          userState.userId = data.id;
         } else {
           userState.pseudoUser = null;
           currentUser = null;
@@ -248,6 +277,7 @@ async function checkSession(): Promise<void> {
 
   updateUserMenu();
 }
+
 
 // -----------------------------
 // 👤 Création de compte
@@ -311,6 +341,7 @@ window.addEventListener("DOMContentLoaded", () => {
   // Charger user depuis localStorage
   currentUser = localStorage.getItem("username");
   userState.pseudoUser = localStorage.getItem("pseudo") || null; 
+  userState.userId = localStorage.getItem("userId")
 });
 
 function handleGoogleSignIn(response?: google.accounts.id.CredentialResponse): void {
@@ -330,9 +361,13 @@ function handleGoogleSignIn(response?: google.accounts.id.CredentialResponse): v
     if (!res.ok) throw new Error(data.message || "Erreur d'authentification");
     currentUser = data.user.username;
     userState.pseudoUser = data.user.pseudo;
+    userState.userId = data.user.id;
     localStorage.setItem("token", data.token);
     localStorage.setItem("username", data.user.username);
     localStorage.setItem("pseudo", data.user.pseudo);
+    if (data.user.id) {
+      localStorage.setItem("userId", data.user.id);
+    }
     updateUserMenu();
     navigate("home");
   })
@@ -382,8 +417,15 @@ async function loginUser() {
 
     // Stockage du pseudo + état global
     pseudoUser = data.pseudo || null;
+    userId = data.id;
     userState.pseudoUser = pseudoUser;
+    userState.userId = userId;
     localStorage.setItem("pseudoUser", userState.pseudoUser || "");
+    localStorage.setItem("userId", userState.userId);
+    localStorage.setItem("avatarplayer", `${data.avatarUrl}`);
+    userState.avatarplayer = `${data.avatarUrl}`;
+    console.log('avatarpalyer dans login:', avatarplayer);
+    console.log('userState.avatarplayer dans login:', userState.avatarplayer);
 
      // ➕ Si 2FA est requis
     if (data.twofaRequired) {
@@ -501,7 +543,8 @@ async function verify2FA() {
 async function logoutUser(): Promise<void> {
   localStorage.removeItem("token");
   localStorage.removeItem("username");
-  localStorage.removeItem("pseudo");
+  localStorage.removeItem("pseudoUser");
+  localStorage.removeItem("avatarplayer");
   currentUser = null;
   pseudoUser = null;
   userState.pseudoUser = null;
@@ -515,6 +558,7 @@ async function logoutUser(): Promise<void> {
 // -----------------------------
 
 async function navigate(page: string) {
+  
   const publicPages = ['login', 'signup', 'home'];
   currentPage = page;
   
@@ -669,4 +713,5 @@ document.getElementById("logoutBtn")?.addEventListener("click", async (e) => {
   checkSession();  // Vérifie si utilisateur est connecté
 
   navigate('home'); // Affiche la page d'accueil au démarrage
+  
 });
