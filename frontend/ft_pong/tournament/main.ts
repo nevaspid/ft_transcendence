@@ -1,4 +1,5 @@
 import { pseudoUser, userId } from '../../src/script';
+import { postCreateTournament, getNextTournamentId } from '../src/blockchainApi';
 type MatchId = 'sf1' | 'sf2' | 'final';
 
 interface TournamentState {
@@ -94,6 +95,23 @@ function runMatch(pLeft: string, pRight: string, onDone: (winner: string, score:
   location.href = `index1.html?${params.toString()}`;
 }
 
+async function ensureTournamentCreated(): Promise<void> {
+  const createdFlag = localStorage.getItem('tournament_created');
+  if (createdFlag === '1') return;
+  const tournamentId = await getNextTournamentId();
+  localStorage.setItem('current_tournament_id', String(tournamentId));
+  try {
+    await postCreateTournament({
+      tournamentName: 'Pong Tournament',
+      tournamentId,
+      nbPlayers: 4
+    });
+    localStorage.setItem('tournament_created', '1');
+  } catch (err) {
+    console.warn('createTournament failed:', err);
+  }
+}
+
 function checkMatchResult(): void {
   // When returning from Pong, it should have stored the result
   const resRaw = localStorage.getItem('pong_result');
@@ -128,18 +146,21 @@ document.getElementById('p4-save')?.addEventListener('click', saveNames);
 
 sf1Btn.addEventListener('click', () => {
   saveNames();
+  void ensureTournamentCreated();
   localStorage.setItem('tournament_last', 'sf1');
   runMatch(state.p1, state.p2, () => {});
 });
 
 sf2Btn.addEventListener('click', () => {
   saveNames();
+  void ensureTournamentCreated();
   localStorage.setItem('tournament_last', 'sf2');
   runMatch(state.p3, state.p4, () => {});
 });
 
 finalBtn.addEventListener('click', () => {
   if (!(state.sf1Winner && state.sf2Winner)) return;
+  void ensureTournamentCreated();
   localStorage.setItem('tournament_last', 'final');
   runMatch(state.sf1Winner!, state.sf2Winner!, () => {});
 });

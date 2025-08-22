@@ -11,6 +11,7 @@ import { createGameField, loadStarDestroyerBackground, addBackgroundImage } from
 import { createCamera, setupCameraControls } from './render/cam3d';
 import { debugAll } from './render/debug3d';
 import { pseudoUser, userId, avatarplayer } from '../../src/script';
+import { postMatch, getNextMatchId } from './blockchainApi';
 
 import {
   WORLD_W,
@@ -114,6 +115,12 @@ if (isTournamentMode) {
 }
 console.log('userId dans le jeu:', userId);
 
+// matchId fourni par le serveur via /nextId
+
+function getCurrentTournamentId(): number | null {
+  const raw = localStorage.getItem('current_tournament_id');
+  return raw ? parseInt(raw, 10) || null : null;
+}
 
 // Met à jour l’affichage HTML pour refléter les bons pseudos
 const p1Element = document.getElementById('p1-name');
@@ -211,6 +218,27 @@ function setPhase(newPhase: GamePhase): void {
         const winner = (scoreL > scoreR ? player1Name : player2Name);
         const res = { winner, score: `${scoreL}-${scoreR}` };
         try { localStorage.setItem('pong_result', JSON.stringify(res)); } catch {}
+        // Déclaration du match blockchain en mode tournoi
+        (async () => {
+          try {
+            const matchId = await getNextMatchId();
+            const p1Id = Number(userId) || 1;
+            const p2Id = 2; // ID synthétique local
+            const winnerId = (scoreL > scoreR) ? p1Id : p2Id;
+            const tournamentId = getCurrentTournamentId() || 1;
+            await postMatch({
+              isTournament: tournamentId,
+              matchId,
+              p1: p1Id,
+              p2: p2Id,
+              p1Score: scoreL,
+              p2Score: scoreR,
+              winner: winnerId
+            });
+          } catch (err) {
+            console.warn('postMatch (tournament) failed:', err);
+          }
+        })();
         const back = localStorage.getItem('tournament_return_to') || 'tournament.html';
         // petite pause pour laisser finir les animations éventuelles
         setTimeout(() => { window.location.href = back; }, 200);
@@ -241,6 +269,27 @@ function setPhase(newPhase: GamePhase): void {
           victoryOverlay.classList.add('visible');
           victoryOverlay.setAttribute('aria-hidden', 'false');
         }
+
+        // Déclaration du match blockchain en partie libre
+        ;(async () => {
+          try {
+            const matchId = await getNextMatchId();
+            const p1Id = Number(userId) || 1;
+            const p2Id = 2; // ID synthétique local
+            const winnerId = (scoreL > scoreR) ? p1Id : p2Id;
+            await postMatch({
+              isTournament: 0,
+              matchId,
+              p1: p1Id,
+              p2: p2Id,
+              p1Score: scoreL,
+              p2Score: scoreR,
+              winner: winnerId
+            });
+          } catch (err) {
+            console.warn('postMatch (free play) failed:', err);
+          }
+        })();
 
       break;
   }

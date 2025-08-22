@@ -3,7 +3,7 @@ export const createMatch = {
     type: 'object',
     required: ['isTournament', 'matchId', 'p1', 'p2', 'p1Score', 'p2Score', 'winner'],
     properties: {
-      isTournament: { type: 'integer', minimum: 1 },
+      isTournament: { type: 'integer', minimum: 0 },
       matchId: { type: 'integer', minimum: 1 },
       p1: { type: 'integer' },
       p2: { type: 'integer' },

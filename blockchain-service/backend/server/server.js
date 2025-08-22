@@ -39,12 +39,14 @@ import { getMatchDataRoute } from './routes/getMatchDataRoute.js'
 import { createTournamentRoute } from './routes/createTournamentRoute.js'
 import { getTournamentDataRoute } from './routes/getTournamentDataRoute.js'
 import { getPlayerMatchesRoute } from './routes/getPlayerMatchesRoute.js'
+import { nextIdsRoute } from './routes/nextIdsRoute.js'
 
 await app.register(createMatchRoute)
 await app.register(createTournamentRoute)
 await app.register(getMatchDataRoute)
 await app.register(getTournamentDataRoute)
 await app.register(getPlayerMatchesRoute)
+await app.register(nextIdsRoute)
 
 // Start the server
 try {
