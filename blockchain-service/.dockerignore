@@ -1,0 +1,12 @@
+.dockerignore
+Dockerfile
+node_modules
+npm-debug.log
+node_modules
+cache
+.git
+.gitignore
+README.md
+tree.txt
+*.dbg.json
+
