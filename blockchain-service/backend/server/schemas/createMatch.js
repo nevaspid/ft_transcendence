@@ -1,7 +1,7 @@
 export const createMatch = {
   body: {
     type: 'object',
-    required: ['isTournament', 'matchId', 'p1', 'p2', 'p1Score', 'p2Score', 'winner'],
+    required: ['isTournament', 'matchId', 'p1', 'p2', 'p1Score', 'p2Score', 'winner', 'spaceInvaders'],
     properties: {
       isTournament: { type: 'integer', minimum: 0 },
       matchId: { type: 'integer', minimum: 1 },
@@ -9,7 +9,8 @@ export const createMatch = {
       p2: { type: 'integer' },
       p1Score: { type: 'integer' },
       p2Score: { type: 'integer' },
-      winner: { type: 'integer' }
+      winner: { type: 'integer' },
+	  spaceInvaders: { type: 'integer' }
     }
   },
   response: {

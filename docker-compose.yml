@@ -1,4 +1,17 @@
 services:
+  blockchain_service:
+    container_name: blockchain-service
+    image: node:20
+    working_dir: /app
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./blockchain-service:/app
+      - /app/node_modules
+    command: sh -c "npm install && node --env-file=backend/server/.env start.js"
+    networks:
+      - default
+
   frontend:
     container_name: frontend
     build: ./frontend
@@ -35,7 +48,7 @@ services:
     depends_on:
       - avatar_service
     networks:
-      - default 
+      - default
 
   avatar_service:
     container_name: avatar_service
@@ -108,3 +121,4 @@ services:
 networks:
   default:
     driver: bridge
+

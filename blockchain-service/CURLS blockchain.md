@@ -9,7 +9,7 @@ Exemples de requêtes CURL pour tester toutes les routes du backend `blockchain-
 Créer un match dans un tournoi.
 
 ```bash
-curl -X POST http://localhost:3000/matches \
+curl -X POST http://localhost:3100/matches \
   -H "Content-Type: application/json" \
   -d '{
     "isTournament": 1,
@@ -18,7 +18,8 @@ curl -X POST http://localhost:3000/matches \
     "p2Score": 6,
     "p1": 1,
     "p2": 2,
-    "winner": 1
+    "winner": 1,
+    "spaceInvaders": 1
   }'
 ```
 
@@ -29,7 +30,7 @@ curl -X POST http://localhost:3000/matches \
 Récupérer les infos d’un match.
 
 ```bash
-curl http://localhost:3000/matches/1001
+curl http://localhost:3100/matches/1001
 ```
 
 ---
@@ -39,7 +40,7 @@ curl http://localhost:3000/matches/1001
 Créer un nouveau tournoi.
 
 ```bash
-curl -X POST http://localhost:3000/createTournament \
+curl -X POST http://localhost:3100/createTournament \
   -H "Content-Type: application/json" \
   -d '{
     "tournamentName": "Blockchain Cup",
@@ -55,7 +56,7 @@ curl -X POST http://localhost:3000/createTournament \
 Obtenir les infos d’un tournoi.
 
 ```bash
-curl http://localhost:3000/tournament/42
+curl http://localhost:3100/tournament/42
 ```
 
 ---
@@ -65,7 +66,7 @@ curl http://localhost:3000/tournament/42
 Obtenir la liste des matchIds joués par un joueur donné.
 
 ```bash
-curl http://localhost:3000/playerMatches/1
+curl http://localhost:3100/playerMatches/1
 ```
 
 ---

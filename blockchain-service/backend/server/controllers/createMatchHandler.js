@@ -1,5 +1,5 @@
 export async function createMatchHandler(request, reply) {
-  const { isTournament, matchId, p1, p2, p1Score, p2Score, winner } = request.body
+  const { isTournament, matchId, p1, p2, p1Score, p2Score, winner, spaceInvaders } = request.body
   const contract = request.server.tournamentContract
 
   try {
@@ -10,7 +10,8 @@ export async function createMatchHandler(request, reply) {
       p2Score,
       p1,
       p2,
-      winner
+      winner,
+	  spaceInvaders
     )
     await tx.wait()
 
