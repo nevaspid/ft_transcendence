@@ -1,4 +1,5 @@
 import { pseudoUser, userId } from '../../src/script';
+import { postMatch, getNextMatchId } from '../src/blockchainApi';
 // Constants
 const ORIGINAL_WORLD_W = 900;
 const ORIGINAL_WORLD_H = 600;
@@ -778,6 +779,28 @@ function triggerGameOver(): void {
   isGameOver = true;
   showDefeatOverlay(wrapper, score, p1, p2, () => { isGameOver = false; resetGame(); });
   //! fetch
+  ;(async () => {
+    try {
+      const matchId = await getNextMatchId();
+      const p1Id = Number(userId) || 1;
+      const p2Id = 2; // adversaire local synthétique
+      const p1ScoreVal = (mode === 'coop') ? scoreP1 : score;
+      const p2ScoreVal = (mode === 'coop') ? scoreP2 : 0;
+      const winnerId = p2Id; // défaite côté joueur
+      await postMatch({
+        isTournament: 0,
+        matchId,
+        p1: p1Id,
+        p2: p2Id,
+        p1Score: p1ScoreVal,
+        p2Score: p2ScoreVal,
+        winner: winnerId,
+        spaceInvaders: 1
+      });
+    } catch (err) {
+      console.warn('postMatch (defeat) failed:', err);
+    }
+  })();
 }
 
 function triggerVictory(): void {
@@ -791,9 +814,47 @@ function triggerVictory(): void {
     showVictoryOverlay(wrapper, score, p1, p2, () => { isGameOver = false; resetGame(); }, { mode, p1Score: scoreP1, p2Score: scoreP2, p1Bonus, p2Bonus, winner });
 	//! fetch duo
 	//! VOIR PAYLOAD BLOCKCHAIN API
+    ;(async () => {
+      try {
+        const matchId = await getNextMatchId();
+        const p1Id = Number(userId) || 1;
+        const p2Id = 2; // joueur 2 synthétique
+        const winnerId = (p1Total >= p2Total) ? p1Id : p2Id;
+        await postMatch({
+          isTournament: 0,
+          matchId,
+          p1: p1Id,
+          p2: p2Id,
+          p1Score: p1Total,
+          p2Score: p2Total,
+          winner: winnerId,
+          spaceInvaders: 1
+        });
+      } catch (err) {
+        console.warn('postMatch (coop) failed:', err);
+      }
+    })();
   } else {
     showVictoryOverlay(wrapper, score, p1, p2, () => { isGameOver = false; resetGame(); });
 	//! fetch solo
+    ;(async () => {
+      try {
+        const matchId = await getNextMatchId();
+        const p1Id = Number(userId) || 1;
+        await postMatch({
+          isTournament: 0,
+          matchId,
+          p1: p1Id,
+          p2: 2,
+          p1Score: score,
+          p2Score: 0,
+          winner: p1Id,
+          spaceInvaders: 1
+        });
+      } catch (err) {
+        console.warn('postMatch (solo) failed:', err);
+      }
+    })();
   }
 }
 
