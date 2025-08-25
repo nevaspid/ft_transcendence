@@ -1,5 +1,5 @@
 services:
-  blockchain_service:
+  blockchain-service:
     container_name: blockchain-service
     image: node:20
     working_dir: /app
