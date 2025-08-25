@@ -78,27 +78,97 @@ async function fetchMatch(id: number): Promise<MatchData> {
   return (await res.json()) as TournamentData;
 }
 
-//GET /playerMatches/:playerId
-// async function fetchPlayerMatches(playerId: number): Promise<number[]> {
-//   if (!Number.isFinite(playerId) || playerId < 1) throw new TypeError("playerId must be a number over 0");
-
-//   const res = await fetch(`/blockchain/playerMatches/${playerId}`);
-//   if (!res.ok) throw new Error(`GET /playerMatches/${playerId} -> HTTP ${res.status}`);
-
-//   return (await res.json()) as number[];
-// }
 async function fetchPlayerMatches(playerId: number): Promise<number[]> {
   if (!Number.isFinite(playerId) || playerId < 1) 
     throw new TypeError("playerId must be a number over 0");
 
   const res = await fetch(`/blockchain/playerMatches/${playerId}`);
+  console.log("res", res);
   if (!res.ok) 
     throw new Error(`GET /playerMatches/${playerId} -> HTTP ${res.status}`);
 
   const data = await res.json();
-  // data.matchIds contient le tableau
+
+  // Vérifie ce qui est reçu
+  console.log("data complet:", data);
+
+  if (Array.isArray(data.matchIds)) {
+    console.log("matchIds récupérés:", data.matchIds);
+  } else {
+    console.warn("⚠️ matchIds n'est pas un tableau", data.matchIds);
+  }
+
   return data.matchIds ?? [];
 }
+
+// export async function loadMatches() {
+//   try {
+//     const matchContainer = document.getElementById("match-history");
+//     if (!matchContainer) return;
+
+//     matchContainer.innerHTML = "";
+
+//     const matchIds = await fetchPlayerMatches(currentUserId);
+//     console.log("matchIds", matchIds);
+
+//     const noMatchesText = t(currentLang, "no_matches");
+//     const tournamentText = t(currentLang, "tournament2");
+
+//     if (!matchIds.length) {
+//       matchContainer.innerHTML = `<p class="text-gray-400">${noMatchesText}</p>`;
+//       return;
+//     }
+
+//     for (const matchId of matchIds) {
+//       const match = await fetchMatch(matchId);
+//       console.log("match", match);
+//       console.log("match keys:", Object.keys(match));
+
+//       const p1 = await fetchUser(match.p1);
+//       const p2 = await fetchUser(match.p2);
+//       console.log("isTournament", match.isTournament );
+//       // ========================
+//       // Gestion du tournoi
+//       // ========================
+//       let tournamentName = "N/A";
+//       if (match.isTournament && match.isTournament > 0) {
+//         try {
+//           const tournament = await fetchTournament(match.isTournament);
+//           console.log("tournament", tournament);
+//           if (tournament?.tournamentName) {
+//             tournamentName = tournament.tournamentName;
+//           }
+//         } catch (err) {
+//           console.warn(`Impossible de récupérer le tournoi ${match.isTournament}`, err);
+//         }
+//       }
+
+//       const p1Class = match.winner === match.p1 ? "text-green-400" : "text-red-400";
+//       const p2Class = match.winner === match.p2 ? "text-green-400" : "text-red-400";
+
+//       const matchDiv = document.createElement("div");
+//       matchDiv.id = `match-${match.matchId}`;
+//       matchDiv.className = "flex flex-col items-center gap-1 p-2 border-b border-gray-700";
+
+//       matchDiv.innerHTML = `
+//         <div class="text-xs text-gray-500">Match ID: ${match.matchId}</div>
+//         <div class="flex items-center gap-2">
+//           <span class="font-semibold ${p1Class}">${p1.pseudo}</span>
+//           <span class="mx-2">${match.p1Score} - ${match.p2Score}</span>
+//           <span class="font-semibold ${p2Class}">${p2.pseudo}</span>
+//         </div>
+//         <div class="text-sm text-gray-400">
+//           ${tournamentText}: <span class="font-medium">${tournamentName}</span>
+//         </div>
+//       `;
+
+//       matchContainer.appendChild(matchDiv);
+//     }
+//   } catch (err) {
+//     console.error("Erreur lors du chargement des matchs:", err);
+//   }
+// }
+
 
 export async function loadMatches() {
   try {
@@ -142,6 +212,7 @@ export async function loadMatches() {
       matchDiv.className = "flex flex-col items-center gap-1 p-2 border-b border-gray-700";
 
       matchDiv.innerHTML = `
+        <div class="text-xs text-gray-500">Match ID: ${match.matchId}</div>
         <div class="flex items-center gap-2">
           <span class="font-semibold ${p1Class}">${p1.pseudo}</span>
           <span class="mx-2">${match.p1Score} - ${match.p2Score}</span>

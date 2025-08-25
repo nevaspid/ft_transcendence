@@ -15,6 +15,7 @@ contract Tournament {
 	}
 
 	struct MatchData {
+		uint	isTournament;
 		uint 	matchId;
 		uint 	p1;
 		uint 	p1Score;
@@ -54,6 +55,7 @@ contract Tournament {
 
 	function createMatch(uint _isTournament, uint _matchId, uint _p1Score, uint _p2Score, uint _p1, uint _p2, uint _winner, uint _spaceInvaders) external onlyOwner() {
 		MatchData memory newMatch = MatchData({
+			isTournament: _isTournament,
 			matchId: _matchId,
 			p1Score: _p1Score,
 			p2Score: _p2Score,
@@ -71,6 +73,7 @@ contract Tournament {
 	}
 
 	function getMatchData(uint _matchId) external view returns (
+	uint isTournament,
     uint matchId,
     uint p1,
     uint p1Score,
@@ -81,7 +84,7 @@ contract Tournament {
 	) {
 		require(matches[_matchId].matchId != 0, "Match does not exist");
 		MatchData memory matchData = matches[_matchId];
-		return (matchData.matchId, matchData.p1, matchData.p1Score, matchData.p2, matchData.p2Score, matchData.winner, matchData.spaceInvaders);
+		return (matchData.isTournament, matchData.matchId, matchData.p1, matchData.p1Score, matchData.p2, matchData.p2Score, matchData.winner, matchData.spaceInvaders);
 	}
 
 	function getTournamentData(uint _tournamentId) external view returns (

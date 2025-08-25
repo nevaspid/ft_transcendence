@@ -29,7 +29,6 @@ services:
       - blockchain-service
       - user_service
       - avatar_service
-      - blockchain_service
     networks:
       - default
 
