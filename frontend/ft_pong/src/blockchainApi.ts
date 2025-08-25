@@ -43,7 +43,7 @@ export async function getNextMatchId(): Promise<number> {
 }
 
 export async function getNextTournamentId(): Promise<number> {
-    const res = await fetch(`${API_BASE}/nextId`, {
+    const res = await fetch(`${API_BASE}/next`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ type: 'tournament' })
@@ -51,5 +51,3 @@ export async function getNextTournamentId(): Promise<number> {
     const data = await res.json();
     return data.tournamentId as number;
 }
-
-

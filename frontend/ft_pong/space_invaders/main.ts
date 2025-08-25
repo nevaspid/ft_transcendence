@@ -219,13 +219,13 @@ function fit() {
   wrapper.style.width = `${w}px`;
   wrapper.style.height = `${h}px`;
   canvas.width = w; canvas.height = h;
-  
+
   // Update world dimensions and scale factors
   WORLD_W = w;
   WORLD_H = h;
   scaleX = WORLD_W / ORIGINAL_WORLD_W;
   scaleY = WORLD_H / ORIGINAL_WORLD_H;
-  
+
   // Reposition and rescale players and other elements if game is running
   if (mode !== 'none' && p1) {
     repositionGameElements();
@@ -237,13 +237,13 @@ function repositionGameElements() {
   const h = WORLD_H;
   const bottomOffset = Math.round(40 * scaleY);
   const sideMargin = Math.round(20 * scaleX);
-  
+
   // Resize and reposition players
   if (p1) {
     const newPlayerW = Math.round(24 * scaleX);
     const newPlayerH = Math.round(16 * scaleY);
     const newSpeed = Math.round(420 * scaleX);
-    
+
     // Keep relative position but update size
     const relativeX = p1.x / (w - p1.w);
     p1.w = newPlayerW;
@@ -256,7 +256,7 @@ function repositionGameElements() {
     const newPlayerW = Math.round(24 * scaleX);
     const newPlayerH = Math.round(16 * scaleY);
     const newSpeed = Math.round(420 * scaleX);
-    
+
     const relativeX = p2.x / (w - p2.w);
     p2.w = newPlayerW;
     p2.h = newPlayerH;
@@ -264,13 +264,13 @@ function repositionGameElements() {
     p2.x = Math.max(0, Math.min(w - p2.w, relativeX * (w - p2.w)));
     p2.y = h - bottomOffset;
   }
-  
+
   // Resize and reposition boss if exists
   if (boss) {
     const newBossW = Math.round(200 * scaleX);
     const newBossH = Math.round(40 * scaleY);
     const newBossSpeed = Math.round(140 * scaleX);
-    
+
     const relativeX = boss.x / (w - boss.w);
     boss.w = newBossW;
     boss.h = newBossH;
@@ -278,25 +278,25 @@ function repositionGameElements() {
     boss.x = Math.max(sideMargin, Math.min(w - boss.w - sideMargin, relativeX * (w - boss.w)));
     boss.y = Math.round(80 * scaleY);
   }
-  
+
   // Update bullet sizes and remove out of bounds bullets
   bullets.forEach(b => {
     b.r = Math.round((b.owner === 'p' ? 3 : (b.color === '#a78bfa' ? 4 : 3)) * Math.min(scaleX, scaleY));
   });
   bullets = bullets.filter(b => b.x >= 0 && b.x <= w && b.y >= -10 && b.y <= h + 10);
-  
+
   // Completely recalculate enemy grid with proper spacing
   if (enemies.length > 0) {
     const cols = 10;
-    const gapX = Math.round(16 * scaleX); 
+    const gapX = Math.round(16 * scaleX);
     const gapY = Math.round(18 * scaleY);
     const sideMargin = Math.round(40 * scaleX);
     const topOffset = Math.round(60 * scaleY);
-    
+
     const cellW = (w - 2 * sideMargin - (cols - 1) * gapX) / cols;
     const newEnemyW = Math.max(Math.round(20 * scaleX), Math.min(Math.round(40 * scaleX), Math.floor(cellW * 0.65)));
     const newEnemyH = Math.round(20 * scaleY);
-    
+
     // Reorganize enemies in proper grid formation
     const aliveEnemiesByRow: { [key: number]: Enemy[] } = {};
     enemies.forEach(e => {
@@ -305,20 +305,20 @@ function repositionGameElements() {
         aliveEnemiesByRow[e.row].push(e);
       }
     });
-    
+
     // Reposition each row with correct spacing
     for (let r = 0; r < currentRows; r++) {
       if (aliveEnemiesByRow[r]) {
         const rowEnemies = aliveEnemiesByRow[r].sort((a, b) => a.x - b.x); // Sort by current x position
         const baseX = rowDirs[r] < 0 ? (w - sideMargin - cols * (newEnemyW + gapX) + gapX) : sideMargin;
-        
+
         rowEnemies.forEach((e, colIndex) => {
           e.w = newEnemyW;
           e.h = newEnemyH;
           e.x = baseX + colIndex * (newEnemyW + gapX);
           e.y = topOffset + r * (newEnemyH + gapY);
         });
-        
+
         // Update row boundaries
         rowLeftX[r] = baseX;
         rowRightX[r] = baseX + (rowEnemies.length - 1) * (newEnemyW + gapX) + newEnemyW;
@@ -416,7 +416,7 @@ function start(m: Mode) {
       selectEl.remove();
     });
   };
-  
+
   if (m === 'coop') {
     p1Name = (pseudoUser || 'P1');
     promptP2Name().then((confirmed) => {
@@ -452,11 +452,11 @@ function resetGame() {
   // Update world dimensions to match current canvas size
   WORLD_W = canvas.width;
   WORLD_H = canvas.height;
-  
+
   // Calculate scale factors for proportional sizing
   scaleX = WORLD_W / ORIGINAL_WORLD_W;
   scaleY = WORLD_H / ORIGINAL_WORLD_H;
-  
+
   score = 0;
   scoreP1 = 0;
   scoreP2 = 0;
@@ -485,7 +485,7 @@ function createPlayers() {
   const bottomOffset = Math.round(40 * scaleY);
   const separationOffset = Math.round(30 * scaleX);
   const baseSpeed = Math.round(420 * scaleX); // Scale speed proportionally
-  
+
   p1 = { x: w / 2 - separationOffset, y: h - bottomOffset, w: playerW, h: playerH, speed: baseSpeed, cooldown: 0, color: '#60a5fa', lives: PLAYER_INIT_LIVES, invuln: 0 };
   if (mode === 'coop') {
     p2 = { x: w / 2 + separationOffset, y: h - bottomOffset, w: playerW, h: playerH, speed: baseSpeed, cooldown: 0, color: '#34d399', lives: PLAYER_INIT_LIVES, invuln: 0 };
@@ -506,17 +506,17 @@ function initLevel(rows: number) {
   currentRows = rows;
   const w = WORLD_W;
   const cols = 10;
-  
+
   // Scale gaps and sizes proportionally
-  const gapX = Math.round(16 * scaleX); 
+  const gapX = Math.round(16 * scaleX);
   const gapY = Math.round(18 * scaleY);
   const sideMargin = Math.round(40 * scaleX);
   const topOffset = Math.round(60 * scaleY);
-  
+
   const cellW = (w - 2 * sideMargin - (cols - 1) * gapX) / cols;
   const eW = Math.max(Math.round(20 * scaleX), Math.min(Math.round(40 * scaleX), Math.floor(cellW * 0.65)));
   const eH = Math.round(20 * scaleY);
-  
+
   for (let r = 0; r < rows; r++) {
     rowDirs[r] = (r % 2 === 0) ? -1 : 1;
     rowDrops[r] = 0;
@@ -547,24 +547,24 @@ function spawnBoss(): void {
   currentRows = 0;
   const w = WORLD_W;
   const bossHP = (mode === 'coop') ? 1500 : 750;
-  
+
   // Scale boss proportionally
   const bossW = Math.round(200 * scaleX);
   const bossH = Math.round(40 * scaleY);
   const bossY = Math.round(80 * scaleY);
   const bossSpeed = Math.round(140 * scaleX);
   const sideMargin = Math.round(20 * scaleX);
-  
-  boss = { 
-    x: Math.max(sideMargin, w / 2 - bossW / 2), 
-    y: bossY, 
-    w: bossW, 
-    h: bossH, 
-    hp: bossHP, 
-    maxHp: bossHP, 
-    dir: 1, 
-    speed: bossSpeed, 
-    cd: 0.5 + Math.random() * 1.0 
+
+  boss = {
+    x: Math.max(sideMargin, w / 2 - bossW / 2),
+    y: bossY,
+    w: bossW,
+    h: bossH,
+    hp: bossHP,
+    maxHp: bossHP,
+    dir: 1,
+    speed: bossSpeed,
+    cd: 0.5 + Math.random() * 1.0
   };
 }
 
@@ -576,20 +576,20 @@ function shoot(from: Ship): void {
   else if (playerShotCount === 2) positions.push(x0 + from.w * 0.35, x0 + from.w * 0.65);
   else positions.push(x0 + from.w * 0.25, x0 + from.w * 0.5, x0 + from.w * 0.75);
   const shooter: 'p1' | 'p2' = (p2 && from === p2) ? 'p2' : 'p1';
-  
+
   // Scale bullet properties proportionally
   const bulletSpeed = Math.round(-600 * scaleY);
   const bulletRadius = Math.round(3 * Math.min(scaleX, scaleY));
-  
-  positions.forEach(px => bullets.push({ 
-    x: Math.max(x0 + 1, Math.min(x1 - 1, px)), 
-    y: from.y, 
-    vx: 0, 
-    vy: bulletSpeed, 
-    r: bulletRadius, 
-    color: '#fbbf24', 
-    owner: 'p', 
-    shooter 
+
+  positions.forEach(px => bullets.push({
+    x: Math.max(x0 + 1, Math.min(x1 - 1, px)),
+    y: from.y,
+    vx: 0,
+    vy: bulletSpeed,
+    r: bulletRadius,
+    color: '#fbbf24',
+    owner: 'p',
+    shooter
   }));
   from.cooldown = 0.25;
 }
@@ -777,6 +777,7 @@ function recomputeProgress(): void {
 function triggerGameOver(): void {
   isGameOver = true;
   showDefeatOverlay(wrapper, score, p1, p2, () => { isGameOver = false; resetGame(); });
+  //! fetch
 }
 
 function triggerVictory(): void {
@@ -788,8 +789,11 @@ function triggerVictory(): void {
     const p2Total = scoreP2 + p2Bonus;
     const winner = p1Total === p2Total ? 'Égalité' : (p1Total > p2Total ? p1Name : p2Name);
     showVictoryOverlay(wrapper, score, p1, p2, () => { isGameOver = false; resetGame(); }, { mode, p1Score: scoreP1, p2Score: scoreP2, p1Bonus, p2Bonus, winner });
+	//! fetch duo
+	//! VOIR PAYLOAD BLOCKCHAIN API
   } else {
     showVictoryOverlay(wrapper, score, p1, p2, () => { isGameOver = false; resetGame(); });
+	//! fetch solo
   }
 }
 

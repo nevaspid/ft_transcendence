@@ -234,6 +234,7 @@ function setPhase(newPhase: GamePhase): void {
               p1Score: scoreL,
               p2Score: scoreR,
               winner: winnerId
+			  //! maybe charger plus de payload spaceInvader
             });
           } catch (err) {
             console.warn('postMatch (tournament) failed:', err);
@@ -243,7 +244,6 @@ function setPhase(newPhase: GamePhase): void {
         // petite pause pour laisser finir les animations éventuelles
         setTimeout(() => { window.location.href = back; }, 200);
         break;
-		//! fetch les resultats de match ici ?
       }
       if (victoryOverlay) {
           const winnerName = scoreL > scoreR ? player1Name : player2Name;
