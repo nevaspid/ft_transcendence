@@ -5,7 +5,7 @@ import { fileURLToPath } from 'url'
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
-const idsPath = path.join(__dirname, '../../../../frontend/ft_pong/ids.json')
+const idsPath = path.join(__dirname, '../ids.json')
 
 export async function nextIdsHandler(request, reply) {
   const { type } = request.body

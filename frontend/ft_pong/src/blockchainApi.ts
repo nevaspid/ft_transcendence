@@ -33,7 +33,7 @@ export async function postMatch(payload: CreateMatchPayload): Promise<void> {
 }
 
 export async function getNextMatchId(): Promise<number> {
-    const res = await fetch(`${API_BASE}/nextId`, {
+    const res = await fetch(`${API_BASE}/next`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ type: 'match' })
