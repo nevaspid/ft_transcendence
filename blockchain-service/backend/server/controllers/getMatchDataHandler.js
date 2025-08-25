@@ -11,7 +11,8 @@ export async function getMatchDataHandler(request, reply) {
       p1Score: Number(match.p1Score),
       p2: Number(match.p2),
       p2Score: Number(match.p2Score),
-      winner: Number(match.winner)
+      winner: Number(match.winner),
+      spaceInvaders: Number(match.spaceInvaders)
     }
 
     return reply.send(formattedMatch)

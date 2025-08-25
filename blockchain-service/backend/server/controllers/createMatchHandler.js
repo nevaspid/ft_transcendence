@@ -11,7 +11,7 @@ export async function createMatchHandler(request, reply) {
       p1,
       p2,
       winner,
-	  spaceInvaders
+	    spaceInvaders
     )
     await tx.wait()
 

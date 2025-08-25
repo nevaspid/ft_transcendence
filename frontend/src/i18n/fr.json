@@ -146,6 +146,7 @@
   "player1": "Joueur 1: ",
   "player2": "Pseudo Joueur 2: ",
   "victory": "Victoire",
-  "team_score": "Score d'équipe: "
+  "team_score": "Score d'équipe: ",
+  "no_matches": "Aucun match trouvé",
+  "tournament2": "Tournoi: "
 }
-

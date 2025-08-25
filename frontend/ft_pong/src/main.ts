@@ -233,7 +233,8 @@ function setPhase(newPhase: GamePhase): void {
               p2: p2Id,
               p1Score: scoreL,
               p2Score: scoreR,
-              winner: winnerId
+              winner: winnerId,
+              spaceInvaders: 0
             });
           } catch (err) {
             console.warn('postMatch (tournament) failed:', err);
@@ -284,7 +285,8 @@ function setPhase(newPhase: GamePhase): void {
               p2: p2Id,
               p1Score: scoreL,
               p2Score: scoreR,
-              winner: winnerId
+              winner: winnerId,
+              spaceInvaders: 0
             });
           } catch (err) {
             console.warn('postMatch (free play) failed:', err);

@@ -1,4 +1,4 @@
-const API_BASE = 'http://localhost:3100';
+const API_BASE = '/blockchain';
 
 export interface CreateTournamentPayload {
 	tournamentName: string;
@@ -22,6 +22,7 @@ export interface CreateMatchPayload {
 	p1Score: number;
 	p2Score: number;
 	winner: number; // should be either p1 or p2 id
+	spaceInvaders: number;
 }
 
 export async function postMatch(payload: CreateMatchPayload): Promise<void> {
@@ -43,7 +44,7 @@ export async function getNextMatchId(): Promise<number> {
 }
 
 export async function getNextTournamentId(): Promise<number> {
-    const res = await fetch(`${API_BASE}/nextId`, {
+    const res = await fetch(`${API_BASE}/next`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ type: 'tournament' })

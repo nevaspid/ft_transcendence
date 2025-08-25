@@ -146,5 +146,7 @@
   "player1": "Jugador 1: ",
   "player2": "Apodo del Jugador 2: ",
   "victory": "Victoria",
-  "team_score": "Puntuación del equipo: "
+  "team_score": "Puntuación del equipo: ",
+  "no_matches": "Ningún partido encontrado",
+  "tournament2": "Torneo: "
 }
