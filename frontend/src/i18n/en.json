@@ -142,8 +142,9 @@
   "menu": "Menu",
   "score2": "Score",
   "validate": "Validate",
+  "coop_username": "Coop: usernames",
   "player1": "Player 1: ",
-  "player2": "Player 2 Username: ",
+  "player2": "Player 2 username: ",
   "victory": "Victory",
   "team_score": "Team Score: "
 }

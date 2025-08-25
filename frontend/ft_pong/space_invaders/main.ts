@@ -78,7 +78,7 @@ function showVictoryOverlay(
     victoryCoopEl.style.display = 'none';
     victorySoloEl.style.display = '';
     vSoloScoreEl.textContent = `Score: ${scoreVal}`;
-    vSoloLivesEl.textContent = `Vies P1: ${p1Ref?.lives ?? 0}${p2Ref ? ` | Vies P2: ${p2Ref.lives}` : ''}`;
+    vSoloLivesEl.textContent = `❤️ P1: ${p1Ref?.lives ?? 0}${p2Ref ? ` | ❤️ P2: ${p2Ref.lives}` : ''}`;
   }
   const onClick = () => {
     victoryEl.style.display = 'none';
@@ -90,7 +90,7 @@ function showVictoryOverlay(
 function showDefeatOverlay(_wrapper: HTMLElement, scoreVal: number, p1Ref: Ship | null, p2Ref: Ship | null, onRetry: () => void): void {
   defeatEl.style.display = '';
   dScoreEl.textContent = `Score: ${scoreVal}`;
-  dLivesEl.textContent = `Vies P1: ${p1Ref?.lives ?? 0}${p2Ref ? ` | Vies P2: ${p2Ref.lives}` : ''}`;
+  dLivesEl.textContent = `❤️ P1: ${p1Ref?.lives ?? 0}${p2Ref ? ` | ❤️ P2: ${p2Ref.lives}` : ''}`;
   const onClick = () => {
     defeatEl.style.display = 'none';
     retryDefeatBtn.removeEventListener('click', onClick);
@@ -390,10 +390,21 @@ function promptP2Name(): Promise<boolean> {
       cleanup();
       resolve(true);
     };
-    (document.getElementById('si-p2-cancel') as HTMLButtonElement).onclick = () => {
-      over.remove();
-      resolve();
+    const onCancel = () => {
+      p2OverlayEl.style.display = 'none';
+      cleanup();
+      resolve(false);
     };
+
+    // attach listeners
+    p2OkBtn.addEventListener('click', onOk);
+    p2CancelBtn.addEventListener('click', onCancel);
+
+    // cleanup pour éviter les doublons
+    function cleanup() {
+      p2OkBtn.removeEventListener('click', onOk);
+      p2CancelBtn.removeEventListener('click', onCancel);
+    }
   });
 }
 
@@ -402,7 +413,7 @@ function start(m: Mode) {
     showHackerLoader(5000).then(() => {
       mode = m;
       resetGame();
-      select.remove();
+      selectEl.remove();
     });
   };
   
