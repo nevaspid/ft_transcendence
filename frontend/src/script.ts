@@ -1,9 +1,10 @@
-import { initProfilPage } from './profilPage';
+import { initProfilPage, loadMatches } from './profilPage';
 import { t, Language } from './i18n/i18n';
 import fr from './i18n/fr.json'; 
 import en from './i18n/en.json'; 
 import es from './i18n/es.json'; 
 import { toCanvas } from 'qrcode';
+
 
 
 // -----------------------------
@@ -13,9 +14,6 @@ export let pseudoUser: string | null = localStorage.getItem("pseudoUser");
 export let currentUser: string | null = localStorage.getItem("username");
 export let userId: string | null = localStorage.getItem("userId");
 export let avatarplayer: string | null = localStorage.getItem("avatarplayer");
-
-console.log('avatar debut script:', avatarplayer);
-
 
 let is2FANeeded = false;
 let is2FASetup = false;
@@ -159,6 +157,7 @@ if (selector) {
     currentLang = newLang;
     applyTranslations(newLang);
     await saveUserLanguage(newLang);
+    await loadMatches();
 
   // Mettre à jour l'iframe si elle existe
   const iframe = document.querySelector('iframe');
@@ -557,7 +556,26 @@ async function logoutUser(): Promise<void> {
 // 📦 Navigation dynamique entre les pages
 // -----------------------------
 
-async function navigate(page: string) {
+// Fermer tous les modals
+function closeModalAll() {
+  const modals = document.querySelectorAll<HTMLElement>('.modal');
+  modals.forEach(modal => modal.classList.add('hidden'));
+}
+
+// Écoute du back/forward
+window.addEventListener('popstate', (event) => {
+  const state = event.state as { page?: string; modal?: boolean } | null;
+
+  if (state?.modal) {
+    // Afficher modal
+    document.getElementById(state.page)?.classList.remove("hidden");
+  } else {
+    closeModalAll();
+    navigate(state?.page ?? "home", false, true); // true = pas de push
+  }
+});
+
+async function navigate(page: string,  isModal = false, skipPush = false) {
   
   const publicPages = ['login', 'signup', 'home'];
   currentPage = page;
@@ -570,6 +588,21 @@ async function navigate(page: string) {
   if (!main) return;
 
   main.innerHTML = content[page] ?? '<p>Page introuvable</p>';
+
+  if (!isModal) {
+    // Navigation normale : changer contenu
+    main.innerHTML = content[page] ?? '<p>Page introuvable</p>';
+  }
+
+  // Historique
+  if (!skipPush) {
+    if (isModal) {
+      // Annoter l’état courant avec "modal ouvert"
+      window.history.pushState({ page, modal: true }, '', `#${page}`);
+    } else {
+      window.history.pushState({ page }, '', `#${page}`);
+    }
+  }
 
   currentLang = await loadUserLanguage();
   applyTranslations(currentLang);

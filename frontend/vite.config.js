@@ -49,6 +49,12 @@ export default defineConfig({
         secure: false,
         rewrite: (path) => path.replace(/^\/twofa/, ''),
       },
+      '/blockchain': {
+        target: `http://blockchain-service:3100`,
+        changeOrigin: true,
+        secure: false,
+        rewrite: (path) => path.replace(/^\/blockchain/, ''),
+      }
       
     },
   },

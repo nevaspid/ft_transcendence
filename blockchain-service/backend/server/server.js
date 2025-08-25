@@ -1,8 +1,10 @@
 import Fastify from 'fastify'
+import cors from "@fastify/cors";
 import { readFileSync } from 'fs'
 import path from 'path'
 import { fileURLToPath } from 'url'
 import { JsonRpcProvider, Wallet, Contract } from 'ethers'
+
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -28,10 +30,27 @@ const abi = abiFile.abi
 const provider = new JsonRpcProvider(process.env.RPC_URL)
 const wallet = new Wallet(process.env.PRIVATE_KEY, provider)
 const contract = new Contract(contractAddress, abi, wallet)
+const host = process.env.SERVER_HOST;
 
 // Create Fastify instance
 const app = Fastify({ logger: true })
 app.decorate('tournamentContract', contract)
+
+app.register(cors, {
+  origin: [
+	  `https://${host}:8443`,
+	  `http://${host}:3000`,
+	  `http://${host}:3001`,
+	  `http://${host}:4000`,
+	  `http://${host}:3000`,
+	  `http://${host}:3001`,
+	  `http://${host}:4000`,
+	  `http://${host}:8443`,
+	],
+  // origin: true,
+  methods: ['GET', 'POST', 'PATCH', 'OPTIONS', 'PUT', 'DELETE'],
+  credentials: true,
+});
 
 // Register routes
 import { createMatchRoute } from './routes/createMatchRoute.js'
@@ -48,11 +67,13 @@ await app.register(getTournamentDataRoute)
 await app.register(getPlayerMatchesRoute)
 await app.register(nextIdsRoute)
 
+
+
 // Start the server
 try {
 	const PORT = process.env.PORT || 3100
 	app.listen({ port: PORT, host: '0.0.0.0' })
-	console.log(`✅ Server running on http://localhost:${PORT}`)
+	console.log(`✅ Server running on http://${host}:${PORT}`)
 } catch (err) {
 	app.log.error(err)
 	process.exit(1)

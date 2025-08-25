@@ -17,6 +17,149 @@ let currentUserId: number | null = null;
  * Initialise la page de profil : gestion des modales, avatars, formulaire de profil, mot de passe, 2FA...
  */
 
+export type UserData = {
+  id: number;
+  pseudo: string;
+  avatar?: string; // si ton backend renvoie aussi un avatar
+};
+
+export type MatchData = {
+  matchId: number;
+  p1: number;
+  p2: number;
+  p1Score: number;
+  p2Score: number;
+  winner: number;
+  isTournament: number; // 0 | 1
+};
+
+export type TournamentData = {
+  tournamentId: number;
+  tournamentName: string;
+  nbPlayers: number;
+  matchIds: number[];
+};
+
+// =======================
+// Nouvelle route: GET /users/:id
+// =======================
+async function fetchUser(userId: number): Promise<UserData> {
+  if (!Number.isFinite(userId) || userId < 1) {
+    throw new TypeError("userId must be a number over 0");
+  }
+
+  const res = await fetch(`/api/users/by-id/${userId}`);
+  if (!res.ok) throw new Error(`GET /api/users/by-id/${userId} -> HTTP ${res.status}`);
+
+  return (await res.json()) as UserData;
+}
+
+// =======================
+// Nouvelle fonction loadMatches
+// =======================
+
+//GET /matches/:id
+async function fetchMatch(id: number): Promise<MatchData> {
+  if (!Number.isFinite(id) || id < 1) throw new TypeError("id must be a number over 0");
+
+  const res = await fetch(`/blockchain/matches/${id}`);
+  if (!res.ok) throw new Error(`GET /matches/${id} -> HTTP ${res.status}`);
+
+  return (await res.json()) as MatchData;
+}
+
+//GET /tournament/:id
+ async function fetchTournament(id: number): Promise<TournamentData> {
+  if (!Number.isFinite(id) || id < 1) throw new TypeError("id must be a number over 0");
+
+  const res = await fetch(`/blockchain/tournament/${id}`);
+  if (!res.ok) throw new Error(`GET /tournament/${id} -> HTTP ${res.status}`);
+
+  return (await res.json()) as TournamentData;
+}
+
+//GET /playerMatches/:playerId
+// async function fetchPlayerMatches(playerId: number): Promise<number[]> {
+//   if (!Number.isFinite(playerId) || playerId < 1) throw new TypeError("playerId must be a number over 0");
+
+//   const res = await fetch(`/blockchain/playerMatches/${playerId}`);
+//   if (!res.ok) throw new Error(`GET /playerMatches/${playerId} -> HTTP ${res.status}`);
+
+//   return (await res.json()) as number[];
+// }
+async function fetchPlayerMatches(playerId: number): Promise<number[]> {
+  if (!Number.isFinite(playerId) || playerId < 1) 
+    throw new TypeError("playerId must be a number over 0");
+
+  const res = await fetch(`/blockchain/playerMatches/${playerId}`);
+  if (!res.ok) 
+    throw new Error(`GET /playerMatches/${playerId} -> HTTP ${res.status}`);
+
+  const data = await res.json();
+  // data.matchIds contient le tableau
+  return data.matchIds ?? [];
+}
+
+export async function loadMatches() {
+  try {
+    const matchContainer = document.getElementById("match-history");
+    if (!matchContainer) return;
+
+    matchContainer.innerHTML = "";
+
+    const matchIds = await fetchPlayerMatches(currentUserId);
+    console.log("matchIds", matchIds);
+
+    const noMatchesText = t(currentLang, "no_matches");
+    const tournamentText = t(currentLang, "tournament2");
+
+    if (!matchIds.length) {
+      matchContainer.innerHTML = `<p class="text-gray-400">${noMatchesText}</p>`;
+      return;
+    }
+
+    for (const matchId of matchIds) {
+      const match = await fetchMatch(matchId);
+      console.log("match", match);
+
+      const p1 = await fetchUser(match.p1);
+      const p2 = await fetchUser(match.p2);
+
+      // ========================
+      // Gestion du tournoi
+      // ========================
+      let tournamentName = "N/A";
+      if (Number.isFinite(match.isTournament) && match.isTournament > 0) {
+        const tournament = await fetchTournament(match.isTournament);
+        tournamentName = tournament.tournamentName;
+      }
+
+      const p1Class = match.winner === match.p1 ? "text-green-400" : "text-red-400";
+      const p2Class = match.winner === match.p2 ? "text-green-400" : "text-red-400";
+
+      const matchDiv = document.createElement("div");
+      matchDiv.id = `match-${match.matchId}`;
+      matchDiv.className = "flex flex-col items-center gap-1 p-2 border-b border-gray-700";
+
+      matchDiv.innerHTML = `
+        <div class="flex items-center gap-2">
+          <span class="font-semibold ${p1Class}">${p1.pseudo}</span>
+          <span class="mx-2">${match.p1Score} - ${match.p2Score}</span>
+          <span class="font-semibold ${p2Class}">${p2.pseudo}</span>
+        </div>
+        <div class="text-sm text-gray-400">
+          ${tournamentText}: <span class="font-medium">${tournamentName}</span>
+        </div>
+      `;
+
+      matchContainer.appendChild(matchDiv);
+    }
+  } catch (err) {
+    console.error("Erreur lors du chargement des matchs:", err);
+  }
+}
+
+
 export function initProfilPage() {
   // Récupère le conteneur principal
   const main = document.getElementById('main-content');
@@ -369,11 +512,20 @@ export function initProfilPage() {
       setInterval(() => updateUserStatus(user.id), 30000);
 
       await loadAllFriends();
+      await loadMatches();
     }
   } catch (err) {
     console.error(err);
   }
 }
+
+
+
+
+
+
+
+
 
 
     /**

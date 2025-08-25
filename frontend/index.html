@@ -205,23 +205,14 @@
               <div class="bg-white/10 p-4 rounded-xl border border-cyan-500 text-cyan-300 flex flex-col"
                 style="font-family: 'Starjedi', sans-serif;">
                 <h3 data-i18n="game_history" class="text-yellow-500 text-xl mb-2">Historique des matchs</h3>
-                <!-- Exemple Score: 0 x1contenu -->
-                <div id="match-<MATCH_ID>" class="flex flex-wrap items-center justify-center gap-2">
-                  <span id="player-<MATCH_ID>" class="font-semibold text-green-400">Player 1</span>
-                  <span id="score-<MATCH_ID>" class="mx-2">3 - 1</span>
-                  <span id="player-<MATCH_ID>" class="font-semibold text-red-400">Player 2</span>
-                </div>
-                <div id="match-<MATCH_ID>" class="flex flex-wrap items-center justify-center gap-2">
-                  <span id="player-<MATCH_ID>" class="font-semibold text-red-400">Player 1</span>
-                  <span id="score-<MATCH_ID>" class="mx-2">2 - 3</span>
-                  <span id="player-<MATCH_ID>" class="font-semibold text-green-400">Player 2</span>
-                </div>
-                <div id="match-<MATCH_ID>" class="flex flex-wrap items-center justify-center gap-2">
-                  <span id="player-<MATCH_ID>" class="font-semibold text-green-400">Player 1</span>
-                  <span id="score-<MATCH_ID>" class="mx-2">3 - 0</span>
-                  <span id="player-<MATCH_ID>" class="font-semibold text-red-400">Player 2</span>
-                </div>
+                 <!-- Conteneur où loadMatches() injectera les matchs -->
+                  <div id="match-history" class="flex flex-col gap-2">
+                    <!-- Les matchs seront ajoutés ici dynamiquement -->
+                    
+                  </div>
               </div>
+              <span id="text-no-matches" data-i18n="no_matches" class="hidden">Aucun match trouvé.</span>
+              <span id="text-tournament" data-i18n="tournament2" class="hidden">Tournoi</span>
 
               <div class="bg-white/10 p-4 rounded-xl border border-cyan-500 text-cyan-300 flex flex-col"
                 style="font-family: 'Starjedi', sans-serif;">

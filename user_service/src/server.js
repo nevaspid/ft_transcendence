@@ -14,7 +14,8 @@ import {
   updatePassword,
   updateUserAvatar,
   createOAuthUser,
-  updateUserProfile
+  updateUserProfile,
+  getUserById
 } from './usersService.js';
 
 import { parse } from 'url';
@@ -144,6 +145,28 @@ fastify.get("/users/:username", (request, reply) => {
     reply.status(500).send({ message: "Database error" });
   }
 });
+
+// GET /users/:id
+fastify.get("/users/by-id/:id", (request, reply) => {
+  const { id } = request.params;
+  const userId = parseInt(id, 10);
+
+  if (isNaN(userId)) {
+    return reply.status(400).send({ message: "Invalid user id" });
+  }
+
+  try {
+    const row = getUserById(userId);
+    if (!row) {
+      return reply.status(404).send({ message: "User not found" });
+    }
+    reply.send(row);
+  } catch (err) {
+    fastify.log.error(err);
+    reply.status(500).send({ message: "Database error" });
+  }
+});
+
 
 // -------------------------------
 // ONLINE/OFFLINE MANAGEMENT
