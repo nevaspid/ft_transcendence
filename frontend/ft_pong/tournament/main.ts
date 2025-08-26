@@ -71,8 +71,8 @@ function saveNames(): void {
 }
 
 function updateFinalSlots(): void {
-  finalp1.textContent = state.sf1Winner || 'Vainqueur DF1';
-  finalp2.textContent = state.sf2Winner || 'Vainqueur DF2';
+  finalp1.textContent = state.sf1Winner || 'vainqueur DF1';
+  finalp2.textContent = state.sf2Winner || 'vainqueur DF2';
 }
 
 function updateButtons(): void {
@@ -98,7 +98,21 @@ function runMatch(pLeft: string, pRight: string, onDone: (winner: string, score:
 async function ensureTournamentCreated(): Promise<void> {
   const createdFlag = localStorage.getItem('tournament_created');
   if (createdFlag === '1') return;
-  const tournamentId = await getNextTournamentId();
+  const creatingFlag = localStorage.getItem('tournament_creating');
+  if (creatingFlag === '1') return;
+  try { localStorage.setItem('tournament_creating', '1'); } catch {}
+  let tournamentId: number;
+  const existingIdRaw = localStorage.getItem('current_tournament_id');
+  if (existingIdRaw) {
+    const parsed = parseInt(existingIdRaw, 10);
+    if (Number.isFinite(parsed) && parsed > 0) {
+      tournamentId = parsed;
+    } else {
+      tournamentId = await getNextTournamentId();
+    }
+  } else {
+    tournamentId = await getNextTournamentId();
+  }
   localStorage.setItem('current_tournament_id', String(tournamentId));
   try {
     await postCreateTournament({
@@ -109,6 +123,8 @@ async function ensureTournamentCreated(): Promise<void> {
     localStorage.setItem('tournament_created', '1');
   } catch (err) {
     console.warn('createTournament failed:', err);
+  } finally {
+    try { localStorage.removeItem('tournament_creating'); } catch {}
   }
 }
 

@@ -89,10 +89,7 @@ export function updatePassword(userId, hashedPassword) {
 }
 
 // 📃 Obtenir tous les utilisateurs (sans les mots de passe)
-// export function getAllUsers() {
-//   const stmt = db.prepare('SELECT id, username FROM users');
-//   return stmt.all();
-// }
+
 export function getAllUsers() {
   const stmt = db.prepare('SELECT * FROM users');
   return stmt.all();

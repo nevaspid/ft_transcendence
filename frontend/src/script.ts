@@ -17,8 +17,6 @@ let is2FANeeded = false;
 let is2FASetup = false;
 let user2FASecret: string | null = null;
 let currentPage = 'home';
-let inactivityTimer: number | undefined;
-const MAX_IDLE_TIME = 5 * 60 * 1000; // 5 min
 
 declare const content: { [key: string]: string }; // Contenu HTML dynamique (pages)
 
@@ -224,7 +222,7 @@ export function updateUserMenu(): void {
 // Vérifie toutes les 30 secondes si la session est toujours valide
 setInterval(() => {
   checkSession();
-}, 10000);
+}, 30000);
 
 async function checkSession(): Promise<void> {
   const token = localStorage.getItem("token");
@@ -264,6 +262,7 @@ async function checkSession(): Promise<void> {
         userState.pseudoUser = null;
         currentUser = null;
         localStorage.removeItem("token");
+        logoutUser();
       }
     } else {
       userState.pseudoUser = null;
@@ -573,20 +572,6 @@ async function verify2FA() {
   }
 }
 
-// -----------------------------
-// 🔓 Déconnexion
-// async function logoutUser(): Promise<void> {
-//   localStorage.removeItem("token");
-//   localStorage.removeItem("username");
-//   localStorage.removeItem("pseudoUser");
-//   localStorage.removeItem("avatarplayer");
-//   currentUser = null;
-//   pseudoUser = null;
-//   userState.pseudoUser = null;
-//   userState.currentUser = null;
-//   updateUserMenu();
-//   navigate('home');
-// }
 
 // -----------------------------
 // 📦 Navigation dynamique entre les pages
