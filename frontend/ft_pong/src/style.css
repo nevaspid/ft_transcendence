@@ -69,10 +69,14 @@
   /* === Layout / HUD === */
   #layout         { @apply flex flex-col h-full; }
   .hud            { @apply flex-none px-4 py-2 text-white text-center; }
-  /* Space Invaders: vies (compat Tailwind) */
-  .si-lives       { @apply flex items-center gap-3; }
-  .si-heart-svg   { @apply inline-block align-middle w-[26px] h-[26px] text-red-500; }
-  .si-lives-frame { @apply inline-flex items-center gap-3 px-[14px] py-[10px] leading-none whitespace-nowrap border-2 border-gray-700 rounded-[10px] bg-gray-900; }
+  /* Space Invaders: vies (CSS concret, compatible Tailwind design) */
+  .si-lives { display:flex; align-items:center; gap:12px; }
+  .si-heart-svg { display:inline-block; vertical-align:middle; width:26px; height:26px; color:#ef4444; fill:#ef4444; }
+  .si-lives-frame {
+    display:inline-flex; align-items:center; gap:12px;
+    padding:10px 14px; line-height:1; white-space:nowrap;
+    border:2px solid #374151; border-radius:10px; background:#111827;
+  }
 
   #game-area { @apply flex-1 flex items-center justify-center; }
 
@@ -306,3 +310,12 @@
 .leg-left:before,.leg-right:before{ content:""; width:50px;height:25px;position:absolute;bottom:-26px }
 .leg-left:before{ left:-20px;background-color:#e3e8eb;border-radius:30px_0_0_0;border-bottom:10px_solid_#6d96ac }
 .leg-right:before{ right:-20px;background-color:#fbfdfa;border-radius:0_30px_0_0;border-bottom:10px_solid_#b0cfe4 }
+
+/* ===== Space Invaders: vies (fallback hors @layer pour compat directe navigateur) ===== */
+.si-lives { display:flex; align-items:center; gap:12px; }
+.si-heart-svg { display:inline-block; vertical-align:middle; width:26px; height:26px; color:#ef4444; fill:#ef4444; }
+.si-lives-frame {
+  display:inline-flex; align-items:center; gap:12px;
+  padding:10px 14px; line-height:1; white-space:nowrap;
+  border:2px solid #374151; border-radius:10px; background:#111827;
+}
