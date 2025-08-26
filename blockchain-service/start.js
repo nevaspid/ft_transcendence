@@ -1,8 +1,19 @@
 import { exec } from 'child_process'
 import { createRequire } from 'module'
-const require = createRequire(import.meta.url)
+import { writeFileSync } from 'fs'
+import { fileURLToPath } from 'url'
+import path from 'path'
 
-const path = require('path')
+const require = createRequire(import.meta.url)
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+
+const idsPath = path.join(__dirname, 'backend/server/ids.json')
+
+const data = {
+	matchId: 0,
+	tournamentId: 0
+}
 
 function runScript(cmd) {
   return new Promise((resolve, reject) => {
@@ -20,6 +31,7 @@ async function main() {
   try {
     console.log('🚀 Deploying contract...')
     await runScript('npx hardhat run ./scripts/deploy.js --network fuji')
+	writeFileSync(idsPath, JSON.stringify(data, null, 2), "utf-8"); //reset le json
 
     console.log('✅ Contract deployed, launching server...')
     await runScript('node ./backend/server/server.js')
