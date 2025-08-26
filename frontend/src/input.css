@@ -1,3 +1,178 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* ---- Fonts (conservés en CSS pur) ---- */
+@font-face {
+  font-family: 'Starjout';
+  src: url('/assets/fonts/Starjout.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Starjedi';
+  src: url('/assets/fonts/Starjedi.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Starjhol';
+  src: url('/assets/fonts/Starjhol.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'anakinmono';
+  src: url('/assets/fonts/anakinmono.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* ---- Base ---- */
+@layer base {
+  body { @apply font-pressstart; }
+}
+
+/* ---- Composants / Utilitaires custom (via @apply) ---- */
+@layer components {
+  /* Fond étoiles défilant */
+  .starfield {
+    @apply absolute top-0 left-0 w-full h-full bg-repeat animate-starfield;
+    @apply [background-image:url('/assets/starfield.png')];
+  }
+
+  /* Texte en dégradé (clip + transparent) */
+  .gradient-text {
+    @apply inline-block bg-clip-text text-transparent;
+    @apply [background:linear-gradient(to_bottom,_#fff9c4_0%,_#fde047_40%,_#f59e0b_60%,_#f97316_100%)];
+    @apply [-webkit-text-fill-color:transparent];
+  }
+
+  /* Boutons/sections avec fond dégradé + text-shadow multicalque */
+  .gradient-bg {
+    @apply text-[#BAE5E5] border-none;
+    @apply [background:linear-gradient(to_bottom,_#fde047_0%,_#FB6835_60%,_#FB5255_100%)];
+    @apply [text-shadow:-1px_-1px_0_#FB5255,1px_-1px_0_#FB5255,-1px_1px_0_#FB5255,1px_1px_0_#FB6835];
+    @apply transition-transform duration-300 ease-in-out;
+  }
+  .gradient-bg:hover { @apply scale-105; }
+
+  /* Bouton profil */
+  .profile-btn {
+    @apply w-72 px-4 py-2 rounded-md text-black transition-colors duration-300 ease-in-out font-starjedi;
+  }
+
+  /* Container intro façon Star Wars */
+  .star-wars-intro {
+    @apply w-full h-full flex justify-center items-center overflow-hidden;
+    @apply [perspective:400px];
+  }
+
+  /* Le “crawl” (texte qui s’éloigne) */
+  .crawl {
+    @apply font-starjedi max-w-[600px] mx-auto text-justify [transform-origin:50%_100%] animate-crawl;
+    @apply [transform:rotateX(40deg)_translateZ(100%)];
+  }
+
+  /* Language selector */
+  #languageSelector { @apply w-auto min-w-0; }
+
+  /* ========= Styles issus de styles.css (boutons neon, étoiles) ========= */
+  .btn {
+    @apply flex justify-center items-center w-44 py-3 px-2 overflow-hidden h-auto rounded-full border-2 border-cyan-500 font-starjhol text-white shadow-[0_0_12px_4px_rgba(0,255,255,0.6)] transition-transform duration-300 ease-in-out backdrop-blur-[1rem] [background-size:300%_300%] [background-origin:border-box] [background-clip:content-box,_border-box] [animation:gradient_301_5s_ease_infinite];
+  }
+  .btn:hover { @apply scale-110; }
+  .btn:active {
+    @apply [border:double_4px_#631e29] [background-origin:border-box] [background-clip:content-box,_border-box] [animation:none];
+  }
+  .btn:active .circle { @apply [background:#631e29]; }
+
+  .neon-glow {
+    @apply border-[3px] border-cyan-500 shadow-[0_0_12px_4px_rgba(0,255,255,0.6)] transition-all duration-300 ease-in-out animate-neonGlow;
+  }
+
+  .circle-container   { @apply relative w-full h-full [animation:orbit_5s_linear_infinite]; }
+  .circle:nth-of-type(1) { @apply [animation:orbit_8s_linear_infinite]; }
+  .circle:nth-of-type(2) { @apply [animation:orbit_10s_linear_infinite]; }
+
+  #container-stars {
+    @apply absolute z-[-1] w-full h-full overflow-hidden transition duration-500 backdrop-blur-[1rem] rounded-none;
+  }
+  .btn:hover #container-stars { @apply z-[1] bg-[#161a25]; }
+
+  strong { @apply z-[2] font-starjedi text-white text-[16px]; }
+
+  #glow { @apply absolute flex w-48; }
+
+  .circle { @apply absolute w-[30px] h-[30px] rounded-full [filter:blur(2rem)]; }
+  .circle:nth-of-type(1) { @apply [background:rgba(0,204,255,0.6)]; }
+  .circle:nth-of-type(2) { @apply [background:rgba(0,80,130,0.6)]; }
+
+  #stars { @apply relative bg-transparent w-[200rem] h-[200rem]; }
+}
+
+/* ---- Pseudo-éléments nécessaires ---- */
+#stars::after {
+  content: "";
+  position: absolute;
+  top: -10rem;
+  left: -100rem;
+  width: 100%;
+  height: 100%;
+  animation: animStarRotate 90s linear infinite;
+  background-image: radial-gradient(#ffffff 1px, transparent 1%);
+  background-size: 50px 50px;
+}
+
+#stars::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -50%;
+  width: 170%;
+  height: 500%;
+  animation: animStar 60s linear infinite;
+  background-image: radial-gradient(#ffffff 1px, transparent 1%);
+  background-size: 50px 50px;
+  opacity: 0.5;
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 640px) {
+  h1 { @apply text-4xl leading-[1.2]; }
+  .profile-btn { @apply w-auto text-xs py-[0.4rem] px-[0.8rem]; }
+  #languageSelector { @apply text-xs py-[0.3rem] px-[0.6rem]; }
+  .crawl { @apply max-w-[90%] text-xs; }
+  .btn { @apply w-auto py-2 px-3 text-sm; }
+  #glow { @apply w-36; }
+}
+
+@media (max-width: 400px) {
+  h1 { @apply text-2xl; }
+  .profile-btn, #languageSelector { @apply text-[0.65rem] py-[0.25rem] px-[0.5rem]; }
+  .btn { @apply text-xs py-[0.4rem] px-[0.6rem]; }
+  #glow { @apply w-28; }
+}
+
+/* ---- Fallback: alias utilitaires d'animations ---- */
+@layer utilities {
+  .animate-neonGlow       { animation: neonGlow 3s linear infinite; }
+  .animate-orbit-5s       { animation: orbit 5s linear infinite; }
+  .animate-orbit-8s       { animation: orbit 8s linear infinite; }
+  .animate-orbit-10s      { animation: orbit 10s linear infinite; }
+  .animate-animStar       { animation: animStar 60s linear infinite; }
+  .animate-animStarRotate { animation: animStarRotate 90s linear infinite; }
+  .animate-gradient-301   { animation: gradient_301 5s ease infinite; }
+  .animate-pulse-3011     { animation: pulse_3011 3s ease infinite; }
+}
+
+/* ---- Keyframes requis ---- */
+@keyframes animStar {
+  from { transform: translateY(0); }
+  to   { transform: translateY(-135rem); }
+}
+@keyframes animStarRotate {
+  from { transform: rotate(360deg); }
+  to   { transform: rotate(0); }
+}
+

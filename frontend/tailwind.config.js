@@ -5,6 +5,19 @@ module.exports = {
     './src/**/*.{js,ts,jsx,tsx,html}',
     './ft_pong/*.html'
   ],
+  safelist: [
+    // Legacy selectors kept during incremental migration
+    'btn', 'neon-glow', 'gradient-bg', 'gradient-text', 'starfield', 'profile-btn',
+    'star-wars-intro', 'crawl', 'circle', 'circle-container', 'animate-neonGlow',
+    'animate-orbit-5s', 'animate-orbit-8s', 'animate-orbit-10s', 'animate-animStar',
+    'animate-animStarRotate', 'animate-gradient-301', 'animate-pulse-3011',
+    'userAvatar', 'si-lives', 'si-lives-frame', 'si-select', 'si-card', 'si-actions',
+    'si-btn', 'game-wrapper', 'tournament-wrapper', 'players-setup', 'players-grid',
+    'player-block', 'player-label', 'player-input', 'bracket', 'round', 'match', 'slot',
+    'play-btn', 'winner', 't-actions', 'p2-overlay', 'loader-overlay', 'between-overlay',
+    'victory-overlay', 'loading-text', 'white-bars-container', 'white-bar', 'hacker-loader',
+    'loader-text', 'text-glitch', 'loader-bar', 'bar-fill', 'bar-glitch', 'particles', 'particle'
+  ],
   theme: {
     extend: {
       fontFamily: {
@@ -44,14 +57,22 @@ module.exports = {
           '10%': { opacity: '1' },
           '100%': { transform: 'rotateX(20deg) translateY(-300%)', opacity: '0' },
         },
+        animStar: {
+          from: { transform: 'translateY(0)' },
+          to:   { transform: 'translateY(-135rem)' },
+        },
+        animStarRotate: {
+          from: { transform: 'rotate(360deg)' },
+          to:   { transform: 'rotate(0)' },
+        },
       },
       animation: {
         neonGlow: 'neonGlow 3s linear infinite',
         orbit5: 'orbit 5s linear infinite',
         orbit8: 'orbit 8s linear infinite',
         orbit10: 'orbit 10s linear infinite',
-        animStar: "animStar 60s linear infinite",
-        animStarRotate: "animStarRotate 90s linear infinite",
+        animStar: 'animStar 60s linear infinite',
+        animStarRotate: 'animStarRotate 90s linear infinite',
         gradient301: "gradient_301 5s ease infinite",
         pulse3011: "pulse_3011 2s infinite",
         starfield: 'starfield 100s linear infinite',
