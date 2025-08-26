@@ -8,43 +8,40 @@
   <!-- Google Font -->
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
   
-  <!-- Tailwind CSS -->
-  <link rel="stylesheet" href="/src/styles.css">
-  <link rel="stylesheet" href="/src/space.css">
+  <!-- Tailwind CSS consolidated entry -->
+  <link rel="stylesheet" href="/src/input.css">
 </head>
 
-<body class="bg-star-wars-dark font-['Press_Start_2P'] bg-cover bg-center" style="background-image: url('/assets/hyperspace.jpg');">
+<body class="bg-star-wars-dark font-pressstart bg-cover bg-center" style="background-image: url('/assets/hyperspace.jpg');">
   <div class="fixed top-40 right-8 flex items-center gap-4 z-30">
     <select id="languageSelector" 
-      class="neon-glow text-white px-3 py-2 rounded-full text-sm bg-transparent" 
-      style="font-family: 'Starjedi', sans-serif;">
+      class="neon-glow font-starjedi text-white px-3 py-2 rounded-full text-sm bg-transparent h-12" 
+      style="line-height:1;">
       <option value="fr" class="bg-black text-white">🇫🇷 FR</option>
       <option value="en" class="bg-black text-white">🇬🇧 EN</option>
       <option value="es" class="bg-black text-white">🇪🇸 ES</option>
     </select>
 
     <!-- Bouton login -->
-    <button id="loginBtn" class="btn neon-glow text-white px-6 py-2 rounded-full text-sm md:px-4"
-      style="font-family: 'Starjedi', sans-serif;">
+    <button id="loginBtn" class="btn font-starjedi neon-glow text-white px-6 py-2 rounded-full text-sm h-12"
+      style="line-height:1;">
       <span data-i18n="login_signup"></span>
       <div id="container-stars">
-        <div id="stars"></div>
-      </div>
+          <div id="stars"></div>
+        </div>
     </button>
 
     <!-- Menu utilisateur -->
     <div id="userMenu" class="hidden relative">
       <button id="userBtn"
-        class="btn neon-glow text-white px-6 py-2 rounded-full md:px-4 sm:text-sm hover:text-white"
-        style="font-family: 'Starjedi', sans-serif;">
+        class="btn neon-glow font-starjedi text-white">
         <span id="username"></span> ▼
         <div id="container-stars">
           <div id="stars"></div>
         </div>
       </button>
       
-      <div data-page="profil" id="dropdownMenu" class="absolute right-0 top-10 mt-4 w-48 rounded-xl neon-glow border-2 border-cyan-500 shadow-[0_0_8px_2px_rgba(0,255,255,0.6)] hidden overflow-hidden"
-        style="font-family: 'Starjedi', sans-serif;">
+      <div data-page="profil" id="dropdownMenu" class="font-starjedi absolute right-0 top-10 mt-4 w-48 rounded-xl neon-glow border-2 border-cyan-500 shadow-[0_0_8px_2px_rgba(0,255,255,0.6)] hidden overflow-hidden">
         <div id="container-stars">
           <div id="stars"></div>
         </div>
@@ -56,28 +53,46 @@
 
   <!-- Titre -->
   <div class="fixed top-0 left-0 w-full text-center p-2 sm:p-4 z-20">
-    <h1 class="font-bold text-star-wars-accent leading-tight"
-        style="font-family: 'Starjhol', sans-serif;">
-      <span class="gradient-text whitespace-nowrap
-                  text-2xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl"
-            data-i18n="welcome1"></span><br>
-      <span class="gradient-text whitespace-nowrap
-                  text-2xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl"
-            data-i18n="welcome2"></span>
+    <h1 class="font-bold font-starjhol text-star-wars-accent leading-tight">
+      <span
+        class="inline-block 
+              text-transparent 
+              bg-clip-text 
+              [-webkit-background-clip:text] 
+              [-webkit-text-fill-color:transparent]
+              bg-[linear-gradient(to_bottom,_#fff9c4_0%,_#fde047_40%,_#f59e0b_60%,_#f97316_100%)]
+              whitespace-nowrap
+              text-2xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl"
+        data-i18n="welcome1"
+      ></span>
+      <br>
+      <span
+        class="inline-block 
+              text-transparent 
+              bg-clip-text 
+              [-webkit-background-clip:text] 
+              [-webkit-text-fill-color:transparent]
+              bg-[linear-gradient(to_bottom,_#fff9c4_0%,_#fde047_40%,_#f59e0b_60%,_#f97316_100%)]
+              whitespace-nowrap
+              text-2xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl"
+        data-i18n="welcome2"
+      ></span>
     </h1>
   </div>
 
   <div class="flex h-screen pt-32">
      <!-- Sidebar avec boutons ajustés (sans affecter les autres) -->
     <div class="fixed top-1/4 left-0 p-6 flex flex-col gap-4 z-10">
-      <button data-page="home" class="btn neon-glow text-white" style="font-family: 'Starjedi', sans-serif;">
+      <button data-page="home" 
+        class="btn neon-glow font-starjedi text-white">
         <span data-i18n="home"></span>
         <div id="container-stars">
           <div id="stars"></div>
         </div>
       </button>
+
       
-      <button data-page="game" class="btn neon-glow text-white" style="font-family: 'Starjedi', sans-serif;">
+      <button data-page="game" class="btn neon-glow font-starjedi text-white">
         <span data-i18n="game"></span>
         <div id="container-stars">
           <div id="stars"></div>
@@ -85,11 +100,11 @@
       </button>
     
     </button>
-    <button data-page="space" class="btn neon-glow text-white" style="font-family: 'Starjedi', sans-serif;">
+    <button data-page="space" class="btn neon-glow font-starjedi text-white">
       <span data-i18n="space"></span>
       <div id="container-stars">
-        <div id="stars"></div>
-      </div>
+          <div id="stars"></div>
+        </div>
     </button>
   </div>
 
@@ -102,18 +117,16 @@
                 shadow-[0_0_8px_2px_rgba(0,255,255,0.6)]">
       
       <p data-i18n="intergalactic_adventure" 
-        class="text-lg sm:text-xl md:text-2xl" 
-        style="font-family: 'Starjedi', sans-serif;"></p>
+        class="font-starjedi text-lg sm:text-xl md:text-2xl"></p>
       
       <img src="/assets/pong_wars2.png" alt="Pong Wars" 
           class="w-full max-w-[600px] h-auto object-contain rounded-lg" />
       
       <button data-page="game" 
-              class="relative bg-star-wars-accent text-black p-3 sm:p-4 mt-4 rounded-full 
+              class="font-starjedi relative bg-star-wars-accent text-black p-3 sm:p-4 mt-4 rounded-full 
                     hover:bg-star-wars-red transition-all duration-300 
                     border-2 border-cyan-500 hover:border-cyan-300 
                     shadow-[0_0_8px_2px_rgba(0,255,255,0.6)]" 
-              style="font-family: 'Starjedi', sans-serif;" 
               data-i18n="start">
       </button>
     </div>
@@ -125,27 +138,26 @@
       home: `
         <div class="bg-white/10 p-8 rounded-xl backdrop-blur-md h-[800px] flex flex-col items-center justify-start gap-4
           border-2 border-cyan-500 hover:border-cyan-300 shadow-[0_0_8px_2px_rgba(0,255,255,0.6)]">
-          <p data-i18n="intergalactic_adventure" class="text-2xl" style="font-family: 'Starjedi', sans-serif;"></p>
+          <p data-i18n="intergalactic_adventure" class="text-2xl font-starjedi"></p>
           <img src="/assets/pong_wars2.png" alt="Pong Wars" class="w-[600px] h-auto object-contain rounded-lg" />
           <button data-page="game"
-            class="relative gradient-bg p-4 px-9 mt-4 rounded-full 
+            class="relative font-starjedi gradient-bg p-4 px-9 mt-4 rounded-full 
               hover:bg-star-wars-red transition-all duration-300 border-4 border-cyan-500 
               hover:border-cyan-300 shadow-[0_0_10px_3px_rgba(0,255,255,0.8)]" 
-            style="font-family: 'Starjedi', sans-serif;" data-i18n="start">
+              data-i18n="start">
           </button>
         </div>`,
       game: `
-        <div class="bg-white/10 p-8 rounded-xl backdrop-blur-md h-[800px] border-2 border-cyan-500 hover:border-cyan-300 shadow-[0_0_8px_2px_rgba(0,255,255,0.6)]" style="font-family: 'Starjedi', sans-serif;">
+        <div class="font-starjedi bg-white/10 p-8 rounded-xl backdrop-blur-md h-[800px] border-2 border-cyan-500 hover:border-cyan-300 shadow-[0_0_8px_2px_rgba(0,255,255,0.6)] overflow-hidden">
           <h2 data-i18n="game" class="text-3xl mb-4 text-yellow-500"></h2>
           <iframe
             src="/ft_pong/menu.html"
-            class="w-full h-[700px] rounded-xl border-none"
+            class="block w-full h-[700px] rounded-xl border-0"
             title="Jeu"
           ></iframe>
         </div>`,
       profil: `
-      <div class="bg-white/10 p-8 rounded-xl backdrop-blur-md h-[700px] border-2 border-cyan-500 hover:border-cyan-300 shadow-[0_0_8px_2px_rgba(0,255,255,0.6)]"
-          style="font-family: 'Starjedi', sans-serif;">
+      <div class="font-starjedi bg-white/10 p-8 rounded-xl backdrop-blur-md h-[700px] border-2 border-cyan-500 hover:border-cyan-300 shadow-[0_0_8px_2px_rgba(0,255,255,0.6)]">
           <div class="grid grid-cols-1 md:grid-cols-3 gap-8 h-full">
             <!-- Colonne de gauche -->
             <div class="flex flex-col items-center border-r border-cyan-500 pr-6">
@@ -202,8 +214,7 @@
 
             <!-- Colonne de droite : 2 colonnes -->
             <div class="md:col-span-2 flex flex-col gap-6 overflow-auto">
-              <div class="bg-white/10 p-4 rounded-xl border border-cyan-500 text-cyan-300 flex flex-col"
-                style="font-family: 'Starjedi', sans-serif;">
+              <div class="font-starjedi bg-white/10 p-4 rounded-xl border border-cyan-500 text-cyan-300 flex flex-col">
                 <h3 data-i18n="game_history" class="text-yellow-500 text-xl mb-2">Historique des matchs</h3>
                  <!-- Conteneur où loadMatches() injectera les matchs -->
                   <div id="match-history" class="flex flex-col gap-2">
@@ -211,11 +222,14 @@
                     
                   </div>
               </div>
-              <span id="text-no-matches" data-i18n="no_matches" class="hidden">Aucun match trouvé.</span>
-              <span id="text-tournament" data-i18n="tournament2" class="hidden">Tournoi</span>
 
-              <div class="bg-white/10 p-4 rounded-xl border border-cyan-500 text-cyan-300 flex flex-col"
-                style="font-family: 'Starjedi', sans-serif;">
+              <div class="font-starjedi bg-white/10 p-4 rounded-xl border border-cyan-500 text-cyan-300 flex flex-col">
+                <h3 data-i18n="score_rank" class="text-yellow-500 text-xl mb-2">Scores & Classements</h3>
+                <p class="text-white font-bold text-2xl mb-1" id="userScore">2 points</p>
+                <p class="text-white font-bold text-lg" id="userRank">🏆 1</p>
+              </div>
+
+              <div class="font-starjedi bg-white/10 p-4 rounded-xl border border-cyan-500 text-cyan-300 flex flex-col">
                 <h3 data-i18n="friends" class="text-yellow-500 text-xl mb-2">Amis</h3>
                 <div id="friendList" class="flex flex-wrap justify-center gap-4">
                   
@@ -226,8 +240,7 @@
 
         <!-- ✅ Modale pour demande d'amis -->
         <div id="addFriendModal" class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 hidden">
-          <div class="bg-white/10 p-6 rounded-xl backdrop-blur-md border-2 border-cyan-500 shadow-[0_0_8px_2px_rgba(0,255,255,0.6)] w-[90%] max-w-md text-white relative"
-              style="font-family: 'Starjedi', sans-serif;">
+          <div class="font-starjedi bg-white/10 p-6 rounded-xl backdrop-blur-md border-2 border-cyan-500 shadow-[0_0_8px_2px_rgba(0,255,255,0.6)] w-[90%] max-w-md text-white relative">
             
             <h2 data-i18n="select_user" class="text-xl text-yellow-500 mb-4">Sélectionnez un utilisateur :</h2>
 
@@ -248,8 +261,7 @@
 
         <!-- ✅ Modale pour afficher les demandes d'amis reçues -->                                     
         <div id="friendRequestsModal" class="fixed inset-0 bg-black/60 flex items-center justify-center z-50 hidden">
-          <div class="bg-white/10 p-6 rounded-xl backdrop-blur-md border-2 border-cyan-500 shadow-[0_0_8px_2px_rgba(0,255,255,0.6)] w-[90%] max-w-md text-white relative"
-              style="font-family: 'Starjedi', sans-serif;">
+          <div class="font-starjedi bg-white/10 p-6 rounded-xl backdrop-blur-md border-2 border-cyan-500 shadow-[0_0_8px_2px_rgba(0,255,255,0.6)] w-[90%] max-w-md text-white relative">
 
               <h2 data-i18n="seeFriendRequestsBtn" class="text-xl text-yellow-500 mb-4 text-center">Demandes d'amis</h2>
             
@@ -268,8 +280,7 @@
 
         <!-- Modal avatar -->
         <div id="avatarModal" class="hidden fixed inset-0 bg-black/60 flex justify-center items-start z-50">
-            <div class="p-6 rounded-xl bg-white/10 backdrop-blur-md border-2 border-cyan-500 shadow-[0_0_8px_2px_rgba(0,255,255,0.6)] w-[90%] max-w-md max-h-[80vh] overflow-y-auto relative text-white"
-              style="font-family: 'Starjedi', sans-serif;">
+            <div class="font-starjedi p-6 rounded-xl bg-white/10 backdrop-blur-md border-2 border-cyan-500 shadow-[0_0_8px_2px_rgba(0,255,255,0.6)] w-[90%] max-w-md max-h-[80vh] overflow-y-auto relative text-white">
 
               <h2 data-i18n="choose_avatar" class="text-xl mb-4"></h2>
 
@@ -305,9 +316,7 @@
 
         <!-- ✅ MODALE 2FA -->
         <div id="twofaModal" class="hidden fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-          <div class="bg-white/10 p-6 rounded-xl backdrop-blur-md border-2 border-cyan-500 shadow-[0_0_8px_2px_rgba(0,255,255,0.6)] w-[90%] max-w-md text-white relative"
-            style="font-family: 'Starjedi', sans-serif;">
-
+          <div class="font-starjedi bg-white/10 p-6 rounded-xl backdrop-blur-md border-2 border-cyan-500 shadow-[0_0_8px_2px_rgba(0,255,255,0.6)] w-[90%] max-w-md text-white relative">
             <h2 data-i18n="2FA" class="text-xl mb-4"></h2>
             <img id="qrImage" src="" alt="QR Code" class="w-32 h-32 mx-auto border border-cyan-400 p-2 bg-white rounded mb-4" />
             <input id="2fa-code" type="text" data-i18n="2FA_code" placeholder="Code à 6 chiffres" class="w-full p-2 mb-4 rounded text-black bg-white" />
@@ -372,7 +381,7 @@
 
 
         <!-- ✅ MODALE MODIFIER PROFIL -->
-        <div id="editProfileModal" class="hidden fixed inset-0 bg-black/60 flex items-start justify-center z-50 pt-80 font-[Starjedi]">
+        <div id="editProfileModal" class="hidden fixed inset-0 bg-black/60 flex items-start justify-center z-50 pt-40 font-[Starjedi]">
           <div class="bg-white/10 backdrop-blur-md p-6 rounded-xl w-[90%] max-w-md text-white relative border-2 border-cyan-500 shadow-[0_0_8px_2px_rgba(0,255,255,0.6)] transition">
 
             <h2 data-i18n="modify_profil" class="text-xl font-bold mb-4 text-yellow-400"></h2>
@@ -402,18 +411,8 @@
           </div>
         </div>
       </div>`,
-      tournament: `
-        <div class="bg-white/10 p-8 rounded-xl backdrop-blur-md h-[800px] border-2 border-cyan-500 hover:border-cyan-300 shadow-[0_0_8px_2px_rgba(0,255,255,0.6)]" style="font-family: 'Starjedi', sans-serif;">
-          <h2 data-i18n="tournament" class="text-3xl mb-4 text-yellow-500"></h2>
-          <p data-i18n="tournament_title" class="text-white"></p>
-        </div>`,
-      settings: `
-        <div class="bg-white/10 p-8 rounded-xl backdrop-blur-md h-[800px] border-2 border-cyan-500 hover:border-cyan-300 shadow-[0_0_8px_2px_rgba(0,255,255,0.6)]" style="font-family: 'Starjedi', sans-serif;">
-          <h2 data-i18n="settings" class="text-3xl mb-4 text-yellow-500"></h2>
-          <p data-i18n="settings_title" class="text-white"></p>
-        </div>`,
       space: `
-         <div class="bg-white/10 p-8 rounded-xl backdrop-blur-md h-[800px] border-2 border-cyan-500 hover:border-cyan-300 shadow-[0_0_8px_2px_rgba(0,255,255,0.6)] flex flex-col items-center justify-center gap-4" style="font-family: 'Starjedi', sans-serif;">
+         <div class="font-starjedi bg-white/10 p-8 rounded-xl backdrop-blur-md h-[800px] border-2 border-cyan-500 hover:border-cyan-300 shadow-[0_0_8px_2px_rgba(0,255,255,0.6)] flex flex-col items-center justify-center gap-4">
           <div class="star-wars-intro w-full max-w-4xl overflow-hidden">
             <div class="crawl text-yellow-500 text-center text-2xl leading-relaxed">
               <!-- FR -->
@@ -482,8 +481,7 @@
           </div>
         </div>`,
       login: `
-        <div class="bg-white/10 p-8 rounded-xl backdrop-blur-md h-[800px] w-[600px] mx-auto mt-20 border-2 border-cyan-500 hover:border-cyan-300 shadow-[0_0_8px_2px_rgba(0,255,255,0.6)]" 
-            style="font-family: 'Starjedi', sans-serif;">
+        <div class="font-starjedi bg-white/10 p-8 rounded-xl backdrop-blur-md h-[800px] w-[600px] mx-auto mt-20 border-2 border-cyan-500 hover:border-cyan-300 shadow-[0_0_8px_2px_rgba(0,255,255,0.6)]">
           <h2 data-i18n="login" class="text-3xl mb-6 text-yellow-500"></h2>
 
           <input type="text" id="login-username" data-i18n="username" placeholder="Nom d'utilisateur" 
@@ -519,8 +517,7 @@
          
         </div>`,
       signup: `
-        <div class="bg-white/10 p-8 rounded-xl backdrop-blur-md h-[800px] w-[600px] mx-auto mt-20 border-2 border-cyan-500 hover:border-cyan-300 shadow-[0_0_8px_2px_rgba(0,255,255,0.6)]" 
-            style="font-family: 'Starjedi', sans-serif;">
+        <div class="font-starjedi bg-white/10 p-8 rounded-xl backdrop-blur-md h-[800px] w-[600px] mx-auto mt-20 border-2 border-cyan-500 hover:border-cyan-300 shadow-[0_0_8px_2px_rgba(0,255,255,0.6)]">
           <h2 data-i18n="create_account" class="text-3xl mb-6 text-yellow-500"></h2>
 
           <input type="text" id="signup-username" data-i18n="username" placeholder="Nom d'utilisateur" 

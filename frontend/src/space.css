@@ -1,166 +1,96 @@
-/* From Uiverse.io by rubyreapergaming */ 
-@import url("https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&display=swap");
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-.btn {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 11rem;
-  padding-top: 0.75rem;   /* py-3 = 0.75rem */
-  padding-bottom: 0.75rem;
-  padding-left: 0.5rem;   /* Optionnel, pour équilibrer le texte */
-  padding-right: 0.5rem;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  overflow: hidden;
-  height: auto;
-  background-size: 300% 300%;
-  backdrop-filter: blur(1rem);
-  border-radius: 5rem;
-  animation: gradient_301 5s ease infinite;
-  border: double 4px transparent;
-  background-origin: border-box;
-  background-clip: content-box, border-box;
-  font-family: "Starjhol", sans-serif;
-  border: 2px solid #06b6d4; /* tailwind: border-cyan-500 */
-  box-shadow: 0 0 12px 4px rgba(0, 255, 255, 0.6);
-}
-
-.neon-glow {
-  border: 3px solid #06b6d4;
-  box-shadow: 0 0 12px 4px rgba(0, 255, 255, 0.6);
-  transition: all 0.3s ease-in-out;
-  animation: neonGlow 3s linear infinite;
-}
-
-/* Responsive */
-@media (max-width: 640px) {
+/* ---------- Composants ---------- */
+@layer components {
   .btn {
-    width: auto;
-    padding: 0.5rem 0.8rem;
-    font-size: 0.875rem; /* Texte un peu plus petit */
+    @apply flex justify-center items-center w-44 /* 11rem */
+           py-3 px-2 overflow-hidden h-auto
+           rounded-full border-2 border-cyan-500
+           font-starjhol text-white
+           shadow-[0_0_12px_4px_rgba(0,255,255,0.6)]
+           transition-transform duration-300 ease-in-out
+           backdrop-blur-[1rem]
+           [background-size:300%_300%]
+           [background-origin:border-box]
+           [background-clip:content-box,_border-box]
+           /* animation gradient */
+           [animation:gradient_301_5s_ease_infinite];
   }
+
+  .btn:hover {
+    @apply scale-110;
+  }
+
+  .btn:active {
+    @apply [border:double_4px_#631e29]
+           [background-origin:border-box]
+           [background-clip:content-box,_border-box]
+           [animation:none];
+  }
+
+  .btn:active .circle {
+    @apply [background:#631e29];
+  }
+
+  .neon-glow {
+    @apply border-[3px] border-cyan-500
+           shadow-[0_0_12px_4px_rgba(0,255,255,0.6)]
+           transition-all duration-300 ease-in-out
+           animate-neonGlow;
+  }
+
+  /* Bonus : utilise aussi les alias pour les autres anims */
+  .circle-container   { @apply animate-orbit5; }
+  .circle:nth-of-type(1) { @apply animate-orbit8; }
+  .circle:nth-of-type(2) { @apply animate-orbit10; }
+
+  #container-stars {
+    @apply absolute z-[-1] w-full h-full overflow-hidden
+           transition duration-500
+           backdrop-blur-[1rem] rounded-none;
+  }
+
+  .btn:hover #container-stars {
+    @apply z-[1] bg-[#161a25];
+  }
+
+  strong {
+    @apply z-[2] font-starjedi text-white text-[16px];
+  }
+
   #glow {
-    width: 9rem; /* Réduction de la zone lumineuse */
+    @apply absolute flex w-48; /* 12rem */
+  }
+
+  .circle-container {
+    @apply relative w-full h-full
+           /* orbite de base 5s */
+           [animation:orbit_5s_linear_infinite];
+  }
+
+  .circle {
+    @apply absolute w-[30px] h-[30px] rounded-full
+           [filter:blur(2rem)];
+  }
+
+  .circle:nth-of-type(1) {
+    @apply [background:rgba(0,204,255,0.6)]
+           [animation:orbit_8s_linear_infinite];
+  }
+
+  .circle:nth-of-type(2) {
+    @apply [background:rgba(0,80,130,0.6)]
+           [animation:orbit_10s_linear_infinite];
+  }
+
+  #stars {
+    @apply relative bg-transparent w-[200rem] h-[200rem];
   }
 }
 
-@media (max-width: 400px) {
-  .btn {
-    font-size: 0.75rem;
-    padding: 0.4rem 0.6rem;
-  }
-  #glow {
-    width: 7rem;
-  }
-}
-
-@keyframes neonGlow {
-  0% {
-    border-color: #fde047; /* jaune (yellow-300) */
-    box-shadow: 0 0 12px 4px rgba(253, 224, 71, 0.6);
-  }
-  33% {
-    border-color: #f97316; /* orange (orange-500) */
-    box-shadow: 0 0 12px 4px rgba(249, 115, 22, 0.6);
-  }
-  66% {
-    border-color: #dc2626; /* rouge (red-600) */
-    box-shadow: 0 0 12px 4px rgba(220, 38, 38, 0.6);
-  }
-  100% {
-    border-color: #fde047; /* retour au jaune */
-    box-shadow: 0 0 12px 4px rgba(253, 224, 71, 0.6);
-  }
-}
-
-#container-stars {
-  position: absolute;
-  z-index: -1;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  transition: 0.5s;
-  backdrop-filter: blur(1rem);
-  border-radius: 0;
-}
-
-strong {
-  z-index: 2;
-  font-family: "Starjedi", sans-serif;
-  font-size: 16px;
-  color: #ffffff;
-}
-
-#glow {
-  position: absolute;
-  display: flex;
-  width: 12rem;
-}
-
-.circle-container {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  animation: orbit 5s linear infinite;
-}
-
-.circle {
-  position: absolute;
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  filter: blur(2rem);
-}
-
-.circle:nth-of-type(1) {
-  background: rgba(0, 204, 255, 0.6); /* cyan clair */
-  animation: orbit 8s linear infinite;
-}
-
-.circle:nth-of-type(2) {
-  background: rgba(0, 80, 130, 0.6); /* bleu foncé */
-  animation: orbit 10s linear infinite;
-}
-
-
-.btn:hover #container-stars {
-  z-index: 1;
-  background-color: #161a25;
-}
-
-.btn:hover {
-  transform: scale(1.1);
-}
-
-.btn:active {
-  border: double 4px #631e29;
-  background-origin: border-box;
-  background-clip: content-box, border-box;
-  animation: none;
-}
-
-.btn:active .circle {
-  background: #631e29;
-}
-
-@keyframes orbit {
-  from {
-    transform: rotate(0deg) translateX(100px) rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg) translateX(100px) rotate(-360deg);
-  }
-}
-
-#stars {
-  position: relative;
-  background: transparent;
-  width: 200rem;
-  height: 200rem;
-}
-
+/* ---------- Pseudo-éléments (nécessitent du CSS pur) ---------- */
 #stars::after {
   content: "";
   position: absolute;
@@ -169,9 +99,6 @@ strong {
   width: 100%;
   height: 100%;
   animation: animStarRotate 90s linear infinite;
-}
-
-#stars::after {
   background-image: radial-gradient(#ffffff 1px, transparent 1%);
   background-size: 50px 50px;
 }
@@ -184,61 +111,48 @@ strong {
   width: 170%;
   height: 500%;
   animation: animStar 60s linear infinite;
-}
-
-#stars::before {
   background-image: radial-gradient(#ffffff 1px, transparent 1%);
   background-size: 50px 50px;
   opacity: 0.5;
 }
 
+/* ---------- Responsive en @apply (max-width) ---------- */
+@media (max-width: 640px) {
+  .btn {
+    @apply w-auto py-2 px-3 text-sm; /* 0.5rem 0.8rem ≈ py-2 px-3 */
+  }
+  #glow {
+    @apply w-36; /* 9rem */
+  }
+}
+
+@media (max-width: 400px) {
+  .btn {
+    @apply text-xs py-[0.4rem] px-[0.6rem];
+  }
+  #glow {
+    @apply w-28; /* 7rem */
+  }
+}
+
+/* ---------- Fallback: noms d'animations (au cas où arbitraire désactivé) ---------- */
+/* (La config ci-dessus définit les keyframes; ci-dessous on ne fait que lier les noms) */
+@layer utilities {
+  .animate-neonGlow      { animation: neonGlow 3s linear infinite; }
+  .animate-orbit-5s      { animation: orbit 5s linear infinite; }
+  .animate-orbit-8s      { animation: orbit 8s linear infinite; }
+  .animate-orbit-10s     { animation: orbit 10s linear infinite; }
+  .animate-animStar      { animation: animStar 60s linear infinite; }
+  .animate-animStarRotate{ animation: animStarRotate 90s linear infinite; }
+  .animate-gradient-301  { animation: gradient_301 5s ease infinite; }
+  .animate-pulse-3011    { animation: pulse_3011 3s ease infinite; }
+}
+
 @keyframes animStar {
-  from {
-    transform: translateY(0);
-  }
-
-  to {
-    transform: translateY(-135rem);
-  }
+  from { transform: translateY(0); }
+  to   { transform: translateY(-135rem); }
 }
-
 @keyframes animStarRotate {
-  from {
-    transform: rotate(360deg);
-  }
-
-  to {
-    transform: rotate(0);
-  }
-}
-
-@keyframes gradient_301 {
-  0% {
-    background-position: 0% 50%;
-  }
-
-  50% {
-    background-position: 100% 50%;
-  }
-
-  100% {
-    background-position: 0% 50%;
-  }
-}
-
-@keyframes pulse_3011 {
-  0% {
-    transform: scale(0.75);
-    box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.7);
-  }
-
-  70% {
-    transform: scale(1);
-    box-shadow: 0 0 0 10px rgba(0, 0, 0, 0);
-  }
-
-  100% {
-    transform: scale(0.75);
-    box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
-  }
+  from { transform: rotate(360deg); }
+  to   { transform: rotate(0); }
 }

@@ -1,5 +1,5 @@
 import { fitCanvas } from './io/viewport';
-import { pressed } from './io/keyboard';
+import { pressed, pressedCode } from './io/keyboard';
 import { Paddle } from './core/paddle';
 import { Ball } from './core/ball';
 import { step } from './core/physics';
@@ -12,6 +12,8 @@ import { createCamera, setupCameraControls } from './render/cam3d';
 import { debugAll } from './render/debug3d';
 import { pseudoUser, userId, avatarplayer } from '../../src/script';
 import { postMatch, getNextMatchId } from './blockchainApi';
+// CSS is loaded via HTML <link>, no direct import needed
+
 
 import {
   WORLD_W,
@@ -146,20 +148,18 @@ function updateScore(): void {
 
 // === FONCTION DEBUG ===
 function debugPlayerLose(): void {
-  if (pressed('l') || pressed('L')) {
-    // Faire gagner instantanément le joueur 1 (Player 1)
+  // Numpad1 -> fait gagner le joueur 1, Numpad2 -> fait gagner le joueur 2
+  if (pressedCode('Numpad1')) {
     scoreL = WIN_SCORE;
     updateScore();
     setPhase('gameover');
-    console.log('🐛 DEBUG: Player 2 a perdu instantanément !');
+    console.log('🐛 DEBUG: Player 2 a perdu instantanément (Numpad1) !');
   }
-
-  if (pressed('k') || pressed('K')) {
-    // Faire gagner instantanément le joueur 2 (Player 2)
+  if (pressedCode('Numpad2')) {
     scoreR = WIN_SCORE;
     updateScore();
     setPhase('gameover');
-    console.log('🐛 DEBUG: Player 1 a perdu instantanément !');
+    console.log('🐛 DEBUG: Player 1 a perdu instantanément (Numpad2) !');
   }
 }
 
@@ -456,7 +456,7 @@ function loop(now: number = performance.now()): void {
       break;
   }
 
-  // Debug: Faire perdre instantanément un joueur avec "L" ou "K"
+  // Debug: victoire instantanée via Numpad1 (P1) / Numpad2 (P2)
   debugPlayerLose();
 
   // Rendu 2D

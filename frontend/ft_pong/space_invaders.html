@@ -3,19 +3,23 @@
   <head>
     <meta charset="UTF-8" />
     <title>Space Invaders</title>
+    <!-- CSS global (Tailwind + utilitaires) -->
+    <link rel="stylesheet" href="/src/input.css" />
+    <!-- Styles locaux du sous-projet -->
     <link rel="stylesheet" href="src/style.css" />
+    <link rel="stylesheet" href="src/style1.css" />
   </head>
   <body>
     <div id="layout">
       <header class="hud" id="si-hud" style="display:flex;align-items:center;justify-content:space-between;gap:12px">
         <div id="si-left" style="display:flex;align-items:center;gap:8px;">
-          <button id="si-menu-btn" class="si-btn" style="padding:6px 10px;font-family: 'Starjedi', sans-serif;">Menu</button>
+          <button id="si-menu-btn" class="si-btn font-starjedi">Menu</button>
           <div id="si-lives" class="si-lives"></div>
         </div>
-        <div style="flex:1;text-align:center;font-family: 'Starjedi', sans-serif;">Space invaders</div>
+        <div class="font-starjedi">Space invaders</div>
         <div id="si-scores" style="display:flex;align-items:center;gap:12px">
-          <span id="si-score-p1" style="font-family: 'Starjedi', sans-serif;color: #fb7c1f;">P1 = 0 x1</span>
-          <span id="si-score-p2" style="display:none;font-family: 'Starjedi', sans-serif;color: #f5d255;">P2 = 0 x1</span>
+          <span id="si-score-p1" class="font-starjedi" style="color: #fb7c1f;">P1 = 0 x1</span>
+          <span id="si-score-p2" class="font-starjedi" style="display:none;color: #f5d255;">P2 = 0 x1</span>
         </div>
       </header>
       <main id="game-area">
@@ -23,23 +27,19 @@
           <!-- Mode select overlay -->
           <div id="si-select" class="si-select">
             <div class="si-card">
-              <h2 data-i18n="game_mode" style="font-family: 'Starjedi', sans-serif;">Mode de jeu</h2>
+              <h2 data-i18n="game_mode" class="font-starjedi">Mode de jeu</h2>
               <div class="si-actions">
                 <button id="si-solo" class="si-btn">Solo</button>
                 <button id="si-coop" class="si-btn">Coop</button>
               </div>
-              <div style="margin-top:10px"><a href="menu.html" class="si-btn" style="display:inline-block;text-decoration:none;font-family: 'Starjedi', sans-serif;" data-i18n="back">Retour</a></div>
+              <div style="margin-top:10px"><a href="menu.html" class="si-btn font-starjedi" style="display:inline-block;text-decoration:none;" data-i18n="back">Retour</a></div>
             </div>
           </div>
 
           <!-- Coop P2 name overlay -->
           <div id="si-p2-overlay" class="si-select" style="display:none">
             <div class="si-card">
-              <h2 data-i18n="coop_username" style="font-family: 'Starjedi', sans-serif;">Coop: pseudos</h2>
-              <!-- <div style="margin:8px 0">Joueur 1: <strong id="si-p1name">P1</strong></div>
-              <label style="display:block;margin:8px 0">Pseudo Joueur 2:
-                <input id="si-p2name" class="si-input" type="text" placeholder="P2" style="width:100%;padding:8px" />
-              </label> -->
+              <h2 data-i18n="coop_username" class="font-starjedi">Coop: pseudos</h2>
               <div style="margin:8px 0">
                 <span data-i18n="player1">Joueur 1:</span>
                 <strong id="si-p1name">P1</strong>
@@ -47,7 +47,7 @@
 
               <label style="display:block;margin:8px 0">
                 <span data-i18n="player2">Pseudo Joueur 2:</span>
-                <input id="si-p2name" class="si-input" type="text" placeholder="P2" style="width:100%;padding:8px" />
+                <input id="si-p2name" class="si-input text-black" type="text" placeholder="P2" style="width:100%;padding:8px" />
               </label>
               <div class="si-actions">
                 <button id="si-p2-ok" class="si-btn" data-i18n="validate">Valider</button>
@@ -79,7 +79,7 @@
           <!-- Victory overlay -->
           <div id="si-victory" class="si-select" style="display:none">
             <div class="si-card">
-              <h2 data-i18n="victory" style="font-family: 'Starjedi', sans-serif;">Victoire</h2>
+              <h2 data-i18n="victory" class="font-starjedi">victoire</h2>
               <div id="si-victory-coop" style="display:none">
                 <p id="si-v-team"></p>
                 <p id="si-v-p1"></p>
@@ -91,8 +91,8 @@
                 <p id="si-v-solo-lives"></p>
               </div>
               <div class="si-actions">
-                <button id="si-retry-victory" class="si-btn" data-i18n="play_again" style="font-family: 'Starjedi', sans-serif;">Rejouer</button>
-                <a href="menu.html" class="si-btn" style="text-decoration:none;display:inline-block;font-family: 'Starjedi', sans-serif;">Menu</a>
+                <button id="si-retry-victory" class="si-btn font-starjedi" data-i18n="play_again">Rejouer</button>
+                <a href="menu.html" class="si-btn font-starjedi" style="text-decoration:none;display:inline-block;">Menu</a>
               </div>
             </div>
           </div>
@@ -100,12 +100,12 @@
           <!-- Defeat overlay -->
           <div id="si-defeat" class="si-select" style="display:none">
             <div class="si-card">
-              <h2 data-i18n="defeat" style="font-family: 'Starjedi', sans-serif;">Défaite</h2>
+              <h2 data-i18n="defeat" class="font-starjedi">Défaite</h2>
               <p id="si-d-score"></p>
               <p id="si-d-lives"></p>
               <div class="si-actions">
-                <button id="si-retry-defeat" class="si-btn" data-i18n="play_again" style="font-family: 'Starjedi', sans-serif;">Rejouer</button>
-                <a href="menu.html" class="si-btn" style="text-decoration:none;display:inline-block;font-family: 'Starjedi', sans-serif;">Menu</a>
+                <button id="si-retry-defeat" class="si-btn font-starjedi" data-i18n="play_again">Rejouer</button>
+                <a href="menu.html" class="si-btn font-starjedi" style="text-decoration:none;display:inline-block;">Menu</a>
               </div>
             </div>
           </div>
