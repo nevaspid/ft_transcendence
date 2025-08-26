@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="fr">
   <head>
     <meta charset="UTF-8" />
@@ -8,7 +8,6 @@
 
   </head>
   <body>
-    <!-- <main class="bg-[radial-gradient(circle_at_20%_20%,_#1f2335,_#0f111a_60%)]"> -->
       <section class="menu-card">
         <h1 class="mb-4 text-[28px] font-extrabold" data-i18n="select_mode"
         style="font-family: 'Starjedi', sans-serif;">Choisir un mode</h1>
@@ -18,10 +17,41 @@
           <a class="menu-btn third" href="space_invaders.html" style="font-family: 'Starjedi', sans-serif;">Space invaders</a>
         </div>
       </section>
-    <!-- </main> -->
+
+    <script type="module" src="../src/script.ts"></script>
+  </body>
+</html> -->
+
+
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Arcade - Sélection du mode</title>
+
+    <!-- OPTION A (Vite/SPA) : importe le CSS dans ton JS/TS -->
+    <!-- <script type="module">
+      import '/src/styles.tailwind.css'
+    </script> -->
+
+    <!-- OPTION B (lien direct) : pointe vers le même fichier que celui que tu édite -->
+    <link rel="stylesheet" href="/src/styles.css" />
+  </head>
+
+  <body class="m-0 h-screen w-screen overflow-hidden">
+    <!-- Le wrapper .menu donne le fond radial + le centrage -->
+    <main class="menu">
+      <section class="menu-card">
+        <h1 class="menu-title" data-i18n="select_mode">Choisir un mode</h1>
+
+        <div class="menu-buttons">
+          <a class="menu-btn primary font-starjedi" href="index1.html">Pong 1v1</a>
+          <a class="menu-btn second  font-starjedi" href="tournament.html" data-i18n="tournament">Tournoi</a>
+          <a class="menu-btn third   font-starjedi" href="space_invaders.html">Space invaders</a>
+        </div>
+      </section>
+    </main>
 
     <script type="module" src="../src/script.ts"></script>
   </body>
 </html>
-
-

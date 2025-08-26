@@ -12,6 +12,8 @@ import { createCamera, setupCameraControls } from './render/cam3d';
 import { debugAll } from './render/debug3d';
 import { pseudoUser, userId, avatarplayer } from '../../src/script';
 import { postMatch, getNextMatchId } from './blockchainApi';
+import "./style.css";
+
 
 import {
   WORLD_W,
