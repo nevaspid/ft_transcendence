@@ -5,8 +5,6 @@ import en from './i18n/en.json';
 import es from './i18n/es.json'; 
 import { toCanvas } from 'qrcode';
 
-
-
 // -----------------------------
 // 🧠 Variables utilisateur
 // -----------------------------
@@ -19,6 +17,8 @@ let is2FANeeded = false;
 let is2FASetup = false;
 let user2FASecret: string | null = null;
 let currentPage = 'home';
+let inactivityTimer: number | undefined;
+const MAX_IDLE_TIME = 5 * 60 * 1000; // 5 min
 
 declare const content: { [key: string]: string }; // Contenu HTML dynamique (pages)
 
@@ -215,6 +215,8 @@ export function updateUserMenu(): void {
   }
 }
 
+
+
 // -----------------------------
 // ✅ Vérification session au chargement
 // -----------------------------
@@ -277,6 +279,39 @@ async function checkSession(): Promise<void> {
   updateUserMenu();
 }
 
+// -----------------------------
+// 🚪 Déconnexion centralisée
+// -----------------------------
+async function logoutUser(message?: string) {
+  const token = localStorage.getItem("token");
+
+  if (token) {
+    try {
+      // Déconnexion côté serveur
+      await fetch('/api/auth/logout', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+    } catch (err) {
+      console.error("Erreur lors du logout serveur :", err);
+    }
+  }
+
+  // Nettoyage local
+  localStorage.removeItem("token");
+  localStorage.removeItem("username");
+  localStorage.removeItem("pseudoUser");
+  localStorage.removeItem("avatarplayer");
+
+  currentUser = null;
+  pseudoUser = null;
+  userState.pseudoUser = null;
+  userState.currentUser = null;
+
+  updateUserMenu();
+
+  navigate('home'); // ou window.location.href = "/login" en prod
+}
 
 // -----------------------------
 // 👤 Création de compte
@@ -423,8 +458,7 @@ async function loginUser() {
     localStorage.setItem("userId", userState.userId);
     localStorage.setItem("avatarplayer", `${data.avatarUrl}`);
     userState.avatarplayer = `${data.avatarUrl}`;
-    console.log('avatarpalyer dans login:', avatarplayer);
-    console.log('userState.avatarplayer dans login:', userState.avatarplayer);
+    updateUserMenu();
 
      // ➕ Si 2FA est requis
     if (data.twofaRequired) {
@@ -456,7 +490,9 @@ async function loginUser() {
 
           if (resData.token) {
             localStorage.setItem("token", resData.token);
-
+            currentUser = username;
+            userState.currentUser = currentUser;
+            updateUserMenu(); 
             // 🟡 appliquer la langue utilisateur
             const lang = await loadUserLanguage();
             applyTranslations(lang);
@@ -539,18 +575,18 @@ async function verify2FA() {
 
 // -----------------------------
 // 🔓 Déconnexion
-async function logoutUser(): Promise<void> {
-  localStorage.removeItem("token");
-  localStorage.removeItem("username");
-  localStorage.removeItem("pseudoUser");
-  localStorage.removeItem("avatarplayer");
-  currentUser = null;
-  pseudoUser = null;
-  userState.pseudoUser = null;
-  userState.currentUser = null;
-  updateUserMenu();
-  navigate('home');
-}
+// async function logoutUser(): Promise<void> {
+//   localStorage.removeItem("token");
+//   localStorage.removeItem("username");
+//   localStorage.removeItem("pseudoUser");
+//   localStorage.removeItem("avatarplayer");
+//   currentUser = null;
+//   pseudoUser = null;
+//   userState.pseudoUser = null;
+//   userState.currentUser = null;
+//   updateUserMenu();
+//   navigate('home');
+// }
 
 // -----------------------------
 // 📦 Navigation dynamique entre les pages

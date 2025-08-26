@@ -16,6 +16,7 @@ RUN npm install
 # Copie du code source dans le conteneur
 COPY . .
 
+
 EXPOSE 3000
 
 # Commande pour démarrer l'application

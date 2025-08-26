@@ -25,12 +25,32 @@ export interface CreateMatchPayload {
 	spaceInvaders: number;
 }
 
-export async function postMatch(payload: CreateMatchPayload): Promise<void> {
-	await fetch(`${API_BASE}/matches`, {
-		method: 'POST',
-		headers: { 'Content-Type': 'application/json' },
-		body: JSON.stringify(payload)
-	});
+// export async function postMatch(payload: CreateMatchPayload): Promise<void> {
+// 	await fetch(`${API_BASE}/matches`, {
+// 		method: 'POST',
+// 		headers: { 'Content-Type': 'application/json' },
+// 		body: JSON.stringify(payload)
+// 	});
+// }
+
+
+export async function postMatch(payload: CreateMatchPayload, opts: {keepalive?: boolean, timeoutMs?: number} = {}): Promise<any> {
+  const { keepalive = true, timeoutMs = 12000 } = opts;
+  const ctrl = AbortSignal.timeout(timeoutMs);
+
+  const res = await fetch(`${API_BASE}/matches`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify(payload),
+    keepalive,
+    signal: ctrl,
+  });
+
+  if (!res.ok) {
+    const text = await res.text().catch(() => '');
+    throw new Error(`POST /matches -> ${res.status} ${text}`);
+  }
+  return res.json().catch(() => ({}));
 }
 
 export async function getNextMatchId(): Promise<number> {

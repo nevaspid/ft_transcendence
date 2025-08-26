@@ -30,7 +30,8 @@ export type MatchData = {
   p1Score: number;
   p2Score: number;
   winner: number;
-  isTournament: number; // 0 | 1
+  isTournament: number;
+  spaceInvaders: number;
 };
 
 export type TournamentData = {
@@ -122,25 +123,17 @@ async function fetchPlayerMatches(playerId: number): Promise<number[]> {
 //     for (const matchId of matchIds) {
 //       const match = await fetchMatch(matchId);
 //       console.log("match", match);
-//       console.log("match keys:", Object.keys(match));
 
 //       const p1 = await fetchUser(match.p1);
 //       const p2 = await fetchUser(match.p2);
-//       console.log("isTournament", match.isTournament );
+
 //       // ========================
 //       // Gestion du tournoi
 //       // ========================
 //       let tournamentName = "N/A";
-//       if (match.isTournament && match.isTournament > 0) {
-//         try {
-//           const tournament = await fetchTournament(match.isTournament);
-//           console.log("tournament", tournament);
-//           if (tournament?.tournamentName) {
-//             tournamentName = tournament.tournamentName;
-//           }
-//         } catch (err) {
-//           console.warn(`Impossible de récupérer le tournoi ${match.isTournament}`, err);
-//         }
+//       if (Number.isFinite(match.isTournament) && match.isTournament > 0) {
+//         const tournament = await fetchTournament(match.isTournament);
+//         tournamentName = tournament.tournamentName;
 //       }
 
 //       const p1Class = match.winner === match.p1 ? "text-green-400" : "text-red-400";
@@ -151,15 +144,30 @@ async function fetchPlayerMatches(playerId: number): Promise<number[]> {
 //       matchDiv.className = "flex flex-col items-center gap-1 p-2 border-b border-gray-700";
 
 //       matchDiv.innerHTML = `
-//         <div class="text-xs text-gray-500">Match ID: ${match.matchId}</div>
-//         <div class="flex items-center gap-2">
-//           <span class="font-semibold ${p1Class}">${p1.pseudo}</span>
-//           <span class="mx-2">${match.p1Score} - ${match.p2Score}</span>
-//           <span class="font-semibold ${p2Class}">${p2.pseudo}</span>
-//         </div>
-//         <div class="text-sm text-gray-400">
-//           ${tournamentText}: <span class="font-medium">${tournamentName}</span>
-//         </div>
+//       <div class="text-yellow-500">Pong Match iD: ${match.matchId}</div>
+
+//       <div class="flex items-center gap-2">
+//         <span class="font-semibold ${p1Class}">${p1.pseudo}</span>
+//         <span class="mx-2">${match.p1Score} - ${match.p2Score}</span>
+//         <span class="font-semibold ${p2Class}">${p2.pseudo}</span>
+//       </div>
+
+//       <div class="flex items-center justify-center gap-2 text-yellow-500">
+//         <span>${tournamentText}</span>
+//         <span class="font-medium text-[#fff9c4]">${tournamentName}</span>
+//       </div>
+
+//       <div class="text-yellow-500">Space invaders</div>
+
+//       <div class="flex items-center gap-2">
+//         <span class="font-semibold ${p1Class}">${p1.pseudo}</span>
+//         <span class="mx-2">${match.p1Score} - ${match.p2Score}</span>
+//         <span class="font-semibold ${p2Class}">${p2.pseudo}</span>
+//       </div>
+//       <!-- 🔹 Ligne de séparation -->
+//        <hr class="border-t border-yellow-500 w-24 mx-auto my-2">
+
+
 //       `;
 
 //       matchContainer.appendChild(matchDiv);
@@ -169,7 +177,6 @@ async function fetchPlayerMatches(playerId: number): Promise<number[]> {
 //   }
 // }
 
-
 export async function loadMatches() {
   try {
     const matchContainer = document.getElementById("match-history");
@@ -177,7 +184,7 @@ export async function loadMatches() {
 
     matchContainer.innerHTML = "";
 
-    const matchIds = await fetchPlayerMatches(currentUserId);
+    let matchIds = await fetchPlayerMatches(currentUserId);
     console.log("matchIds", matchIds);
 
     const noMatchesText = t(currentLang, "no_matches");
@@ -188,21 +195,15 @@ export async function loadMatches() {
       return;
     }
 
+    // ✅ On garde seulement les 3 derniers
+    matchIds = matchIds.slice(-3);
+
     for (const matchId of matchIds) {
       const match = await fetchMatch(matchId);
       console.log("match", match);
 
       const p1 = await fetchUser(match.p1);
       const p2 = await fetchUser(match.p2);
-
-      // ========================
-      // Gestion du tournoi
-      // ========================
-      let tournamentName = "N/A";
-      if (Number.isFinite(match.isTournament) && match.isTournament > 0) {
-        const tournament = await fetchTournament(match.isTournament);
-        tournamentName = tournament.tournamentName;
-      }
 
       const p1Class = match.winner === match.p1 ? "text-green-400" : "text-red-400";
       const p2Class = match.winner === match.p2 ? "text-green-400" : "text-red-400";
@@ -211,17 +212,46 @@ export async function loadMatches() {
       matchDiv.id = `match-${match.matchId}`;
       matchDiv.className = "flex flex-col items-center gap-1 p-2 border-b border-gray-700";
 
-      matchDiv.innerHTML = `
-        <div class="text-xs text-gray-500">Match ID: ${match.matchId}</div>
-        <div class="flex items-center gap-2">
-          <span class="font-semibold ${p1Class}">${p1.pseudo}</span>
-          <span class="mx-2">${match.p1Score} - ${match.p2Score}</span>
-          <span class="font-semibold ${p2Class}">${p2.pseudo}</span>
-        </div>
-        <div class="text-sm text-gray-400">
-          ${tournamentText}: <span class="font-medium">${tournamentName}</span>
-        </div>
-      `;
+      if (match.spaceInvaders === 0) {
+        // -------------------------------
+        // Pong
+        // -------------------------------
+        matchDiv.innerHTML = `
+          <div class="text-yellow-500">Pong Match iD: ${match.matchId}</div>
+          <div class="flex items-center gap-2">
+            <span class="font-semibold ${p1Class}">${p1.pseudo}</span>
+            <span class="mx-2">${match.p1Score} - ${match.p2Score}</span>
+            <span class="font-semibold ${p2Class}">${p2.pseudo}</span>
+          </div>
+        `;
+      } else if (match.spaceInvaders === 1) {
+        // -------------------------------
+        // Space Invaders
+        // -------------------------------
+        let tournamentName = "N/A";
+        if (Number.isFinite(match.isTournament) && match.isTournament > 0) {
+          const tournament = await fetchTournament(match.isTournament);
+          tournamentName = tournament.tournamentName;
+        }
+
+        matchDiv.innerHTML = `
+          <div class="text-yellow-500">Space invaders Match iD: ${match.matchId}</div>
+          <div class="flex items-center gap-2">
+            <span class="font-semibold ${p1Class}">${p1.pseudo}</span>
+            <span class="mx-2">${match.p1Score} - ${match.p2Score}</span>
+            <span class="font-semibold ${p2Class}">${p2.pseudo}</span>
+          </div>
+          <div class="flex items-center justify-center gap-2 text-yellow-500">
+            <span>${tournamentText}</span>
+            <span class="font-medium text-[#fff9c4]">${tournamentName}</span>
+          </div>
+        `;
+      }
+
+      // Ligne de séparation
+      const hr = document.createElement("hr");
+      hr.className = "border-t border-yellow-500 w-24 mx-auto my-2";
+      matchDiv.appendChild(hr);
 
       matchContainer.appendChild(matchDiv);
     }
@@ -229,6 +259,8 @@ export async function loadMatches() {
     console.error("Erreur lors du chargement des matchs:", err);
   }
 }
+
+
 
 
 export function initProfilPage() {

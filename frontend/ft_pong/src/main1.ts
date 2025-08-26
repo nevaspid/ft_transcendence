@@ -24,9 +24,6 @@ import {
 
 import type { GamePhase } from './core/types';
 
-// Prevent double POST of match results
-let _matchPostInFlight = false;
-
 //let player1Name = pseudoUser?.trim() || 'Player 1';
 
 // === CONFIGURATION DOM ===
@@ -163,7 +160,7 @@ function debugPlayerLose(): void {
   }
 }
 
-async function setPhase(newPhase: GamePhase): Promise<void> {
+function setPhase(newPhase: GamePhase): void {
   phase = newPhase;
   switch (phase) {
     case 'naming':
@@ -216,16 +213,14 @@ async function setPhase(newPhase: GamePhase): Promise<void> {
       }
       break;
     case 'gameover':
-      // Anti-double envoi de match
-      if (_matchPostInFlight) break;
-      _matchPostInFlight = true;
       // En tournoi, on renvoie le résultat à la page tournoi et on sort
       if (isTournamentMode) {
         const winner = (scoreL > scoreR ? player1Name : player2Name);
         const res = { winner, score: `${scoreL}-${scoreR}` };
         try { localStorage.setItem('pong_result', JSON.stringify(res)); } catch {}
-        // Déclaration du match blockchain en mode tournoi (sans redirection, un seul envoi)
-        try {
+        // Déclaration du match blockchain en mode tournoi
+        (async () => {
+          try {
             const matchId = await getNextMatchId();
             const p1Id = Number(userId) || 1;
             const p2Id = 2; // ID synthétique local
@@ -241,13 +236,13 @@ async function setPhase(newPhase: GamePhase): Promise<void> {
               winner: winnerId,
               spaceInvaders: 0
             });
-            // Notifier la SPA qu'un match a été posté
-            window.dispatchEvent(new CustomEvent('match:posted', { detail: {
-              isTournament: tournamentId, matchId, p1: p1Id, p2: p2Id, p1Score: scoreL, p2Score: scoreR, winner: winnerId
-            }}));
-        } catch (err) {
+          } catch (err) {
             console.warn('postMatch (tournament) failed:', err);
-        };
+          }
+        })();
+        const back = localStorage.getItem('tournament_return_to') || 'tournament.html';
+        // petite pause pour laisser finir les animations éventuelles
+        setTimeout(() => { window.location.href = back; }, 200);
         break;
       }
       if (victoryOverlay) {
@@ -275,8 +270,9 @@ async function setPhase(newPhase: GamePhase): Promise<void> {
           victoryOverlay.setAttribute('aria-hidden', 'false');
         }
 
-        // Déclaration du match blockchain en partie libre (sans redirection, un seul envoi)
-        try {
+        // Déclaration du match blockchain en partie libre
+        ;(async () => {
+          try {
             const matchId = await getNextMatchId();
             const p1Id = Number(userId) || 1;
             const p2Id = 2; // ID synthétique local
@@ -291,12 +287,10 @@ async function setPhase(newPhase: GamePhase): Promise<void> {
               winner: winnerId,
               spaceInvaders: 0
             });
-            window.dispatchEvent(new CustomEvent('match:posted', { detail: {
-              isTournament: 0, matchId, p1: p1Id, p2: p2Id, p1Score: scoreL, p2Score: scoreR, winner: winnerId
-            }}));
           } catch (err) {
             console.warn('postMatch (free play) failed:', err);
-          };
+          }
+        })();
 
       break;
   }

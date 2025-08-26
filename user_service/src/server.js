@@ -6,7 +6,6 @@ import cors from '@fastify/cors';
 import fastifyJwt from '@fastify/jwt';
 import fastifyCookie from '@fastify/cookie';
 import axios from 'axios';
-// import db from './db.js';
 import db, { setUserOnline, setUserOffline } from './db.js';
 import {
   createUser,
@@ -224,20 +223,10 @@ fastify.post('/user/:id/heartbeat', async (request, reply) => {
 
 
 // Déconnexion automatique après 5 min d'inactivité
-// setInterval(() => {
-//   const now = Date.now();
-//   for (const [userId, info] of usersOnline) {
-//     if (now - info.lastActive > 5 * 60 * 1000) { // 5 min
-//       setUserOffline(userId);
-//       usersOnline.delete(userId);
-//       fastify.log.info(`User ${userId} set offline due to inactivity`);
-//     }
-//   }
-// }, 60 * 1000);
 setInterval(() => {
   const now = Date.now();
   for (const [userId, info] of usersOnline) {
-    if (now - info.lastActive > 10 * 1000) { // 10 secondes pour test rapide
+    if (now - info.lastActive > 10 * 6000) { // 10 secondes pour test rapide
       setUserOffline(userId);
       usersOnline.delete(userId);
       fastify.log.info(`User ${userId} set offline due to inactivity`);
