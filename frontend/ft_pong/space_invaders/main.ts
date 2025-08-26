@@ -81,7 +81,7 @@ function showVictoryOverlay(
     vTeamEl.textContent = `Score d'équipe: ${scoreVal}`;
     vP1El.innerHTML = `${pseudoUser}: ${extra.p1Score} + ${extra.p1Bonus} bonus vies = <strong>${extra.p1Score + extra.p1Bonus}</strong>`;
     vP2El.innerHTML = `${p2Name}: ${extra.p2Score} + ${extra.p2Bonus} bonus vies = <strong>${extra.p2Score + extra.p2Bonus}</strong>`;
-    vWinnerEl.textContent = `Vainqueur: ${extra.winner}`;
+    vWinnerEl.textContent = `vainqueur: ${extra.winner}`;
   } else {
     victoryCoopEl.style.display = 'none';
     victorySoloEl.style.display = '';
@@ -212,7 +212,7 @@ const ctx = canvas.getContext('2d')!;
 
 // Background
 const bgImg = new Image();
-bgImg.src = '/models/space.jpg';
+bgImg.src = './public/models/space.jpg';
 let bgReady = false;
 bgImg.onload = () => { bgReady = true; };
 

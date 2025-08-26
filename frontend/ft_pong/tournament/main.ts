@@ -71,8 +71,8 @@ function saveNames(): void {
 }
 
 function updateFinalSlots(): void {
-  finalp1.textContent = state.sf1Winner || 'Vainqueur DF1';
-  finalp2.textContent = state.sf2Winner || 'Vainqueur DF2';
+  finalp1.textContent = state.sf1Winner || 'vainqueur DF1';
+  finalp2.textContent = state.sf2Winner || 'vainqueur DF2';
 }
 
 function updateButtons(): void {
