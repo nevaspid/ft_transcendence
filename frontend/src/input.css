@@ -117,6 +117,12 @@
     @apply inline-flex items-center gap-3 px-[14px] py-[10px]
            border-2 border-gray-700 rounded-[10px] bg-gray-900;
   }
+
+  /* Space Invaders coop input */
+  .si-input {
+    @apply w-full px-3 py-2 rounded border border-gray-400 bg-white text-black placeholder-gray-600 outline-none;
+  }
+  .si-input:focus { @apply ring-2 ring-cyan-400 border-cyan-400; }
 }
 
 /* ---- Pseudo-éléments nécessaires ---- */

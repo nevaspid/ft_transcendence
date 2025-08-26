@@ -441,18 +441,8 @@ function start(m: Mode) {
 }
 
 function returnToMenu(): void {
-  // Stop game loop state and show selection
-  mode = 'none';
-  isGameOver = false;
-  // Clear entities
-  p1 = null; p2 = null; enemies = []; bullets = []; boss = null;
-  // Reset HUD
-  score = 0; scoreP1 = 0; scoreP2 = 0; multiplierP1 = 1; multiplierP2 = 1; playerShotCount = 1;
-  scoreP2El.style.display = 'none';
-  updateScoreHud();
-  renderLives(livesEl, p1, p2);
-  // Show menu overlay back
-  selectEl.style.display = '';
+  // Quitter la scène et revenir au menu principal du sous-projet
+  window.location.href = 'menu.html';
 }
 
 function resetGame() {
