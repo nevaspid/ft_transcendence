@@ -73,7 +73,7 @@ function showVictoryOverlay(
   over.className = 'si-select';
   over.innerHTML = `
     <div class="si-card">
-      <h2>Victoire</h2>
+      <h2>victoire</h2>
       ${extra && extra.mode === 'coop' ? `
         <p>Score d'équipe: ${score}</p>
         <p>${pseudoUser}: ${extra.p1Score} + ${extra.p1Bonus} bonus vies = <strong>${extra.p1Score + extra.p1Bonus}</strong></p>
