@@ -449,7 +449,7 @@ function loop(now: number = performance.now()): void {
       break;
   }
 
-  // Debug: Faire perdre instantanément un joueur avec "L" ou "K"
+  // Debug: victoire instantanée via Numpad1 (P1) / Numpad2 (P2)
   debugPlayerLose();
 
   // Rendu 2D
