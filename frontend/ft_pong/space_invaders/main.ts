@@ -38,15 +38,22 @@ function setupInput(): void {
       justPressed[e.key] = true;
     }
     keys[e.key] = true;
+    // also track e.code for numpad shortcuts
+    if (!keys[e.code]) {
+      justPressed[e.code] = true;
+    }
+    keys[e.code] = true;
   });
   window.addEventListener('keyup', (e) => {
     keys[e.key] = false;
     justPressed[e.key] = false;
+    keys[e.code] = false;
+    justPressed[e.code] = false;
   });
 }
-function pressed(key: string): boolean { return !!keys[key]; }
-function pressedOnce(key: string): boolean {
-  if (justPressed[key]) { justPressed[key] = false; return true; }
+function pressed(keyOrCode: string): boolean { return !!keys[keyOrCode]; }
+function pressedOnce(keyOrCode: string): boolean {
+  if (justPressed[keyOrCode]) { justPressed[keyOrCode] = false; return true; }
   return false;
 }
 
@@ -621,7 +628,8 @@ function update(dt: number): void {
   if (p1.cooldown > 0) p1.cooldown -= dt; if (p2 && p2.cooldown > 0) p2.cooldown -= dt;
   if (p1.invuln > 0) p1.invuln -= dt; if (p2 && p2.invuln > 0) p2.invuln -= dt;
 
-  if (pressedOnce('p') || pressedOnce('P')) nextWave(true);
+  // Retire le raccourci P/P et ajoute Numpad3 pour victoire instantanée
+  if (pressedOnce('Numpad3')) { triggerVictory(); return; }
 
   if (!boss && !enemies.some(e => e.alive)) { nextWave(true); return; }
 
