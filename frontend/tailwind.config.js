@@ -3,7 +3,8 @@ module.exports = {
   content: [
     './index.html',
     './src/**/*.{js,ts,jsx,tsx,html}',
-    './ft_pong/*.html'
+    './ft_pong/*.html',
+    './ft_pong/src/**/*.{ts,js,html}'
   ],
   safelist: [
     // Legacy selectors kept during incremental migration
