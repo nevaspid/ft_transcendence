@@ -248,6 +248,9 @@ async function setPhase(newPhase: GamePhase): Promise<void> {
         } catch (err) {
             console.warn('postMatch (tournament) failed:', err);
         };
+        // Naviguer de manière robuste vers la page tournoi
+        const back = localStorage.getItem('tournament_return_to') || 'tournament.html';
+        setTimeout(() => { window.location.href = back; }, 200);
         break;
       }
       if (victoryOverlay) {
