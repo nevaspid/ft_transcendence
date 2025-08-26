@@ -69,12 +69,10 @@
   /* === Layout / HUD === */
   #layout         { @apply flex flex-col h-full; }
   .hud            { @apply flex-none px-4 py-2 text-white text-center; }
+  /* Space Invaders: vies (compat Tailwind) */
   .si-lives       { @apply flex items-center gap-3; }
-  .si-heart-svg   { @apply inline-block w-[26px] h-[26px] text-red-500; }
-  .si-lives-frame {
-    @apply inline-flex items-center gap-3 px-[14px] py-[10px]
-           border-2 border-gray-700 rounded-[10px] bg-gray-900;
-  }
+  .si-heart-svg   { @apply inline-block align-middle w-[26px] h-[26px] text-red-500; }
+  .si-lives-frame { @apply inline-flex items-center gap-3 px-[14px] py-[10px] leading-none whitespace-nowrap border-2 border-gray-700 rounded-[10px] bg-gray-900; }
 
   #game-area { @apply flex-1 flex items-center justify-center; }
 
