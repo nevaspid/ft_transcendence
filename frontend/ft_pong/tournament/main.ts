@@ -146,21 +146,18 @@ document.getElementById('p4-save')?.addEventListener('click', saveNames);
 
 sf1Btn.addEventListener('click', () => {
   saveNames();
-  void ensureTournamentCreated();
   localStorage.setItem('tournament_last', 'sf1');
   runMatch(state.p1, state.p2, () => {});
 });
 
 sf2Btn.addEventListener('click', () => {
   saveNames();
-  void ensureTournamentCreated();
   localStorage.setItem('tournament_last', 'sf2');
   runMatch(state.p3, state.p4, () => {});
 });
 
 finalBtn.addEventListener('click', () => {
   if (!(state.sf1Winner && state.sf2Winner)) return;
-  void ensureTournamentCreated();
   localStorage.setItem('tournament_last', 'final');
   runMatch(state.sf1Winner!, state.sf2Winner!, () => {});
 });
@@ -182,6 +179,10 @@ resetBtn.addEventListener('click', () => {
   updateFinalSlots();
   updateButtons();
   persist();
+  // New tournament on reset
+  try { localStorage.removeItem('tournament_created'); } catch {}
+  try { localStorage.removeItem('current_tournament_id'); } catch {}
+  void ensureTournamentCreated();
 });
 
 function shuffleArray<T>(arr: T[]): T[] {
@@ -217,3 +218,5 @@ sf1p1.textContent = pseudoUser; sf1p2.textContent = state.p2; sf2p1.textContent 
 updateFinalSlots();
 updateButtons();
 checkMatchResult();
+// Ensure tournament is created once on initial load
+void ensureTournamentCreated();
