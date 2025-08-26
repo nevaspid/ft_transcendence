@@ -109,6 +109,14 @@
   .circle:nth-of-type(2) { @apply [background:rgba(0,80,130,0.6)]; }
 
   #stars { @apply relative bg-transparent w-[200rem] h-[200rem]; }
+
+  /* === Space Invaders lives HUD === */
+  .si-lives { @apply flex items-center gap-3; }
+  .si-heart-svg { @apply inline-block w-[26px] h-[26px] text-red-500; }
+  .si-lives-frame {
+    @apply inline-flex items-center gap-3 px-[14px] py-[10px]
+           border-2 border-gray-700 rounded-[10px] bg-gray-900;
+  }
 }
 
 /* ---- Pseudo-éléments nécessaires ---- */
