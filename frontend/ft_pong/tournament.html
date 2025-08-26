@@ -9,8 +9,8 @@
   <body>
     <div id="layout">
       <header class="hud" style="display:flex;align-items:center;justify-content:space-between;gap:12px">
-        <a class="menu-btn" href="menu.html" style="font-family: 'Starjedi', sans-serif;" data-i18n="back">Retour</a>
-        <div style="font-family: 'Starjedi', sans-serif;" data-i18n="4_players"><strong>Tournoi 4 joueurs</strong></div>
+        <a class="menu-btn font-starjedi" href="menu.html" data-i18n="back">Retour</a>
+        <div class="font-starjedi" data-i18n="4_players"><strong>Tournoi 4 joueurs</strong></div>
         <div></div>
       </header>
       <main id="game-area">
@@ -19,7 +19,7 @@
             <h2 class="menu-title" style="margin:0 0 8px 0" data-i18n="players">Joueurs</h2>
             <div class="players-grid">
               <div class="player-block">
-                <label class="player-label" data-i18n="p1" style="font-family: 'Starjedi', sans-serif;">P1 (connecté)</label>
+                <label class="player-label font-starjedi" data-i18n="p1">P1 (connecté)</label>
                 <input id="p1-name" class="player-input" type="text" value="Player 1" disabled />
               </div>
               <div class="player-block">
@@ -54,37 +54,37 @@
 
           <section class="bracket">
             <div class="round">
-              <h3 data-i18n="semi_finale_1" style="font-family: 'Starjedi', sans-serif;">Demi-finale 1</h3>
+              <h3 data-i18n="semi_finale_1" class="font-starjedi">Demi-finale 1</h3>
               <div class="match" id="sf1">
                 <div class="slot" id="sf1-p1">P1</div>
                 <div class="slot" id="sf1-p2">P2</div>
-                <button class="play-btn" id="sf1-play" data-i18n="play_pong" style="font-family: 'Starjedi', sans-serif;">Play</button>
+                <button class="play-btn font-starjedi" id="sf1-play" data-i18n="play_pong">Play</button>
                 <div class="winner" id="sf1-winner"></div>
               </div>
             </div>
             <div class="round">
-              <h3 data-i18n="semi_finale_2" style="font-family: 'Starjedi', sans-serif;">Demi-finale 2</h3>
+              <h3 data-i18n="semi_finale_2" class="font-starjedi">Demi-finale 2</h3>
               <div class="match" id="sf2">
                 <div class="slot" id="sf2-p1">P3</div>
                 <div class="slot" id="sf2-p2">P4</div>
-                <button class="play-btn" id="sf2-play" data-i18n="play_pong" style="font-family: 'Starjedi', sans-serif;">Play</button>
+                <button class="play-btn font-starjedi" id="sf2-play" data-i18n="play_pong">Play</button>
                 <div class="winner" id="sf2-winner"></div>
               </div>
             </div>
             <div class="round final">
-              <h3 data-i18n="finale" style="font-family: 'Starjedi', sans-serif;">Finale</h3>
+              <h3 data-i18n="finale" class="font-starjedi">Finale</h3>
               <div class="match" id="final">
                 <div class="slot" id="final-p1">Vainqueur DF1</div>
                 <div class="slot" id="final-p2">Vainqueur DF2</div>
-                <button class="play-btn" data-i18n="play_pong" id="final-play" style="font-family: 'Starjedi', sans-serif;" disabled>Play</button>
+                <button class="play-btn font-starjedi" data-i18n="play_pong" id="final-play" disabled>Play</button>
                 <div class="winner" id="final-winner"></div>
               </div>
             </div>
           </section>
 
           <div class="t-actions">
-            <button id="t-randomize" class="si-btn" data-i18n="random" style="font-family: 'Starjedi', sans-serif;">Randomize</button>
-            <button id="t-reset" class="si-btn" data-i18n="reinitialise" style="font-family: 'Starjedi', sans-serif;">Réinitialiser</button>
+            <button id="t-randomize" class="si-btn font-starjedi" data-i18n="random">Randomize</button>
+            <button id="t-reset" class="si-btn font-starjedi" data-i18n="reinitialise">Réinitialiser</button>
           </div>
         </div>
       </main>

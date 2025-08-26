@@ -19,14 +19,16 @@
   /* === MENU === */
   .menu {
     @apply min-h-screen flex items-center justify-center;
-    @apply [background:radial-gradient(circle_at_20%_20%,_#1f2335,_#0f111a_60%)];
+    /* @apply [background:radial-gradient(circle_at_20%_20%,_#1f2335,_#0f111a_60%)]; */
   }
 
   .menu-card {
     @apply bg-[#1b1f2d] text-gray-200 px-7 py-8 rounded-2xl
            shadow-[0_12px_32px_rgba(0,0,0,.35)]
            border border-cyan-500 text-center
-           transition-[border,box-shadow] duration-200 ease-in-out;
+           transition-[border,box-shadow] duration-200
+           w-full max-w-xl
+           ease-in-out;
   }
 
   .menu-title {

@@ -17,7 +17,7 @@
       <!-- Overlay de saisie du nom du Player 2 -->
       <div id="p2-name-overlay" class="p2-overlay" aria-hidden="true">
         <div class="input__container">
-          <span class="input__label" data-i18n="player_name" style="font-family: 'Starjedi', sans-serif;">PLAYER NAME</span>
+          <span class="input__label font-starjedi" data-i18n="player_name">PLAYER NAME</span>
           <span class="shadow__input" aria-hidden="true"></span>
           <input id="p2-input" type="text" class="input__search" data-i18n="player_name" placeholder="Player Name" maxlength="20" />
           <button id="p2-apply" class="input__button__shadow" type="button">
@@ -30,7 +30,7 @@
       <!-- Overlay de barre de chargement (pré-départ) -->
       <div id="start-loader" class="loader-overlay" aria-hidden="true">
         <div class="loader">
-          <div data-i18n="loading" class="loading-text" style="font-family: 'Starjedi', sans-serif;">loading<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span></div>
+          <div data-i18n="loading" class="loading-text font-starjedi">loading<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span></div>
           <!-- Lightsaber animation -->
           <div id="loader">
             <div class="lightsaber ls-left ls-green"></div>
@@ -41,7 +41,7 @@
             <div class="ls-particles ls-part-4"></div>
             <div class="ls-particles ls-part-5"></div>
           </div>
-          <div class="loading-bar-background">
+          <!-- <div class="loading-bar-background">
             <div class="loading-bar">
               <div class="white-bars-container">
                 <div class="white-bar"></div>
@@ -49,13 +49,13 @@
                 <div class="white-bar"></div>
               </div>
             </div>
-          </div>
+          </div> -->
         </div>
       </div>
 
       <!-- Overlay transition entre points (astronaut + stars) -->
       <div id="between-overlay" class="between-overlay" aria-hidden="true">
-        <div class="kickoff-text" style="font-family: 'Starjedi', sans-serif;">Kick off...</div>
+        <div class="kickoff-text font-starjedi">Kick off...</div>
         <div class="box-of-star1">
           <div class="star star-position1"></div>
           <div class="star star-position2"></div>
