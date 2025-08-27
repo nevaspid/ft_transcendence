@@ -120,6 +120,11 @@
   .victory-overlay {
     @apply absolute inset-0 flex items-center justify-center pointer-events-none opacity-0 invisible transition-[opacity,visibility] duration-200 ease-in-out;
   }
+  /* Assurer l'empilement correct des overlays par-dessus les canvases */
+  .p2-overlay      { @apply z-[20]; }
+  .between-overlay { @apply z-[18]; }
+  .loader-overlay  { @apply z-[15]; }
+  .victory-overlay { @apply z-[12]; }
   .p2-overlay.visible {
     @apply pointer-events-auto opacity-100;
     @apply [visibility:visible];
