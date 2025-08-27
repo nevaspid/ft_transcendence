@@ -15,6 +15,17 @@ const UNLOCK_3_SHOTS = Math.floor((2 * MAX_SCORE_TARGET) / 3);
 const PLAYER_INIT_LIVES = 3;
 const PLAYER_INVULN_SEC = 3;
 
+// Assure un ID de match même si le service /next est indisponible
+async function safeGetNextMatchId(): Promise<number> {
+  try {
+    return await getNextMatchId();
+  } catch (err) {
+    console.warn('getNextMatchId failed, using fallback id:', err);
+    // Fallback local (timestamp réduit) pour ne pas bloquer le post
+    return Math.floor(Date.now() % 1000000000);
+  }
+}
+
 // Types
 type Mode = 'none' | 'solo' | 'coop';
 interface Ship {
@@ -779,7 +790,7 @@ function triggerGameOver(): void {
   //! fetch
   ;(async () => {
     try {
-      const matchId = await getNextMatchId();
+      const matchId = await safeGetNextMatchId();
       const p1Id = Number(userId) || 1;
       const p2Id = 2; // adversaire local synthétique
       const p1ScoreVal = (mode === 'coop') ? scoreP1 : score;
@@ -814,7 +825,7 @@ function triggerVictory(): void {
 	//! VOIR PAYLOAD BLOCKCHAIN API
     ;(async () => {
       try {
-        const matchId = await getNextMatchId();
+        const matchId = await safeGetNextMatchId();
         const p1Id = Number(userId) || 1;
         const p2Id = 2; // joueur 2 synthétique
         const winnerId = (p1Total >= p2Total) ? p1Id : p2Id;
@@ -837,7 +848,7 @@ function triggerVictory(): void {
 	//! fetch solo
     ;(async () => {
       try {
-        const matchId = await getNextMatchId();
+        const matchId = await safeGetNextMatchId();
         const p1Id = Number(userId) || 1;
         await postMatch({
           isTournament: 0,
