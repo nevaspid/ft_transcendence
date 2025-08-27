@@ -148,5 +148,13 @@
   "victory": "victoire",
   "team_score": "Score d'équipe: ",
   "no_matches": "Aucun match trouvé",
-  "tournament2": "Tournoi: "
+  "tournament2": "Tournoi: ",
+  "user_not_found": "Nom d'utilisateur inexistant",
+  "wrong_password": "Mot de passe incorrect",
+  "username_too_short": "Nom d'utilisateur trop court",
+  "password_too_short": "Mot de passe trop court",
+  "invalid_email_format": "Format d'email invalide",
+  "password_must_be_between_6_and_20_characters": "Le mot de passe doit contenir entre 6 et 20 caractères",
+  "username_already_taken": "Nom d'utilisateur déjà pris",
+  "user_registered": "Utilisateur enregistré avec succès"
 }

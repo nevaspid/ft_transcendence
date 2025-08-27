@@ -34,6 +34,7 @@ export const userState = {
   avatarplayer: ""
 };
 
+
 // -----------------------------
 // 🌍 Gestion multilingue
 // -----------------------------
@@ -340,23 +341,44 @@ async function createAccount(): Promise<void> {
 // 🔐 Connexion google
 // -----------------------------
 
-window.addEventListener("DOMContentLoaded", () => {
-  if (!google || !google.accounts || !google.accounts.id) {
-    console.error("Google Identity Services non chargé");
-    return;
-  }
-
-  google.accounts.id.initialize({
-    client_id: "328156739515-ih1nrcb5b34e34af004ptsdfvktbfg1u.apps.googleusercontent.com",
-    callback: handleGoogleSignIn,
+// Charger le script Google Identity Services dynamiquement
+function loadGoogleScript(): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const script = document.createElement('script');
+    script.src = "https://accounts.google.com/gsi/client";
+    script.async = true;
+    script.defer = true;
+    script.onload = () => resolve();
+    script.onerror = () => reject(new Error("Impossible de charger Google Identity Services"));
+    document.head.appendChild(script);
   });
-  // Charger user depuis localStorage
-  currentUser = localStorage.getItem("username");
-  userState.pseudoUser = localStorage.getItem("pseudo") || null; 
-  userState.userId = localStorage.getItem("userId")
+}
+
+window.addEventListener("DOMContentLoaded", async () => {
+  try {
+    await loadGoogleScript();
+
+    if (!(window as any).google || !(window as any).google.accounts || !(window as any).google.accounts.id) {
+      console.error("Google Identity Services non initialisé correctement");
+      return;
+    }
+
+    // Initialiser Google Sign-In
+    (window as any).google.accounts.id.initialize({
+      client_id: "328156739515-ih1nrcb5b34e34af004ptsdfvktbfg1u.apps.googleusercontent.com",
+      callback: handleGoogleSignIn,
+    });
+
+    // Charger user depuis localStorage
+    currentUser = localStorage.getItem("username");
+    userState.pseudoUser = localStorage.getItem("pseudo") || null; 
+    userState.userId = localStorage.getItem("userId") || null;
+  } catch (err) {
+    console.error(err);
+  }
 });
 
-function handleGoogleSignIn(response?: google.accounts.id.CredentialResponse): void {
+function handleGoogleSignIn(response?: any): void {
   if (!response?.credential) {
     console.error("Aucun token reçu de Google");
     return;
@@ -368,26 +390,28 @@ function handleGoogleSignIn(response?: google.accounts.id.CredentialResponse): v
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ token: response.credential }),
   })
-  .then(async (res) => {
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message || "Erreur d'authentification");
-    currentUser = data.user.username;
-    userState.pseudoUser = data.user.pseudo;
-    userState.userId = data.user.id;
-    localStorage.setItem("token", data.token);
-    localStorage.setItem("username", data.user.username);
-    localStorage.setItem("pseudo", data.user.pseudo);
-    if (data.user.id) {
-      localStorage.setItem("userId", data.user.id);
-    }
-    updateUserMenu();
-    navigate("home");
-  })
-  .catch((err) => {
-    console.error("Erreur Google Sign-In :", err);
-    alert(t(currentLang, "google_login_error"));
-  });
+    .then(async (res) => {
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.message || "Erreur d'authentification");
+
+      currentUser = data.user.username;
+      userState.pseudoUser = data.user.pseudo;
+      userState.userId = data.user.id;
+
+      localStorage.setItem("token", data.token);
+      localStorage.setItem("username", data.user.username);
+      localStorage.setItem("pseudo", data.user.pseudo);
+      if (data.user.id) localStorage.setItem("userId", data.user.id);
+
+      updateUserMenu();
+      navigate("home");
+    })
+    .catch((err) => {
+      console.error("Erreur Google Sign-In :", err);
+      alert(t(currentLang, "google_login_error"));
+    });
 }
+
 
 // -----------------------------
 // 🔐 Connexion classique

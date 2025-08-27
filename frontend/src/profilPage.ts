@@ -90,6 +90,13 @@ async function fetchPlayerMatches(playerId: number): Promise<number[]> {
 
   const data = await res.json();
 
+
+  if (Array.isArray(data.matchIds)) {
+    console.log("matchIds récupérés:", data.matchIds);
+  } else {
+    console.warn("⚠️ matchIds n'est pas un tableau", data.matchIds);
+  }
+
   return data.matchIds ?? [];
 }
 
@@ -543,6 +550,7 @@ export function initProfilPage() {
     console.error(err);
   }
 }
+
 
     /**
      * Status du client

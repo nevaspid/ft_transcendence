@@ -148,5 +148,13 @@
   "victory": "Victoria",
   "team_score": "Puntuación del equipo: ",
   "no_matches": "Ningún partido encontrado",
-  "tournament2": "Torneo: "
+  "tournament2": "Torneo: ",
+  "user_not_found": "Nombre de usuario no existe",
+  "wrong_password": "Contraseña incorrecta",
+  "username_too_short": "Nombre de usuario demasiado corto",
+  "password_too_short": "Contraseña demasiado corta",
+  "invalid_email_format": "Formato de correo electrónico inválido",
+  "password_must_be_between_6_and_20_characters": "La contraseña debe tener entre 6 y 20 caracteres",
+  "username_already_taken": "Nombre de usuario ya usado",
+  "user_registered": "Usuario registrado con éxito"
 }

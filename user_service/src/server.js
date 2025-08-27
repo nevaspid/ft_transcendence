@@ -385,10 +385,10 @@ fastify.post('/auth/login', async (request, reply) => {
   const { username, password } = request.body;
 
   const user = getUserByUsername(username);
-  if (!user) return reply.code(401).send({ message: 'Invalid credentials' });
+  if (!user) return reply.code(401).send({ message: 'user_not_found' });
 
   const valid = await bcrypt.compare(password, user.password);
-  if (!valid) return reply.code(401).send({ message: 'Invalid credentials' });
+  if (!valid) return reply.code(401).send({ message: 'wrong_password' });
 
   const avatarUrl = user.avatar_url || ''; // 📌 ici on prend avatar_url
 
