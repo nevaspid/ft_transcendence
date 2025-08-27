@@ -84,20 +84,11 @@ async function fetchPlayerMatches(playerId: number): Promise<number[]> {
     throw new TypeError("playerId must be a number over 0");
 
   const res = await fetch(`/blockchain/playerMatches/${playerId}`);
-  console.log("res", res);
+  
   if (!res.ok) 
     throw new Error(`GET /playerMatches/${playerId} -> HTTP ${res.status}`);
 
   const data = await res.json();
-
-  // Vérifie ce qui est reçu
-  console.log("data complet:", data);
-
-  if (Array.isArray(data.matchIds)) {
-    console.log("matchIds récupérés:", data.matchIds);
-  } else {
-    console.warn("⚠️ matchIds n'est pas un tableau", data.matchIds);
-  }
 
   return data.matchIds ?? [];
 }
@@ -552,15 +543,6 @@ export function initProfilPage() {
     console.error(err);
   }
 }
-
-
-
-
-
-
-
-
-
 
     /**
      * Status du client

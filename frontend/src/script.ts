@@ -35,27 +35,6 @@ export const userState = {
 };
 
 // -----------------------------
-// 🌍 Gestion Crawl intro
-// -----------------------------
-
-function showCrawlLang(lang: 'fr' | 'en' | 'es') {
-  const blocks = document.querySelectorAll('.lang-block');
-  blocks.forEach(block => {
-    const el = block as HTMLElement;
-    el.style.display = el.classList.contains(lang) ? 'block' : 'none';
-  });
-}
-
-function restartCrawlAnimation() {
-  const crawl = document.querySelector('.crawl') as HTMLElement;
-  crawl.classList.remove('animate-crawl');
-  // Force reflow
-  void crawl.offsetWidth;
-  crawl.classList.add('animate-crawl');
-}
-
-
-// -----------------------------
 // 🌍 Gestion multilingue
 // -----------------------------
 

@@ -353,10 +353,14 @@ fastify.post('/signup', async (request, reply) => {
     return reply.code(400).send({ message: 'Username too short' });
   if (!password || password.length < 6)
     return reply.code(400).send({ message: 'Password too short' });
-  if (!email || typeof email !== 'string')
-    return reply.code(400).send({ message: 'Email is required' });
-  if (!pseudo || pseudo.length < 3)
-    return reply.code(400).send({ message: 'Pseudo too short' });
+
+  // Vérification email avec regex simple
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!email || !emailRegex.test(email))
+    return reply.code(400).send({ message: 'Invalid email format' });
+
+  if (!password || password.length < 6 || password.length > 20)
+    return reply.code(400).send({ message: 'Password must be between 6 and 20 characters' });
 
   if (getUserByUsername(username))
     return reply.code(400).send({ message: 'Username already taken' });
@@ -365,6 +369,7 @@ fastify.post('/signup', async (request, reply) => {
   createUser(username, hashedPassword, email, pseudo);
   reply.send({ success: true, message: 'User registered' });
 });
+
 
 /* -------------------------------
   ✅ LOGIN 2FA EN 2 ÉTAPES
