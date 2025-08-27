@@ -11,7 +11,7 @@ import { createGameField, loadStarDestroyerBackground, addBackgroundImage } from
 import { createCamera, setupCameraControls } from './render/cam3d';
 import { debugAll } from './render/debug3d';
 import { pseudoUser, userId, avatarplayer } from '../../src/script';
-import { postMatch, getNextMatchId } from './blockchainApi';
+import { postMatch, getNextMatchId, postCreateTournament, getNextTournamentId } from './blockchainApi';
 // CSS is loaded via HTML <link>, no direct import needed
 
 
@@ -127,6 +127,38 @@ function getCurrentTournamentId(): number | null {
   return raw ? parseInt(raw, 10) || null : null;
 }
 
+async function ensureTournamentExistsForPong(): Promise<number> {
+  // If a valid tournament id exists and was marked as created, reuse it
+  const createdFlag = localStorage.getItem('tournament_created');
+  const existingRaw = localStorage.getItem('current_tournament_id');
+  const existing = existingRaw ? parseInt(existingRaw, 10) : NaN;
+  if (createdFlag === '1' && Number.isFinite(existing) && existing > 0) {
+    return existing;
+  }
+  // Avoid concurrent creation
+  const creating = localStorage.getItem('tournament_creating');
+  if (creating === '1' && Number.isFinite(existing) && existing > 0) {
+    return existing;
+  }
+  try { localStorage.setItem('tournament_creating', '1'); } catch {}
+  // Get or allocate an id
+  let tournamentId: number;
+  if (Number.isFinite(existing) && existing > 0) {
+    tournamentId = existing;
+  } else {
+    tournamentId = await getNextTournamentId();
+    localStorage.setItem('current_tournament_id', String(tournamentId));
+  }
+  // Create on chain
+  try {
+    await postCreateTournament({ tournamentName: 'Pong Tournament', tournamentId, nbPlayers: 4 });
+    localStorage.setItem('tournament_created', '1');
+  } finally {
+    try { localStorage.removeItem('tournament_creating'); } catch {}
+  }
+  return tournamentId;
+}
+
 // Met à jour l’affichage HTML pour refléter les bons pseudos
 const p1Element = document.getElementById('p1-name');
 if (p1Element) {
@@ -226,11 +258,12 @@ async function setPhase(newPhase: GamePhase): Promise<void> {
         try { localStorage.setItem('pong_result', JSON.stringify(res)); } catch {}
         // Déclaration du match blockchain en mode tournoi (sans redirection, un seul envoi)
         try {
+            // Ensure tournament exists to avoid contract revert
+            const tournamentId = await ensureTournamentExistsForPong();
             const matchId = await getNextMatchId();
             const p1Id = Number(userId) || 1;
             const p2Id = 2; // ID synthétique local
             const winnerId = (scoreL > scoreR) ? p1Id : p2Id;
-            const tournamentId = getCurrentTournamentId() || 1;
             await postMatch({
               isTournament: tournamentId,
               matchId,
