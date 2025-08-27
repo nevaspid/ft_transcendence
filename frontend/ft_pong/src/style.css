@@ -19,7 +19,7 @@
   /* === MENU === */
   .menu {
     @apply min-h-screen flex items-center justify-center;
-    /* @apply [background:radial-gradient(circle_at_20%_20%,_#1f2335,_#0f111a_60%)]; */
+    @apply [background:radial-gradient(circle_at_20%_20%,_#1f2335,_#0f111a_60%)];
   }
 
   .menu-card {
@@ -69,11 +69,13 @@
   /* === Layout / HUD === */
   #layout         { @apply flex flex-col h-full; }
   .hud            { @apply flex-none px-4 py-2 text-white text-center; }
-  .si-lives       { @apply flex items-center gap-3; }
-  .si-heart-svg   { @apply inline-block w-[26px] h-[26px] text-red-500; }
+  /* Space Invaders: vies (CSS concret, compatible Tailwind design) */
+  .si-lives { display:flex; align-items:center; gap:12px; }
+  .si-heart-svg { display:inline-block; vertical-align:middle; width:26px; height:26px; color:#ef4444; fill:#ef4444; }
   .si-lives-frame {
-    @apply inline-flex items-center gap-3 px-[14px] py-[10px]
-           border-2 border-gray-700 rounded-[10px] bg-gray-900;
+    display:inline-flex; align-items:center; gap:12px;
+    padding:10px 14px; line-height:1; white-space:nowrap;
+    border:2px solid #374151; border-radius:10px; background:#111827;
   }
 
   #game-area { @apply flex-1 flex items-center justify-center; }
@@ -118,6 +120,11 @@
   .victory-overlay {
     @apply absolute inset-0 flex items-center justify-center pointer-events-none opacity-0 invisible transition-[opacity,visibility] duration-200 ease-in-out;
   }
+  /* Assurer l'empilement correct des overlays par-dessus les canvases */
+  .p2-overlay      { @apply z-[20]; }
+  .between-overlay { @apply z-[18]; }
+  .loader-overlay  { @apply z-[15]; }
+  .victory-overlay { @apply z-[12]; }
   .p2-overlay.visible {
     @apply pointer-events-auto opacity-100;
     @apply [visibility:visible];
@@ -218,6 +225,98 @@
   .victory-overlay .slide-in-top   { @apply [animation:slide-in-top_1s_cubic-bezier(0.65,0.05,0.36,1)_both]; }
 }
 
+/* --------- Composants issus de style1.css (inputs 3D) --------- */
+@layer components {
+  .input__container {
+    position: relative;
+    background: #f0f0f0;
+    padding: 20px;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    gap: 15px;
+    border: 4px solid #000;
+    max-width: 350px;
+    transition: all 400ms cubic-bezier(0.23, 1, 0.32, 1);
+    transform-style: preserve-3d;
+    transform: rotateX(10deg) rotateY(-10deg);
+    perspective: 1000px;
+    box-shadow: 10px 10px 0 #000;
+  }
+  .input__container:hover {
+    transform: rotateX(5deg) rotateY(1deg) scale(1.05);
+    box-shadow: 25px 25px 0 -5px #e9b50b, 25px 25px 0 0 #000;
+  }
+  .shadow__input {
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    left: 0;
+    bottom: 0;
+    z-index: -1;
+    transform: translateZ(-50px);
+    background: linear-gradient(45deg, rgba(255, 107, 107, 0.4) 0%, rgba(255, 107, 107, 0.1) 100%);
+    filter: blur(20px);
+  }
+  .input__button__shadow {
+    cursor: pointer;
+    border: 3px solid #000;
+    background: #e9b50b;
+    transition: all 400ms cubic-bezier(0.23, 1, 0.32, 1);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+    transform: translateZ(20px);
+    position: relative;
+    z-index: 3;
+    font-weight: bold;
+    text-transform: uppercase;
+  }
+  .input__button__shadow:hover {
+    background: #e9b50b;
+    transform: translateZ(10px) translateX(-5px) translateY(-5px);
+    box-shadow: 5px 5px 0 0 #000;
+  }
+  .input__button__shadow svg { fill: #000; width: 25px; height: 25px; }
+  .input__search {
+    width: 100%;
+    outline: none;
+    border: 3px solid #000;
+    padding: 15px;
+    font-size: 18px;
+    background: #fff;
+    color: #000;
+    transform: translateZ(10px);
+    transition: all 400ms cubic-bezier(0.23, 1, 0.32, 1);
+    position: relative;
+    z-index: 3;
+    font-family: "Roboto", Arial, sans-serif;
+    letter-spacing: -0.5px;
+  }
+  .input__search::placeholder { color: #666; font-weight: bold; text-transform: uppercase; }
+  .input__search:hover,
+  .input__search:focus {
+    background: #f0f0f0;
+    transform: translateZ(20px) translateX(-5px) translateY(-5px);
+    box-shadow: 5px 5px 0 0 #000;
+  }
+  .input__label {
+    position: absolute;
+    top: -15px;
+    left: 20px;
+    background: #e9b50b;
+    color: #000;
+    font-weight: bold;
+    padding: 5px 10px;
+    font-size: 14px;
+    transform: translateZ(50px);
+    z-index: 4;
+    border: 2px solid #000;
+  }
+}
+
 /* --------- CSS PUR INDISPENSABLE (keyframes, pseudo-éléments complexes, dessins) --------- */
 
 /* Animations génériques loader */
@@ -290,21 +389,30 @@
 .star-position1{ top:30px; left:20px } .star-position2{ top:110px; left:250px } .star-position3{ top:60px; left:570px }
 .star-position4{ top:120px; left:900px } .star-position5{ top:20px; left:1120px } .star-position6{ top:90px; left:1280px } .star-position7{ top:30px; left:1480px }
 .astronaut{ width:250px;height:300px;position:absolute;z-index:11;top:calc(50%_-_150px);left:calc(50%_-_125px);animation:astronaut 3s linear infinite }
-.schoolbag{ width:100px;height:150px;position:absolute;z-index:1;top:calc(50%_-_75px);left:calc(50%_-_50px);background-color:#94b7ca;border-radius:50px_50px_0_0_/30px_30px_0_0 }
-.head{ width:97px;height:80px;position:absolute;z-index:3;top:34px;left:calc(50%_-_47.5px);border-radius:50%;background:linear-gradient(to_right,#e3e8eb_0%,#e3e8eb_50%,#fbfdfa_50%,#fbfdfa_100%) }
-.head:after{ content:""; width:60px;height:50px;position:absolute;top:calc(50%_-_25px);left:calc(50%_-_30px);border-radius:15px;background:linear-gradient(to_bottom,#15aece_0%,#15aece_50%,#0391bf_50%,#0391bf_100%) }
-.head:before{ content:""; width:12px;height:25px;position:absolute;top:calc(50%_-_12.5px);left:-4px;background-color:#618095;border-radius:5px;box-shadow:92px_0_0_#618095 }
-.body{ width:85px;height:100px;position:absolute;z-index:2;top:105px;left:calc(50%_-_41px);border-radius:40px/20px;background:linear-gradient(to_right,#e3e8eb_0%,#e3e8eb_50%,#fbfdfa_50%,#fbfdfa_100%) }
-.panel{ width:60px;height:40px;position:absolute;top:20px;left:calc(50%_-_30px);background-color:#b7cceb }
-.panel:before{ content:""; width:30px;height:5px;position:absolute;top:9px;left:7px;background-color:#fbfdfa;box-shadow:0_9px_0_#fbfdfa,0_18px_0_#fbfdfa }
-.panel:after{ content:""; width:8px;height:8px;position:absolute;top:9px;right:7px;background-color:#fbfdfa;border-radius:50%;box-shadow:0_14px_0_2px_#fbfdfa }
+.schoolbag{ width:100px;height:150px;position:absolute;z-index:1;top:calc(50% - 75px);left:calc(50% - 50px);background-color:#94b7ca;border-radius:50px 50px 0 0 / 30px 30px 0 0 }
+.head{ width:97px;height:80px;position:absolute;z-index:3;top:34px;left:calc(50% - 47.5px);border-radius:50%;background:linear-gradient(to right, #e3e8eb 0%, #e3e8eb 50%, #fbfdfa 50%, #fbfdfa 100%) }
+.head:after{ content:""; width:60px;height:50px;position:absolute;top:calc(50% - 25px);left:calc(50% - 30px);border-radius:15px;background:linear-gradient(to bottom, #15aece 0%, #15aece 50%, #0391bf 50%, #0391bf 100%) }
+.head:before{ content:""; width:12px;height:25px;position:absolute;top:calc(50% - 12.5px);left:-4px;background-color:#618095;border-radius:5px;box-shadow:92px 0 0 #618095 }
+.body{ width:85px;height:100px;position:absolute;z-index:2;top:105px;left:calc(50% - 41px);border-radius:40px / 20px;background:linear-gradient(to right, #e3e8eb 0%, #e3e8eb 50%, #fbfdfa 50%, #fbfdfa 100%) }
+.panel{ width:60px;height:40px;position:absolute;top:20px;left:calc(50% - 30px);background-color:#b7cceb }
+.panel:before{ content:""; width:30px;height:5px;position:absolute;top:9px;left:7px;background-color:#fbfdfa;box-shadow:0 9px 0 #fbfdfa, 0 18px 0 #fbfdfa }
+.panel:after{ content:""; width:8px;height:8px;position:absolute;top:9px;right:7px;background-color:#fbfdfa;border-radius:50%;box-shadow:0 14px 0 2px #fbfdfa }
 .arm{ width:80px;height:30px;position:absolute;top:121px;z-index:2 } .arm-left{ left:30px;background-color:#e3e8eb;border-radius:0_0_0_39px } .arm-right{ right:30px;background-color:#fbfdfa;border-radius:0_0_39px_0 }
 .arm-left:before,.arm-right:before{ content:""; width:30px;height:70px;position:absolute;top:-40px }
-.arm-left:before{ left:0;background-color:#e3e8eb;border-radius:50px_50px_0_120px/50px_50px_0_110px }
-.arm-right:before{ right:0;background-color:#fbfdfa;border-radius:50px_50px_120px_0/50px_50px_110px_0 }
+.arm-left:before{ left:0;background-color:#e3e8eb;border-radius:50px 50px 0 120px / 50px 50px 0 110px }
+.arm-right:before{ right:0;background-color:#fbfdfa;border-radius:50px 50px 120px 0 / 50px 50px 110px 0 }
 .arm-left:after,.arm-right:after{ content:""; width:30px;height:10px;position:absolute;top:-24px }
 .arm-left:after{ left:0;background-color:#6e91a4 } .arm-right:after{ right:0;background-color:#b6d2e0 }
 .leg{ width:30px;height:40px;position:absolute;z-index:2;bottom:70px } .leg-left{ left:76px;background-color:#e3e8eb;transform:rotate(20deg) } .leg-right{ right:73px;background-color:#fbfdfa;transform:rotate(-20deg) }
 .leg-left:before,.leg-right:before{ content:""; width:50px;height:25px;position:absolute;bottom:-26px }
-.leg-left:before{ left:-20px;background-color:#e3e8eb;border-radius:30px_0_0_0;border-bottom:10px_solid_#6d96ac }
-.leg-right:before{ right:-20px;background-color:#fbfdfa;border-radius:0_30px_0_0;border-bottom:10px_solid_#b0cfe4 }
+.leg-left:before{ left:-20px;background-color:#e3e8eb;border-radius:30px 0 0 0;border-bottom:10px solid #6d96ac }
+.leg-right:before{ right:-20px;background-color:#fbfdfa;border-radius:0 30px 0 0;border-bottom:10px solid #b0cfe4 }
+
+/* ===== Space Invaders: vies (fallback hors @layer pour compat directe navigateur) ===== */
+.si-lives { display:flex; align-items:center; gap:12px; }
+.si-heart-svg { display:inline-block; vertical-align:middle; width:26px; height:26px; color:#ef4444; fill:#ef4444; }
+.si-lives-frame {
+  display:inline-flex; align-items:center; gap:12px;
+  padding:10px 14px; line-height:1; white-space:nowrap;
+  border:2px solid #374151; border-radius:10px; background:#111827;
+}
